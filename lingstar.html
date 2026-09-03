@@ -1570,13 +1570,13 @@
                     <div class="chat-section-title">回复速度</div>
                     <div class="chat-slider-row">
                         <div class="slider-label">最短等待</div>
-                        <input type="range" id="chatMinWaitSlider" min="1000" max="60000" step="1000" value="1000">
-                        <span class="slider-value" id="chatMinWaitVal">1s</span>
+                        <input type="range" id="chatMinWaitSlider" min="1000" max="30000" step="1000" value="3000">
+                        <span class="slider-value" id="chatMinWaitVal">3s</span>
                     </div>
                     <div class="chat-slider-row">
                         <div class="slider-label">最长等待</div>
-                        <input type="range" id="chatMaxWaitSlider" min="5000" max="180000" step="1000" value="30000">
-                        <span class="slider-value" id="chatMaxWaitVal">30s</span>
+                        <input type="range" id="chatMaxWaitSlider" min="1000" max="120000" step="1000" value="7000">
+                        <span class="slider-value" id="chatMaxWaitVal">7s</span>
                     </div>
 
                     <div class="chat-section-title">主动发送</div>
@@ -1590,8 +1590,33 @@
                     </div>
                     <div class="chat-slider-row">
                         <div class="slider-label">间隔</div>
-                        <input type="range" id="chatActiveIntervalSlider" min="1" max="30" step="1" value="3">
-                        <span class="slider-value" id="chatActiveIntervalVal">3分钟</span>
+                        <input type="range" id="chatActiveIntervalSlider" min="1" max="120" step="1" value="5">
+                        <span class="slider-value" id="chatActiveIntervalVal">5分钟</span>
+                    </div>
+
+                    <div class="chat-section-title">👋 拍一拍</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">👋</span>
+                        <div class="switch-info">
+                            <div class="switch-label">双击头像拍一拍</div>
+                            <div class="switch-desc">双击梦角头像触发拍一拍，可连续触发</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="patDblClickEnabled" checked><span></span></label>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">我拍间隔</div>
+                        <input type="range" id="patUserIntervalSlider" min="200" max="5000" step="100" value="500">
+                        <span class="slider-value" id="patUserIntervalVal">0.5s</span>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">ta 拍间隔</div>
+                        <input type="range" id="patAngleIntervalSlider" min="1000" max="30000" step="500" value="5000">
+                        <span class="slider-value" id="patAngleIntervalVal">5s</span>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">ta 回拍概率</div>
+                        <input type="range" id="patAngleReplyChanceSlider" min="0" max="100" step="5" value="30">
+                        <span class="slider-value" id="patAngleReplyChanceVal">30%</span>
                     </div>
 
                     <div class="chat-section-title">拼字卡</div>
@@ -2500,6 +2525,17 @@
 
         // 聊天 / 外观 设置
         let chatReplySpeed = 300;
+        let replyDelayMin = 3000;      // 回复最短等待 ms
+        let replyDelayMax = 7000;       // 回复最长等待 ms
+        let autoSendEnabled = true;     // 主动发送开关
+        let autoSendInterval = 5;       // 主动发送间隔（分钟）
+        let patDblClickEnabled = true;  // 双击头像拍一拍开关
+        let patUserInterval = 500;      // 我拍间隔 ms
+        let patAngleInterval = 5000;    // ta拍间隔 ms
+        let patAngleReplyChance = 30;   // ta回拍概率 %
+        let patLastUserTime = 0;        // 上次我拍时间
+        let patLastAngleTime = 0;       // 上次ta拍时间
+        let autoSendTimer = null;       // 主动发送定时器
         let chatPickMode = 'random';
         let chatShowTimestamp = true;
         let chatShowAvatar = true;
@@ -2925,6 +2961,53 @@
         bindSlider('chatMinWaitSlider', 'chatMinWaitVal', v => (v >= 60000 ? (v/60000).toFixed(1)+'分钟' : (v/1000).toFixed(0)+'s'));
         bindSlider('chatMaxWaitSlider', 'chatMaxWaitVal', v => (v >= 60000 ? (v/60000).toFixed(1)+'分钟' : (v/1000).toFixed(0)+'s'));
         bindSlider('chatActiveIntervalSlider', 'chatActiveIntervalVal', v => v + '分钟');
+        bindSlider('patUserIntervalSlider', 'patUserIntervalVal', v => (v/1000).toFixed(1)+'s');
+        bindSlider('patAngleIntervalSlider', 'patAngleIntervalVal', v => (v >= 60000 ? (v/60000).toFixed(1)+'分钟' : (v/1000).toFixed(1)+'s'));
+        bindSlider('patAngleReplyChanceSlider', 'patAngleReplyChanceVal', v => v + '%');
+
+        // 聊天节奏滑块 → 实际逻辑绑定
+        const chatMinWaitSliderEl = document.getElementById('chatMinWaitSlider');
+        if (chatMinWaitSliderEl) chatMinWaitSliderEl.addEventListener('change', () => {
+            replyDelayMin = parseInt(chatMinWaitSliderEl.value);
+            saveAppearance();
+        });
+        const chatMaxWaitSliderEl = document.getElementById('chatMaxWaitSlider');
+        if (chatMaxWaitSliderEl) chatMaxWaitSliderEl.addEventListener('change', () => {
+            replyDelayMax = parseInt(chatMaxWaitSliderEl.value);
+            saveAppearance();
+        });
+        const chatActiveMsgEl = document.getElementById('chatActiveMsg');
+        if (chatActiveMsgEl) chatActiveMsgEl.addEventListener('change', () => {
+            autoSendEnabled = chatActiveMsgEl.checked;
+            restartAutoSendTimer();
+            saveAppearance();
+        });
+        const chatActiveIntervalSliderEl = document.getElementById('chatActiveIntervalSlider');
+        if (chatActiveIntervalSliderEl) chatActiveIntervalSliderEl.addEventListener('change', () => {
+            autoSendInterval = parseInt(chatActiveIntervalSliderEl.value);
+            restartAutoSendTimer();
+            saveAppearance();
+        });
+        const patDblClickEnabledEl = document.getElementById('patDblClickEnabled');
+        if (patDblClickEnabledEl) patDblClickEnabledEl.addEventListener('change', () => {
+            patDblClickEnabled = patDblClickEnabledEl.checked;
+            saveAppearance();
+        });
+        const patUserIntervalSliderEl = document.getElementById('patUserIntervalSlider');
+        if (patUserIntervalSliderEl) patUserIntervalSliderEl.addEventListener('change', () => {
+            patUserInterval = parseInt(patUserIntervalSliderEl.value);
+            saveAppearance();
+        });
+        const patAngleIntervalSliderEl = document.getElementById('patAngleIntervalSlider');
+        if (patAngleIntervalSliderEl) patAngleIntervalSliderEl.addEventListener('change', () => {
+            patAngleInterval = parseInt(patAngleIntervalSliderEl.value);
+            saveAppearance();
+        });
+        const patAngleReplyChanceSliderEl = document.getElementById('patAngleReplyChanceSlider');
+        if (patAngleReplyChanceSliderEl) patAngleReplyChanceSliderEl.addEventListener('change', () => {
+            patAngleReplyChance = parseInt(patAngleReplyChanceSliderEl.value);
+            saveAppearance();
+        });
         bindSlider('chatLetterMinSlider', 'chatLetterMinVal', v => {
             const unit = document.getElementById('chatLetterMinUnit');
             const u = unit ? unit.value : 'hour';
@@ -4086,7 +4169,52 @@
             addChatMessage(text, 'user');
             userInput.value = '';
             userInput.focus();
-            setTimeout(replyWithRandomCard, chatReplySpeed);
+            // 随机延迟区间回复
+            const minD = Math.min(replyDelayMin, replyDelayMax);
+            const maxD = Math.max(replyDelayMin, replyDelayMax);
+            const delay = minD + Math.random() * (maxD - minD);
+            setTimeout(replyWithRandomCard, delay);
+        }
+
+        // ===== 拍一拍触发 =====
+        function triggerPat() {
+            if (!patDblClickEnabled) return;
+            const now = Date.now();
+            // 我拍间隔检查（可连续触发，但受间隔限制）
+            if (now - patLastUserTime < patUserInterval) return;
+            patLastUserTime = now;
+            // 从拍一拍库随机选一条
+            const allPats = Object.values(patGroups).flat();
+            if (!allPats.length) {
+                addChatMessage(`我拍了拍 ${angleName}`, 'user');
+            } else {
+                const pat = allPats[Math.floor(Math.random() * allPats.length)];
+                addChatMessage(`我 ${pat} ${angleName}`, 'user');
+            }
+            // ta 回拍（概率触发 + 间隔限制）
+            if (now - patLastAngleTime >= patAngleInterval && Math.random() * 100 < patAngleReplyChance) {
+                patLastAngleTime = now;
+                setTimeout(() => {
+                    const allPats2 = Object.values(patGroups).flat();
+                    if (!allPats2.length) {
+                        addChatMessage(`${angleName} 拍了拍我`, 'system');
+                    } else {
+                        const pat = allPats2[Math.floor(Math.random() * allPats2.length)];
+                        addChatMessage(`${angleName} ${pat} 我`, 'system');
+                    }
+                }, patUserInterval + Math.random() * 2000);
+            }
+        }
+
+        // ===== 主动发送定时器 =====
+        function restartAutoSendTimer() {
+            if (autoSendTimer) { clearTimeout(autoSendTimer); autoSendTimer = null; }
+            if (!autoSendEnabled || !cardLibrary.length) return;
+            const intervalMs = autoSendInterval * 60 * 1000;
+            autoSendTimer = setTimeout(() => {
+                replyWithRandomCard();
+                restartAutoSendTimer(); // 递归重启
+            }, intervalMs);
         }
 
         // ===== 外观设置：气泡 / 背景&字体 / 主题 应用 =====
@@ -4451,6 +4579,14 @@
                     fontFamily = a.fontFamily || fontFamily;
                     themeAccent = a.themeAccent || themeAccent;
                     chatReplySpeed = a.chatReplySpeed != null ? a.chatReplySpeed : chatReplySpeed;
+                    replyDelayMin = a.replyDelayMin != null ? a.replyDelayMin : replyDelayMin;
+                    replyDelayMax = a.replyDelayMax != null ? a.replyDelayMax : replyDelayMax;
+                    autoSendEnabled = a.autoSendEnabled != null ? a.autoSendEnabled : autoSendEnabled;
+                    autoSendInterval = a.autoSendInterval != null ? a.autoSendInterval : autoSendInterval;
+                    patDblClickEnabled = a.patDblClickEnabled != null ? a.patDblClickEnabled : patDblClickEnabled;
+                    patUserInterval = a.patUserInterval != null ? a.patUserInterval : patUserInterval;
+                    patAngleInterval = a.patAngleInterval != null ? a.patAngleInterval : patAngleInterval;
+                    patAngleReplyChance = a.patAngleReplyChance != null ? a.patAngleReplyChance : patAngleReplyChance;
                     chatPickMode = a.chatPickMode || chatPickMode;
                     chatShowTimestamp = a.chatShowTimestamp != null ? a.chatShowTimestamp : chatShowTimestamp;
                     chatShowAvatar = a.chatShowAvatar != null ? a.chatShowAvatar : chatShowAvatar;
@@ -4503,13 +4639,35 @@
             }
             // 渲染称呼列表
             renderCallLists();
+            // 同步聊天节奏滑块
+            const syncSlider = (id, val, valId, fmt) => {
+                const el = document.getElementById(id);
+                const ve = document.getElementById(valId);
+                if (el) el.value = val;
+                if (ve) ve.textContent = fmt ? fmt(val) : val;
+            };
+            syncSlider('chatMinWaitSlider', replyDelayMin, 'chatMinWaitVal', v => (v >= 60000 ? (v/60000).toFixed(1)+'分钟' : (v/1000).toFixed(0)+'s'));
+            syncSlider('chatMaxWaitSlider', replyDelayMax, 'chatMaxWaitVal', v => (v >= 60000 ? (v/60000).toFixed(1)+'分钟' : (v/1000).toFixed(0)+'s'));
+            syncSlider('chatActiveIntervalSlider', autoSendInterval, 'chatActiveIntervalVal', v => v + '分钟');
+            const asmEl = document.getElementById('chatActiveMsg');
+            if (asmEl) asmEl.checked = autoSendEnabled;
+            const pdeEl = document.getElementById('patDblClickEnabled');
+            if (pdeEl) pdeEl.checked = patDblClickEnabled;
+            syncSlider('patUserIntervalSlider', patUserInterval, 'patUserIntervalVal', v => (v/1000).toFixed(1)+'s');
+            syncSlider('patAngleIntervalSlider', patAngleInterval, 'patAngleIntervalVal', v => (v >= 60000 ? (v/60000).toFixed(1)+'分钟' : (v/1000).toFixed(1)+'s'));
+            syncSlider('patAngleReplyChanceSlider', patAngleReplyChance, 'patAngleReplyChanceVal', v => v + '%');
             applyBubbleStyle();
+            // 重启主动发送定时器
+            restartAutoSendTimer();
         }
         function saveAppearance() {
             const data = {
                 bubbleShape, bubbleUserColor, bubbleAngleColor, bubbleRadius,
                 bgColor, bgImage, fontSize, fontFamily, themeAccent,
-                chatReplySpeed, chatPickMode, chatShowTimestamp, chatShowAvatar,
+                chatReplySpeed, replyDelayMin, replyDelayMax,
+                autoSendEnabled, autoSendInterval,
+                patDblClickEnabled, patUserInterval, patAngleInterval, patAngleReplyChance,
+                chatPickMode, chatShowTimestamp, chatShowAvatar,
                 bubbleCustomCSS, customFontName, customFontFamily,
                 userCallsAngle, angleCallsUser
             };
@@ -4595,6 +4753,10 @@
             avatarShape = 'circle'; userSize = 60; userLeft = 0; userTop = 0;
             angleSize = 60; angleLeft = 0; angleTop = 0;
             chatReplySpeed = 300; chatPickMode = 'random';
+            replyDelayMin = 3000; replyDelayMax = 7000;
+            autoSendEnabled = true; autoSendInterval = 5;
+            patDblClickEnabled = true; patUserInterval = 500;
+            patAngleInterval = 5000; patAngleReplyChance = 30;
             chatShowTimestamp = true; chatShowAvatar = true;
             bubbleShape = 'round'; bubbleUserColor = '#e8ddf2'; bubbleAngleColor = '#f3eef8';
             bubbleRadius = 18; bgColor = '#fcfaff'; bgImage = '';
@@ -5011,6 +5173,15 @@
                 openModal(settingsModal);
             });
             chatBox.addEventListener('click', () => userInput.focus());
+            // 双击梦角头像触发拍一拍
+            chatBox.addEventListener('dblclick', (e) => {
+                const avatar = e.target.closest('.msg-avatar');
+                if (!avatar) return;
+                const msg = avatar.closest('.message');
+                if (msg && msg.classList.contains('system')) {
+                    triggerPat();
+                }
+            });
 
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
