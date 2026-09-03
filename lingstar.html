@@ -427,7 +427,9 @@
         }
         .msg-quote .q-label { font-weight: 600; color: var(--accent-deep); margin-right: 4px; }
         /* 消息meta区独立 */
-        .msg-meta { position: relative; }
+        .msg-meta { position: relative; flex-basis: 100%; width: 100%; margin-top: 2px; }
+        /* 消息body容器（content+quote+meta垂直排列） */
+        .msg-body { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
         /* 收藏星标 */
         .msg-fav-star {
             position: absolute;
@@ -1871,10 +1873,6 @@
         <div class="side-grid-item" id="sideMarkBtn">
             <span class="icon">🏷</span>
             <span class="label">标注</span>
-        </div>
-        <div class="side-grid-item" id="sideSettingsBtn">
-            <span class="icon">⚙</span>
-            <span class="label">设置</span>
         </div>
     </div>
 </div>
@@ -3463,7 +3461,7 @@
             const empty = document.getElementById('themePresetsEmpty');
             if (!savedThemePresets.length) {
                 if (empty) empty.style.display = 'flex';
-                // Keep empty in container
+                if (container) container.innerHTML = '';
                 return;
             }
             if (empty) empty.style.display = 'none';
@@ -3485,10 +3483,11 @@
                 });
                 item.querySelector('.preset-del').addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (!confirm('删除「' + p.name + '」？')) return;
+                    e.preventDefault();
                     savedThemePresets.splice(idx, 1);
                     localStorage.setItem('lingstar_theme_presets', JSON.stringify(savedThemePresets));
                     renderThemePresets();
+                    showToast('已删除「' + p.name + '」');
                 });
                 container.appendChild(item);
             });
@@ -3795,15 +3794,6 @@
             msgDiv.dataset.msgId = mid;
             msgDiv.dataset.sender = type === 'user' ? 'usr' : 'angle';
 
-            // 引用区（引用回复功能）
-            if (opts.quote) {
-                const q = document.createElement('div');
-                q.className = 'msg-quote';
-                const qLabel = opts.quote.sender === 'usr' ? userName : angleName;
-                q.innerHTML = `<span class="q-label">${qLabel}：</span><span class="q-text">${opts.quote.text.replace(/\n/g, ' ').slice(0, 80)}</span>`;
-                msgDiv.appendChild(q);
-            }
-
             if (chatShowAvatar) {
                 const avatarSpan = document.createElement('span');
                 avatarSpan.className = 'msg-avatar';
@@ -3815,6 +3805,10 @@
                 msgDiv.appendChild(avatarSpan);
             }
 
+            // body容器：content → quote → meta 垂直排列
+            const bodyDiv = document.createElement('div');
+            bodyDiv.className = 'msg-body';
+
             const contentDiv = document.createElement('div');
             contentDiv.className = 'msg-content';
             contentDiv.innerHTML = text.replace(/\n/g, '<br>');
@@ -3824,9 +3818,18 @@
                 contentDiv.style.borderRadius = '14px';
                 contentDiv.style.padding = opts.markColor && opts.markColor.includes('rgb') ? '6px 10px' : '6px 10px';
             }
-            msgDiv.appendChild(contentDiv);
+            bodyDiv.appendChild(contentDiv);
 
-            // 时间戳 + 昵称 + 已读回执
+            // 引用区（在消息内容下方）
+            if (opts.quote) {
+                const q = document.createElement('div');
+                q.className = 'msg-quote';
+                const qLabel = opts.quote.sender === 'usr' ? userName : angleName;
+                q.innerHTML = `<span class="q-label">${qLabel}：</span><span class="q-text">${opts.quote.text.replace(/\n/g, ' ').slice(0, 80)}</span>`;
+                bodyDiv.appendChild(q);
+            }
+
+            // 时间戳 + 昵称 + 已读回执（在引用下方）
             const metaDiv = document.createElement('div');
             metaDiv.className = 'msg-meta';
             const now = opts.ts ? new Date(opts.ts) : new Date();
@@ -3839,7 +3842,9 @@
                 else readSpan = ` <span class="msg-read-graphic">✓✓</span>`;
             }
             metaDiv.innerHTML = `<small>${whoSpan}${tsStr}${readSpan}</small>`;
-            msgDiv.appendChild(metaDiv);
+            bodyDiv.appendChild(metaDiv);
+
+            msgDiv.appendChild(bodyDiv);
 
             // 收藏标记
             if (opts.fav) {
@@ -4822,7 +4827,7 @@
         }
 
         // ===== 回应抽取 =====
-        function replyWithRandomCard() {
+        function replyWithRandomCard(isActive) {
             hideTyping();
             if (!cardLibrary.length) {
                 addChatMessage(`${angleName}沉默不语…… 字卡空空如也。`, 'system');
@@ -4842,7 +4847,7 @@
                 const idx = Math.floor(Math.random() * cardLibrary.length);
                 picked = cardLibrary[idx];
             }
-            let msg = `✦ ${picked}`;
+            let msg = isActive ? `✦ ${picked}` : picked;
             // 梦角回复开头混入称呼（按angleCallChance概率，从angleCallsUser选一个）
             if (angleCallsUser && angleCallsUser.length && Math.random() * 100 < angleCallChance) {
                 const call = angleCallsUser[Math.floor(Math.random() * angleCallsUser.length)];
@@ -5096,7 +5101,7 @@
                 // 主动发送前显示正在输入
                 showTyping();
                 const shortDelay = 1500 + Math.random() * 2000;
-                setTimeout(() => { replyWithRandomCard(); }, shortDelay);
+                setTimeout(() => { replyWithRandomCard(true); }, shortDelay);
                 restartAutoSendTimer(); // 递归重启
             }, intervalMs);
         }
@@ -6090,7 +6095,7 @@
             modBatchImportBtn.addEventListener('click', batchImportCards);
             modClearBatchBtn.addEventListener('click', () => { modBatchInput.value = ''; });
             modBatchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); batchImportCards(); }
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); batchImportCards(); }
             });
             modSelectBtn.addEventListener('click', toggleCardSelectMode);
             modDeleteSelectedBtn.addEventListener('click', deleteCardSelected);
@@ -6113,7 +6118,7 @@
             emojiBatchImportBtn.addEventListener('click', batchImportEmojis);
             emojiClearBatchBtn.addEventListener('click', () => { emojiBatchInput.value = ''; });
             emojiBatchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); batchImportEmojis(); }
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); batchImportEmojis(); }
             });
             emojiAddGroupBtn.addEventListener('click', addEmojiGroup);
             emojiGroupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addEmojiGroup(); });
@@ -6133,7 +6138,7 @@
             patBatchImportBtn.addEventListener('click', batchImportPats);
             patClearBatchBtn.addEventListener('click', () => { patBatchInput.value = ''; });
             patBatchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); batchImportPats(); }
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); batchImportPats(); }
             });
             patAddGroupBtn.addEventListener('click', addPatGroup);
             patGroupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addPatGroup(); });
@@ -6226,6 +6231,7 @@
             let curToolbarSender = null;
             let curToolbarDiv = null;
             function openMsgToolbar(div, ev) {
+                closeMarkPickers();
                 const mid = div.dataset.msgId;
                 const sender = div.dataset.sender;
                 curToolbarMsgId = mid; curToolbarSender = sender; curToolbarDiv = div;
@@ -6243,9 +6249,8 @@
                 ev.stopPropagation();
             }
             function closeMsgToolbar() {
-                if (toolbar) toolbar.classList.remove('show');
+                if (toolbar) { toolbar.classList.remove('show'); toolbar.style.display = ''; }
                 curToolbarMsgId = null; curToolbarSender = null; curToolbarDiv = null;
-                closeMarkPickers();
             }
             // 点击消息弹出工具栏（委托）
             chatBox.addEventListener('click', (e) => {
@@ -6262,6 +6267,7 @@
             });
             // 工具栏按钮事件
             if (toolbar) toolbar.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const btn = e.target.closest('button');
                 if (!btn) return;
                 const action = btn.dataset.action;
@@ -6275,8 +6281,8 @@
                 switch (action) {
                     case 'quote': {
                         if (!chatQuoteEnabled) { showToast('引用回复功能未开启'); break; }
-                        quoteMsg = { sender, text };
-                        showQuoteBar(sender, text);
+                        if (quoteMsg) { quoteMsg = null; clearQuoteBar(); }
+                        else { quoteMsg = { sender, text }; showQuoteBar(sender, text); }
                         closeMsgToolbar();
                         break;
                     }
