@@ -4496,30 +4496,53 @@
         const modClearAllBtn = document.getElementById('modClearAllBtn');
         const modResetDefaultBtn = document.getElementById('modResetDefaultBtn');
 
-        // 表情包元素
-        const emojiList = document.getElementById('emojiList');
-        const emojiSearchInput = document.getElementById('emojiSearchInput');
-        const emojiInput = document.getElementById('emojiInput');
-        const emojiGroupSelect = document.getElementById('emojiGroupSelect');
-        const addEmojiBtn = document.getElementById('addEmojiBtn');
-        const clearEmojiBtn = document.getElementById('clearEmojiBtn');
-        const resetEmojiBtn = document.getElementById('resetEmojiBtn');
-        const emojiGroupTabs = document.getElementById('emojiGroupTabs');
-        const emojiSelectBtn = document.getElementById('emojiSelectBtn');
-        const emojiDeleteSelectedBtn = document.getElementById('emojiDeleteSelectedBtn');
-        const emojiSelectInfo = document.getElementById('emojiSelectInfo');
-        const emojiMoveRow = document.getElementById('emojiMoveRow');
-        const emojiMoveGroupSelect = document.getElementById('emojiMoveGroupSelect');
-        const emojiMoveBtn = document.getElementById('emojiMoveBtn');
-        const emojiCount = document.getElementById('emojiCount');
-        const emojiAllCount = document.getElementById('emojiAllCount');
-        const emojiBatchInput = document.getElementById('emojiBatchInput');
-        const emojiBatchGroupSelect = document.getElementById('emojiBatchGroupSelect');
-        const emojiBatchImportBtn = document.getElementById('emojiBatchImportBtn');
-        const emojiClearBatchBtn = document.getElementById('emojiClearBatchBtn');
-        const emojiGroupInput = document.getElementById('emojiGroupInput');
-        const emojiAddGroupBtn = document.getElementById('emojiAddGroupBtn');
-        const emojiDeleteGroupBtn = document.getElementById('emojiDeleteGroupBtn');
+        // 表情包元素（旧表情单页 UI 已被拆分为颜文字+emoji图片，此处兜底防止崩溃）
+        const NULL_DIV = (function() {
+            const d = document.createElement('div');
+            try {
+                // classList 无法 new DOMTokenList()，所以直接用原生真实的 element.classList（但不插入文档）
+                return Object.assign(d, {
+                    addEventListener: (() => {}),
+                    querySelectorAll: () => [],
+                    querySelector: () => null,
+                    getElementsByTagName: () => [],
+                    removeChild: () => {},
+                    appendChild: () => {},
+                    insertBefore: () => {},
+                    dataset: {},
+                    value: '',
+                    checked: false,
+                    innerText: '',
+                    files: null
+                });
+            } catch(e) { return d; }
+        })();
+        function _gE(el) { return el || NULL_DIV; }
+        const emojiList = _gE(document.getElementById('emojiList'));
+        const emojiSearchInput = _gE(document.getElementById('emojiSearchInput'));
+        const emojiInput = _gE(document.getElementById('emojiInput'));
+        const emojiGroupSelect = _gE(document.getElementById('emojiGroupSelect'));
+        const addEmojiBtn = _gE(document.getElementById('addEmojiBtn'));
+        const clearEmojiBtn = _gE(document.getElementById('clearEmojiBtn'));
+        const resetEmojiBtn = _gE(document.getElementById('resetEmojiBtn'));
+        const emojiGroupTabs = _gE(document.getElementById('emojiGroupTabs'));
+        const emojiSelectBtn = _gE(document.getElementById('emojiSelectBtn'));
+        const emojiDeleteSelectedBtn = _gE(document.getElementById('emojiDeleteSelectedBtn'));
+        const emojiSelectInfo = _gE(document.getElementById('emojiSelectInfo'));
+        const emojiMoveRow = _gE(document.getElementById('emojiMoveRow'));
+        const emojiMoveGroupSelect = _gE(document.getElementById('emojiMoveGroupSelect'));
+        const emojiMoveBtn = _gE(document.getElementById('emojiMoveBtn'));
+        const emojiCount = _gE(document.getElementById('emojiCount'));
+        const emojiAllCount = _gE(document.getElementById('emojiAllCount'));
+        const emojiBatchInput = _gE(document.getElementById('emojiBatchInput'));
+        const emojiBatchGroupSelect = _gE(document.getElementById('emojiBatchGroupSelect'));
+        const emojiBatchImportBtn = _gE(document.getElementById('emojiBatchImportBtn'));
+        const emojiClearBatchBtn = _gE(document.getElementById('emojiClearBatchBtn'));
+        const emojiGroupInput = _gE(document.getElementById('emojiGroupInput'));
+        const emojiAddGroupBtn = _gE(document.getElementById('emojiAddGroupBtn'));
+        const emojiDeleteGroupBtn = _gE(document.getElementById('emojiDeleteGroupBtn'));
+        // 是否旧表情单页 UI 实际存在（不存在时 renderEmojis 直接跳过）
+        const legacyEmojiUIExists = !!document.getElementById('emojiGroupTabs');
 
         // 拍一拍元素
         const patList = document.getElementById('patList');
@@ -5070,6 +5093,8 @@
 
         // ===== 表情包渲染（带分组 + 批量导入） =====
         function renderEmojis() {
+            // 旧表情单页 UI 已被新的颜文字+emoji图片 双tab 替代；若不存在则不执行
+            if (!legacyEmojiUIExists) return;
             emojiGroupTabs.innerHTML = '';
             let total = 0;
             for (const g in emojiGroups) total += emojiGroups[g].length;
