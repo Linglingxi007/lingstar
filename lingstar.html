@@ -7,36 +7,49 @@
     <style>
         /* ===== 主题 CSS 变量（默认：梦紫） ===== */
         :root {
+            /* ===== 主题 CSS 变量（默认：梦紫） ===== */
             /* 强调色 */
-            --accent: var(--accent);
-            --accent-2: var(--accent-2);
-            --accent-deep: var(--accent-deep);
-            --accent-soft: var(--accent-soft);
+            --accent: #c6a8de;
+            --accent-2: #dcc3ed;
+            --accent-deep: #9f79c2;
+            --accent-soft: #efe3f7;
             /* 背景 */
-            --bg-page: var(--bg-page);
-            --bg-card: var(--bg-card);
-            --bg-chat: var(--bg-chat);
-            --bg-input: var(--bg-input);
-            --bg-input-focus: var(--bg-input-focus);
+            --bg-page: #e8e0ee;
+            --bg-card: #ffffff;
+            --bg-chat: #fcfaff;
+            --bg-input: #f5f0fa;
+            --bg-input-focus: #ede6f5;
             /* 文字 */
-            --text-primary: var(--text-primary);
-            --text-secondary: var(--text-secondary);
-            --text-muted: var(--text-muted);
-            --text-hint: var(--text-hint);
-            --text-inverse: var(--bg-card);
+            --text-primary: #2d1a39;
+            --text-secondary: #5a3d6b;
+            --text-muted: #7a5b8c;
+            --text-hint: #816b93;
+            --text-inverse: #ffffff;
             /* 气泡 */
-            --bubble-user: var(--bubble-user);
-            --bubble-angle: var(--bubble-angle);
+            --bubble-user: #e8ddf2;
+            --bubble-angle: #f3eef8;
             /* 边框/阴影 */
             --border-subtle: rgba(200, 175, 220, 0.06);
             --border-faint: rgba(200, 175, 220, 0.1);
             --border-hover: rgba(200, 170, 220, 0.2);
             --shadow-card: rgba(80, 50, 110, 0.10);
             /* 功能色 */
-            --success: var(--success);
-            --danger: var(--danger);
-            --warn: var(--warn);
-            --avatar-bg-gradient: linear-gradient(135deg, var(--accent-2), var(--accent));
+            --success: #4caf50;
+            --danger: #d9534f;
+            --warn: #ff9800;
+            /* 头像渐变 */
+            --avatar-bg-gradient: linear-gradient(135deg, #dcc3ed, #c6a8de);
+            /* 弹窗 */
+            --modal-bg: #ffffff;
+            --modal-bg-opacity: 1;
+            --modal-blur: 4px;
+            --modal-overlay: rgba(0, 0, 0, 0.30);
+            /* 各区域透明度 */
+            --opacity-page: 1;
+            --opacity-chat-bg: 1;
+            --opacity-input: 1;
+            --opacity-bubble-user: 1;
+            --opacity-bubble-angle: 1;
         }
 
 
@@ -48,7 +61,7 @@
         }
 
         body {
-            background: var(--bg-page);
+            background: color-mix(in srgb, var(--bg-page) calc(var(--opacity-page) * 100%), transparent);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -158,7 +171,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            background: var(--bg-chat);
+            background: color-mix(in srgb, var(--bg-chat) calc(var(--opacity-chat-bg) * 100%), transparent);
             min-height: 0;
         }
         .chat-box::-webkit-scrollbar { width: 3px; }
@@ -192,14 +205,14 @@
         .message .msg-content { flex: 1; }
         .message.user {
             align-self: flex-end;
-            background: var(--bubble-user);
+            background: color-mix(in srgb, var(--bubble-user) calc(var(--opacity-bubble-user) * 100%), transparent);
             color: var(--text-primary);
             border-bottom-right-radius: 4px;
             flex-direction: row-reverse;
         }
         .message.system {
             align-self: flex-start;
-            background: var(--bubble-angle);
+            background: color-mix(in srgb, var(--bubble-angle) calc(var(--opacity-bubble-angle) * 100%), transparent);
             color: var(--text-primary);
             border-bottom-left-radius: 4px;
             border: 1px solid rgba(220, 200, 240, 0.10);
@@ -228,7 +241,7 @@
             background: var(--bg-card);
         }
         .arrow-up-btn {
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             border: none;
             width: 40px;
             height: 40px;
@@ -256,7 +269,7 @@
             padding: 11px 16px;
             border: none;
             border-radius: 30px;
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             font-size: 0.88rem;
             outline: none;
             transition: 0.2s;
@@ -404,25 +417,13 @@
         .side-grid-item .label { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; font-weight: 400; letter-spacing: 0.3px; }
 
         /* ===== 弹窗 (通用) ===== */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.30);
-            z-index: 2000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
+        
         .modal-overlay.active { display: flex; }
         /* 子板块弹窗层级更高，覆盖在设置弹窗之上 */
         .modal-overlay.sub-modal { z-index: 3000; }
 
         .modal-content {
-            background: var(--bg-card);
+            background: color-mix(in srgb, var(--modal-bg) calc(var(--modal-bg-opacity) * 100%), transparent);
             border-radius: 28px;
             max-width: 480px;
             width: 100%;
@@ -496,7 +497,7 @@
             padding: 5px 14px;
             border-radius: 30px;
             border: 1px solid rgba(200, 170, 220, 0.10);
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             outline: none;
             font-size: 0.75rem;
             color: var(--text-primary);
@@ -546,7 +547,7 @@
             padding: 5px 12px;
             border-radius: 30px;
             border: 1px solid rgba(200, 170, 220, 0.10);
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             outline: none;
             font-size: 0.75rem;
             color: var(--text-primary);
@@ -567,8 +568,8 @@
             white-space: nowrap;
         }
         .mod-row .btn:hover { background: var(--accent-soft); }
-        .mod-row .btn-danger { background: var(--bg-input); color: var(--danger); }
-        .mod-row .btn-danger:hover { background: var(--bg-input); }
+        .mod-row .btn-danger { background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent); color: var(--danger); }
+        .mod-row .btn-danger:hover { background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent); }
         .mod-row .btn-primary-mod { background: var(--accent); color: white; }
         .mod-row .btn-primary-mod:hover { background: var(--accent); }
 
@@ -577,7 +578,7 @@
             padding: 6px 12px;
             border-radius: 14px;
             border: 1px solid rgba(200, 170, 220, 0.10);
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             outline: none;
             font-size: 0.75rem;
             resize: vertical;
@@ -778,7 +779,7 @@
             padding: 5px 12px;
             border-radius: 20px;
             border: 1px solid rgba(200, 170, 220, 0.1);
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             outline: none;
             font-size: 0.75rem;
             color: var(--text-primary);
@@ -795,8 +796,8 @@
             color: var(--text-primary);
         }
         .avatar-upload-row .btn:hover { background: var(--accent-soft); }
-        .avatar-upload-row .btn-danger { background: var(--bg-input); color: var(--danger); }
-        .avatar-upload-row .btn-danger:hover { background: var(--bg-input); }
+        .avatar-upload-row .btn-danger { background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent); color: var(--danger); }
+        .avatar-upload-row .btn-danger:hover { background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent); }
         .avatar-slider-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
         .avatar-slider-row .label { font-size: 0.7rem; color: var(--text-muted); min-width: 36px; }
         .avatar-slider-row input[type="range"] { flex: 1; accent-color: var(--accent); height: 4px; }
@@ -818,7 +819,7 @@
             padding: 5px 12px;
             border-radius: 20px;
             border: 1px solid rgba(200, 170, 220, 0.1);
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             outline: none;
             font-size: 0.75rem;
             color: var(--text-primary);
@@ -861,12 +862,12 @@
         .data-actions .btn-export { background: var(--accent-soft); color: var(--text-primary); }
         .data-actions .btn-export:hover { background: var(--accent-soft); }
         .data-actions .btn-import { background: var(--accent-soft); color: #2d4b35; }
-        .data-actions .btn-import:hover { background: var(--bg-input); }
-        .data-actions .btn-danger { background: var(--bg-input); color: var(--danger); }
-        .data-actions .btn-danger:hover { background: var(--bg-input); }
+        .data-actions .btn-import:hover { background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent); }
+        .data-actions .btn-danger { background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent); color: var(--danger); }
+        .data-actions .btn-danger:hover { background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent); }
         .data-actions textarea {
             width: 100%; min-height: 70px; padding: 8px 12px; border-radius: 14px;
-            border: 1px solid rgba(200, 170, 220, 0.1); background: var(--bg-input); outline: none;
+            border: 1px solid rgba(200, 170, 220, 0.1); background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent); outline: none;
             font-size: 0.7rem; color: var(--text-primary); resize: vertical; font-family: inherit;
         }
 
@@ -904,7 +905,7 @@
             display: flex;
             gap: 2px;
             padding: 4px;
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             border-radius: 30px;
             margin-bottom: 10px;
         }
@@ -944,7 +945,7 @@
             align-items: center;
             gap: 10px;
             padding: 10px 12px;
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             border-radius: 14px;
         }
         .chat-switch-row.inner-row {
@@ -1024,7 +1025,7 @@
             align-items: center;
             gap: 8px;
             padding: 10px 12px;
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             border-radius: 14px;
             cursor: pointer;
             border: 2px solid transparent;
@@ -1072,7 +1073,7 @@
 
         /* ===== 主题外观 ===== */
         .theme-section {
-            background: var(--bg-input);
+            background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent);
             border-radius: 16px;
             padding: 12px;
             margin-bottom: 10px;
@@ -1202,6 +1203,52 @@
             cursor: pointer;
         }
 
+    
+        /* ===== 透明度调节板块 ===== */
+        .theme-opacity-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .theme-opacity-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 8px 12px;
+        }
+        .opacity-label {
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+            min-width: 72px;
+            flex-shrink: 0;
+        }
+        .opacity-slider {
+            flex: 1;
+            accent-color: var(--accent);
+            height: 4px;
+            cursor: pointer;
+        }
+        .opacity-val {
+            font-size: 0.7rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            min-width: 36px;
+            text-align: right;
+        }
+
+    .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--modal-overlay);
+            backdrop-filter: blur(var(--modal-blur));
+            -webkit-backdrop-filter: blur(var(--modal-blur));
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -1919,12 +1966,67 @@
                         <input type="color" id="themeBgPageInput" value="#e8e0ee" class="color-input">
                     </div>
                     <div class="color-edit-row">
+                        <span class="color-label">弹窗背景</span>
+                        <input type="color" id="themeModalBgInput" value="#ffffff" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">遮罩色</span>
+                        <input type="color" id="themeOverlayColorInput" value="#000000" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
                         <span class="color-label">主文字</span>
                         <input type="color" id="themeTextPrimaryInput" value="#2d1a39" class="color-input">
                     </div>
                     <div class="color-edit-row">
                         <span class="color-label">次文字</span>
                         <input type="color" id="themeTextSecondaryInput" value="#5a3d6b" class="color-input">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 透明度调节 -->
+            <div class="theme-section">
+                <div class="theme-section-title">🌫️ 透明度 & 模糊度</div>
+                <div class="theme-opacity-grid">
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">弹窗透明度</span>
+                        <input type="range" id="themeModalOpacitySlider" min="0" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themeModalOpacityVal">100%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">遮罩透明度</span>
+                        <input type="range" id="themeOverlayOpacitySlider" min="0" max="80" value="30" class="opacity-slider">
+                        <span class="opacity-val" id="themeOverlayOpacityVal">30%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">弹窗模糊</span>
+                        <input type="range" id="themeModalBlurSlider" min="0" max="20" step="1" value="4" class="opacity-slider">
+                        <span class="opacity-val" id="themeModalBlurVal">4px</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">页面背景</span>
+                        <input type="range" id="themePageOpacitySlider" min="20" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themePageOpacityVal">100%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">聊天背景</span>
+                        <input type="range" id="themeChatOpacitySlider" min="20" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themeChatOpacityVal">100%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">输入区域</span>
+                        <input type="range" id="themeInputOpacitySlider" min="20" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themeInputOpacityVal">100%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">气泡（我）</span>
+                        <input type="range" id="themeBubbleUserOpacitySlider" min="20" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themeBubbleUserOpacityVal">100%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">气泡（ta）</span>
+                        <input type="range" id="themeBubbleAngleOpacitySlider" min="20" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themeBubbleAngleOpacityVal">100%</span>
                     </div>
                 </div>
             </div>
@@ -2364,34 +2466,54 @@
         const THEME_PRESETS = {
             lavender: { accent:'#c6a8de', accent2:'#dcc3ed', accent_deep:'#9f79c2', accent_soft:'#efe3f7',
                 bg_page:'#e8e0ee', bubble_user:'#e8ddf2', bubble_angle:'#f3eef8',
-                bg_chat:'#fcfaff', bg_input:'#f5f0fa', text_primary:'#2d1a39', text_secondary:'#5a3d6b' },
+                bg_chat:'#fcfaff', bg_input:'#f5f0fa', text_primary:'#2d1a39', text_secondary:'#5a3d6b',
+                modal_bg:'#ffffff', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
             brown: { accent:'#c9a77c', accent2:'#d9bb94', accent_deep:'#a08060', accent_soft:'#efe6da',
                 bg_page:'#ede4d8', bubble_user:'#f0e5d5', bubble_angle:'#f5efe6',
-                bg_chat:'#fbf8f2', bg_input:'#f2ebdf', text_primary:'#3d3020', text_secondary:'#6b5a42' },
+                bg_chat:'#fbf8f2', bg_input:'#f2ebdf', text_primary:'#3d3020', text_secondary:'#6b5a42',
+                modal_bg:'#fdf8f0', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
             blue: { accent:'#9bbfe0', accent2:'#b5d1eb', accent_deep:'#7aa2c9', accent_soft:'#e3eef7',
                 bg_page:'#dde8f0', bubble_user:'#d9e6f2', bubble_angle:'#eaf2f8',
-                bg_chat:'#f2f7fb', bg_input:'#e8eff5', text_primary:'#1f2d3d', text_secondary:'#4a5f73' },
+                bg_chat:'#f2f7fb', bg_input:'#e8eff5', text_primary:'#1f2d3d', text_secondary:'#4a5f73',
+                modal_bg:'#ffffff', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
             purple: { accent:'#c2a8e0', accent2:'#d4bce9', accent_deep:'#a489c8', accent_soft:'#f0e8f7',
                 bg_page:'#e6ddf0', bubble_user:'#e3d6ee', bubble_angle:'#f2ebf8',
-                bg_chat:'#faf6fd', bg_input:'#efe6f7', text_primary:'#2a1f3d', text_secondary:'#574273' },
+                bg_chat:'#faf6fd', bg_input:'#efe6f7', text_primary:'#2a1f3d', text_secondary:'#574273',
+                modal_bg:'#fdfaff', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
             green: { accent:'#9bc7ad', accent2:'#b8d8c6', accent_deep:'#7aa88e', accent_soft:'#e4f0e8',
                 bg_page:'#dde8e0', bubble_user:'#d3e2d7', bubble_angle:'#eaf2ec',
-                bg_chat:'#f2f7f4', bg_input:'#e6eeea', text_primary:'#1f3027', text_secondary:'#485f4f' },
+                bg_chat:'#f2f7f4', bg_input:'#e6eeea', text_primary:'#1f3027', text_secondary:'#485f4f',
+                modal_bg:'#f8fbf8', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
             pink: { accent:'#e89bb5', accent2:'#f0b6c8', accent_deep:'#cc7a98', accent_soft:'#fbe6ee',
                 bg_page:'#f0e2e8', bubble_user:'#eed0dd', bubble_angle:'#f8eaf0',
-                bg_chat:'#fdf5f8', bg_input:'#f5eaf0', text_primary:'#3d1f2c', text_secondary:'#6b4254' },
+                bg_chat:'#fdf5f8', bg_input:'#f5eaf0', text_primary:'#3d1f2c', text_secondary:'#6b4254',
+                modal_bg:'#fff5f8', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
             gradient: { accent:'#c6a8de', accent2:'#9bbfe0', accent_deep:'#a489c8', accent_soft:'#efe3f7',
                 bg_page:'#e8e0ee', bubble_user:'#e0e8f0', bubble_angle:'#f0e8f7',
-                bg_chat:'#faf6fd', bg_input:'#f0ebf7', text_primary:'#2d1a39', text_secondary:'#5a3d6b' },
+                bg_chat:'#faf6fd', bg_input:'#f0ebf7', text_primary:'#2d1a39', text_secondary:'#5a3d6b',
+                modal_bg:'#ffffff', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
             coral: { accent:'#e89b8d', accent2:'#f0b0a4', accent_deep:'#cc796b', accent_soft:'#fbe8e3',
                 bg_page:'#f0e2dc', bubble_user:'#e8d0c7', bubble_angle:'#f8ece6',
-                bg_chat:'#fdf5f2', bg_input:'#f5e8e3', text_primary:'#3d2520', text_secondary:'#6b453e' },
+                bg_chat:'#fdf5f2', bg_input:'#f5e8e3', text_primary:'#3d2520', text_secondary:'#6b453e',
+                modal_bg:'#fff7f4', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
             forest: { accent:'#6d8a6d', accent2:'#88a588', accent_deep:'#526d52', accent_soft:'#dde5dd',
                 bg_page:'#d5dcd5', bubble_user:'#c8d2c8', bubble_angle:'#e4ebe4',
-                bg_chat:'#f0f3f0', bg_input:'#dde4dd', text_primary:'#1f2a1f', text_secondary:'#445844' },
+                bg_chat:'#f0f3f0', bg_input:'#dde4dd', text_primary:'#1f2a1f', text_secondary:'#445844',
+                modal_bg:'#f4f7f4', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.40)', overlay_color:'#000000', overlay_opacity:0.40,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
             royal: { accent:'#8b9bc0', accent2:'#a4b1cf', accent_deep:'#6e7fa5', accent_soft:'#e3e7f0',
                 bg_page:'#dfe3ec', bubble_user:'#d8dee8', bubble_angle:'#eaeef5',
-                bg_chat:'#f3f5fa', bg_input:'#e7eaf2', text_primary:'#242b3d', text_secondary:'#4b5570' },
+                bg_chat:'#f3f5fa', bg_input:'#e7eaf2', text_primary:'#242b3d', text_secondary:'#4b5570',
+                modal_bg:'#f5f7fc', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
         };
 
         let currentTheme = 'lavender';
@@ -2399,6 +2521,7 @@
 
         function applyThemeVariables(vars) {
             const root = document.documentElement;
+            // 基础颜色
             if (vars.accent) root.style.setProperty('--accent', vars.accent);
             if (vars.accent2) root.style.setProperty('--accent-2', vars.accent2);
             if (vars.accent_deep) root.style.setProperty('--accent-deep', vars.accent_deep);
@@ -2410,24 +2533,54 @@
             if (vars.bg_input) root.style.setProperty('--bg-input', vars.bg_input);
             if (vars.text_primary) root.style.setProperty('--text-primary', vars.text_primary);
             if (vars.text_secondary) root.style.setProperty('--text-secondary', vars.text_secondary);
+            // 弹窗
+            if (vars.modal_bg) root.style.setProperty('--modal-bg', vars.modal_bg);
+            if (vars.modal_opacity !== undefined) root.style.setProperty('--modal-bg-opacity', vars.modal_opacity);
+            if (vars.modal_blur !== undefined) root.style.setProperty('--modal-blur', vars.modal_blur + 'px');
+            // 遮罩 - 从 color + opacity 合成
+            if (vars.overlay_color !== undefined && vars.overlay_opacity !== undefined) {
+                const oc = vars.overlay_color || '#000000';
+                const op = vars.overlay_opacity !== undefined ? vars.overlay_opacity : 0.30;
+                root.style.setProperty('--modal-overlay', hexToRgba(oc, op));
+            }
+            // 各区域透明度
+            if (vars.opacity_page !== undefined) root.style.setProperty('--opacity-page', vars.opacity_page);
+            if (vars.opacity_chat !== undefined) root.style.setProperty('--opacity-chat-bg', vars.opacity_chat);
+            if (vars.opacity_input !== undefined) root.style.setProperty('--opacity-input', vars.opacity_input);
+            if (vars.opacity_bubble_user !== undefined) root.style.setProperty('--opacity-bubble-user', vars.opacity_bubble_user);
+            if (vars.opacity_bubble_angle !== undefined) root.style.setProperty('--opacity-bubble-angle', vars.opacity_bubble_angle);
             // 更新动态头像渐变
             if (vars.accent && vars.accent2) {
                 root.style.setProperty('--avatar-bg-gradient', 'linear-gradient(135deg, ' + vars.accent2 + ', ' + vars.accent + ')');
-                // 更新顶栏头像
                 const av = document.getElementById('angleAvatarDisplay');
-                if (av && !isImageUrl(angleAvatar)) {
-                    av.style.background = 'var(--avatar-bg-gradient)';
-                }
+                if (av && !isImageUrl(angleAvatar)) av.style.background = 'var(--avatar-bg-gradient)';
             }
             // 同步到颜色输入
-            if (vars.accent && document.getElementById('themeAccentInput')) document.getElementById('themeAccentInput').value = vars.accent;
-            if (vars.accent2 && document.getElementById('themeAccent2Input')) document.getElementById('themeAccent2Input').value = vars.accent2;
-            if (vars.bubble_user && document.getElementById('themeBubbleUserInput')) document.getElementById('themeBubbleUserInput').value = vars.bubble_user;
-            if (vars.bubble_angle && document.getElementById('themeBubbleAngleInput')) document.getElementById('themeBubbleAngleInput').value = vars.bubble_angle;
-            if (vars.bg_chat && document.getElementById('themeBgChatInput')) document.getElementById('themeBgChatInput').value = vars.bg_chat;
-            if (vars.bg_page && document.getElementById('themeBgPageInput')) document.getElementById('themeBgPageInput').value = vars.bg_page;
-            if (vars.text_primary && document.getElementById('themeTextPrimaryInput')) document.getElementById('themeTextPrimaryInput').value = vars.text_primary;
-            if (vars.text_secondary && document.getElementById('themeTextSecondaryInput')) document.getElementById('themeTextSecondaryInput').value = vars.text_secondary;
+            const syncInput = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+            syncInput('themeAccentInput', vars.accent);
+            syncInput('themeAccent2Input', vars.accent2);
+            syncInput('themeBubbleUserInput', vars.bubble_user);
+            syncInput('themeBubbleAngleInput', vars.bubble_angle);
+            syncInput('themeBgChatInput', vars.bg_chat);
+            syncInput('themeBgPageInput', vars.bg_page);
+            syncInput('themeTextPrimaryInput', vars.text_primary);
+            syncInput('themeTextSecondaryInput', vars.text_secondary);
+            syncInput('themeModalBgInput', vars.modal_bg);
+            syncInput('themeOverlayColorInput', vars.overlay_color);
+            // 同步到透明度滑块
+            const syncSlider = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) { el.value = Math.round(val * 100); } };
+            syncSlider('themeModalOpacitySlider', vars.modal_opacity);
+            syncSlider('themeOverlayOpacitySlider', vars.overlay_opacity);
+            // blur 特殊处理
+            const blurEl = document.getElementById('themeModalBlurSlider');
+            if (blurEl && vars.modal_blur !== undefined) blurEl.value = vars.modal_blur;
+            syncSlider('themePageOpacitySlider', vars.opacity_page);
+            syncSlider('themeChatOpacitySlider', vars.opacity_chat);
+            syncSlider('themeInputOpacitySlider', vars.opacity_input);
+            syncSlider('themeBubbleUserOpacitySlider', vars.opacity_bubble_user);
+            syncSlider('themeBubbleAngleOpacitySlider', vars.opacity_bubble_angle);
+            // 更新滑块显示值
+            updateAllOpacityDisplays();
         }
 
         function applyQuickTheme(name) {
@@ -2446,6 +2599,16 @@
 
         function getCurrentThemeVars() {
             const root = getComputedStyle(document.documentElement);
+            const modalBgOpacity = parseFloat(root.getPropertyValue('--modal-bg-opacity').trim()) || 1;
+            const modalBlur = parseFloat(root.getPropertyValue('--modal-blur').trim()) || 4;
+            // Parse overlay rgba back to color + opacity
+            const overlayStr = root.getPropertyValue('--modal-overlay').trim();
+            let overlayColor = '#000000', overlayOpacity = 0.30;
+            const rgbaMatch = overlayStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([\d.]+)?\)/);
+            if (rgbaMatch) {
+                overlayColor = '#' + [rgbaMatch[1], rgbaMatch[2], rgbaMatch[3]].map(n => parseInt(n).toString(16).padStart(2,'0')).join('');
+                overlayOpacity = rgbaMatch[4] !== undefined ? parseFloat(rgbaMatch[4]) : 1;
+            }
             return {
                 accent: root.getPropertyValue('--accent').trim() || '#c6a8de',
                 accent2: root.getPropertyValue('--accent-2').trim() || '#dcc3ed',
@@ -2458,6 +2621,16 @@
                 bg_input: root.getPropertyValue('--bg-input').trim() || '#f5f0fa',
                 text_primary: root.getPropertyValue('--text-primary').trim() || '#2d1a39',
                 text_secondary: root.getPropertyValue('--text-secondary').trim() || '#5a3d6b',
+                modal_bg: root.getPropertyValue('--modal-bg').trim() || '#ffffff',
+                modal_opacity: modalBgOpacity,
+                modal_blur: modalBlur,
+                overlay_color: overlayColor,
+                overlay_opacity: overlayOpacity,
+                opacity_page: parseFloat(root.getPropertyValue('--opacity-page').trim()) || 1,
+                opacity_chat: parseFloat(root.getPropertyValue('--opacity-chat-bg').trim()) || 1,
+                opacity_input: parseFloat(root.getPropertyValue('--opacity-input').trim()) || 1,
+                opacity_bubble_user: parseFloat(root.getPropertyValue('--opacity-bubble-user').trim()) || 1,
+                opacity_bubble_angle: parseFloat(root.getPropertyValue('--opacity-bubble-angle').trim()) || 1,
             };
         }
 
@@ -3971,41 +4144,66 @@
                 'themeAccentInput':'--accent','themeAccent2Input':'--accent-2','themeBubbleUserInput':'--bubble-user',
                 'themeBubbleAngleInput':'--bubble-angle','themeBgChatInput':'--bg-chat','themeBgPageInput':'--bg-page',
                 'themeTextPrimaryInput':'--text-primary','themeTextSecondaryInput':'--text-secondary',
+                'themeModalBgInput':'--modal-bg',
             };
             Object.keys(propMap).forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 el.addEventListener('input', () => {
                     document.documentElement.style.setProperty(propMap[id], el.value);
-                    // accent 联动：accent-deep 自动加深
                     if (id === 'themeAccentInput') {
                         document.documentElement.style.setProperty('--accent-deep', shade(el.value, -15));
-                        // 更新顶栏头像渐变
                         const a2 = document.getElementById('themeAccent2Input');
                         const grad = a2 ? 'linear-gradient(135deg, ' + a2.value + ', ' + el.value + ')' : 'linear-gradient(135deg, #dcc3ed, ' + el.value + ')';
                         document.documentElement.style.setProperty('--avatar-bg-gradient', grad);
                         const av = document.getElementById('angleAvatarDisplay');
                         if (av && !isImageUrl(angleAvatar)) av.style.background = grad;
                     }
-                    // 清除/更新快捷换肤选中态
-                    let matched = false;
-                    const curAccent = document.getElementById('themeAccentInput')?.value || '';
-                    const curAccent2 = document.getElementById('themeAccent2Input')?.value || '';
-                    for (const tn in THEME_PRESETS) {
-                        if (THEME_PRESETS[tn].accent === curAccent && THEME_PRESETS[tn].accent2 === curAccent2) {
-                            document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(x => x.classList.remove('active'));
-                            const sw = document.querySelector(`#themeQuickSwatches .quick-swatch[data-quick="${tn}"]`);
-                            if (sw) sw.classList.add('active');
-                            matched = true; currentTheme = tn; break;
-                        }
-                    }
-                    if (!matched) {
-                        document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(x => x.classList.remove('active'));
-                        document.querySelector('#themeQuickSwatches .quick-swatch[data-quick="custom"]')?.classList.add('active');
-                        currentTheme = 'custom';
-                    }
                     saveCurrentThemeToStorage();
                 });
+            });
+
+            // 遮罩颜色 + 透明度 合成
+            const applyOverlay = () => {
+                const colorEl = document.getElementById('themeOverlayColorInput');
+                const opacityEl = document.getElementById('themeOverlayOpacitySlider');
+                if (!colorEl) return;
+                const color = colorEl.value || '#000000';
+                const opacity = opacityEl ? (parseInt(opacityEl.value) / 100) : 0.30;
+                document.documentElement.style.setProperty('--modal-overlay', hexToRgba(color, opacity));
+                saveCurrentThemeToStorage();
+            };
+            const overlayColorEl = document.getElementById('themeOverlayColorInput');
+            if (overlayColorEl) overlayColorEl.addEventListener('input', applyOverlay);
+
+            // 透明度滑块
+            const opacityHandlers = [
+                // modal 相关
+                ['themeModalOpacitySlider', v => { document.documentElement.style.setProperty('--modal-bg-opacity', v/100); }],
+                ['themeOverlayOpacitySlider', applyOverlay],
+                ['themeModalBlurSlider', v => { document.documentElement.style.setProperty('--modal-blur', v + 'px'); }],
+                // 各区域
+                ['themePageOpacitySlider', v => { document.documentElement.style.setProperty('--opacity-page', v/100); }],
+                ['themeChatOpacitySlider', v => { document.documentElement.style.setProperty('--opacity-chat-bg', v/100); }],
+                ['themeInputOpacitySlider', v => { document.documentElement.style.setProperty('--opacity-input', v/100); }],
+                ['themeBubbleUserOpacitySlider', v => { document.documentElement.style.setProperty('--opacity-bubble-user', v/100); }],
+                ['themeBubbleAngleOpacitySlider', v => { document.documentElement.style.setProperty('--opacity-bubble-angle', v/100); }],
+            ];
+            opacityHandlers.forEach(([id, fn]) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const vid = id.replace('Slider', 'Val');
+                const vEl = document.getElementById(vid);
+                const update = () => {
+                    fn(parseInt(el.value));
+                    if (vEl) {
+                        if (id === 'themeModalBlurSlider') vEl.textContent = el.value + 'px';
+                        else vEl.textContent = el.value + '%';
+                    }
+                    saveCurrentThemeToStorage();
+                };
+                el.addEventListener('input', update);
+                el.addEventListener('change', update);
             });
 
             // 保存主题方案
@@ -4280,6 +4478,28 @@
             g = Math.max(0, Math.min(255, g));
             b = Math.max(0, Math.min(255, b));
             return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6,'0');
+        }
+        function hexToRgba(hex, alpha) {
+            const h = hex.replace('#','');
+            const num = parseInt(h.length === 3 ? h.split('').map(c=>c+c).join('') : h, 16);
+            const r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
+            return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+        }
+        function updateAllOpacityDisplays() {
+            const pairs = [
+                ['themeModalOpacitySlider', 'themeModalOpacityVal', v => v + '%'],
+                ['themeOverlayOpacitySlider', 'themeOverlayOpacityVal', v => v + '%'],
+                ['themeModalBlurSlider', 'themeModalBlurVal', v => v + 'px'],
+                ['themePageOpacitySlider', 'themePageOpacityVal', v => v + '%'],
+                ['themeChatOpacitySlider', 'themeChatOpacityVal', v => v + '%'],
+                ['themeInputOpacitySlider', 'themeInputOpacityVal', v => v + '%'],
+                ['themeBubbleUserOpacitySlider', 'themeBubbleUserOpacityVal', v => v + '%'],
+                ['themeBubbleAngleOpacitySlider', 'themeBubbleAngleOpacityVal', v => v + '%'],
+            ];
+            pairs.forEach(([sid, vid, fmt]) => {
+                const s = document.getElementById(sid), v = document.getElementById(vid);
+                if (s && v) v.textContent = fmt(s.value);
+            });
         }
 
         init();
