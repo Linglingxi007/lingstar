@@ -4452,22 +4452,35 @@
         // ===== 拍一拍触发 =====
         // 格式化拍一拍文案：将"靠了靠肩膀"拆分为"靠了靠"+"肩膀"，显示为"小鱼 靠了靠 我的肩膀"
         function formatPatText(pat, sender, receiver) {
-            const idx = pat.lastIndexOf('了');
-            if (idx < 0) return `${sender} ${pat} ${receiver}`;
-            const afterLe = pat[idx + 1];
-            const beforeLe = pat[idx - 1];
+            // 预处理：去掉开头的主语代词（我/你/ta/他/她），避免和 sender 前缀重复
+            let cleaned = pat.trim();
+            cleaned = cleaned.replace(/^(我|你|您|ta|他|她|TA|它|对方|他的|她的)\s*/, '');
+            const idx = cleaned.lastIndexOf('了');
+            if (idx < 0) return `${sender} ${cleaned} ${receiver}`;
+            const beforeLe = idx > 0 ? cleaned[idx - 1] : '';
+            const afterLe = idx + 1 < cleaned.length ? cleaned[idx + 1] : '';
             let verbEnd;
-            if (beforeLe === afterLe) {
+            if (beforeLe && beforeLe === afterLe) {
                 // A了A 模式（如 拍了拍肩膀 → 拍了拍 + 肩膀）
                 verbEnd = idx + 2;
             } else {
                 // AA了 模式（如 牵起了手 → 牵起了 + 手）
                 verbEnd = idx + 1;
             }
-            const verb = pat.substring(0, verbEnd);
-            const body = pat.substring(verbEnd);
-            if (body) return `${sender} ${verb} ${receiver}的${body}`;
-            return `${sender} ${pat} ${receiver}`;
+            let verb = cleaned.substring(0, verbEnd);
+            let body = cleaned.substring(verbEnd).trim();
+            // 去掉 body 中的所属格前缀（他的/她的/ta的/我的/你的）
+            body = body.replace(/^(他|她|ta|TA|我|你|您)的/, '');
+            if (!body) {
+                // 无身体部位：X 轻轻抱了抱 Y
+                return `${sender} ${verb} ${receiver}`;
+            }
+            // body 是纯代词（他/她/我/ta/你）：忽略代词，直接拼接 receiver
+            if (/^(他|她|ta|TA|我|你|您|对方)$/.test(body)) {
+                return `${sender} ${verb} ${receiver}`;
+            }
+            // 正常有身体部位：X 亲了亲 Y的脸
+            return `${sender} ${verb} ${receiver}的${body}`;
         }
         // 添加拍一拍居中通知
         function addPatNotice(text) {
