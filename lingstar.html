@@ -218,6 +218,180 @@
             border-bottom-left-radius: 4px;
             border: 1px solid rgba(220, 200, 240, 0.10);
         }
+        /* 拍一拍通知（居中文字，无气泡） */
+        .message.pat-notice {
+            align-self: center;
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+            color: var(--text-muted, #999);
+            font-size: 0.72rem;
+            padding: 3px 14px;
+            text-align: center;
+            max-width: 90%;
+            opacity: 0.7;
+        }
+        .message.pat-notice .msg-avatar { display: none; }
+        .message.pat-notice small { display: none; }
+
+        /* ===== 正在输入指示器 ===== */
+        .typing-indicator {
+            position: absolute;
+            bottom: 56px;
+            left: 16px;
+            z-index: 10;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: color-mix(in srgb, var(--bubble-angle) calc(var(--opacity-bubble-angle) * 100%), transparent);
+            border: 1px solid rgba(220, 200, 240, 0.15);
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            font-size: 0.72rem;
+            color: var(--text-muted, #999);
+            animation: typingFadeIn 0.2s ease;
+        }
+        .typing-indicator.show { display: flex; }
+        .typing-indicator .typing-dots {
+            display: inline-flex;
+            gap: 3px;
+        }
+        .typing-indicator .typing-dots span {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--text-muted, #aaa);
+            animation: typingBounce 1.2s infinite ease-in-out;
+        }
+        .typing-indicator .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+        .typing-indicator .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+        @keyframes typingFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== 拍一拍快捷面板 ===== */
+        .pat-quick-panel {
+            position: absolute;
+            bottom: 56px;
+            left: 8px;
+            right: 8px;
+            z-index: 12;
+            max-height: 0;
+            overflow: hidden;
+            background: rgba(255, 252, 255, 0.98);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -6px 24px rgba(80, 50, 110, 0.08);
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0 14px;
+            border-top: 1px solid rgba(220, 200, 240, 0.1);
+        }
+        .pat-quick-panel.open {
+            max-height: 320px;
+            padding: 14px 14px 16px 14px;
+        }
+        .pat-quick-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        .pat-quick-close {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+        .pat-quick-close:hover { background: rgba(200, 170, 220, 0.1); }
+        .pat-quick-input-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .pat-quick-input-row input {
+            flex: 1;
+            padding: 7px 14px;
+            border-radius: 18px;
+            border: 1px solid rgba(200, 170, 220, 0.2);
+            font-size: 0.8rem;
+            outline: none;
+            background: var(--bg-input);
+        }
+        .pat-quick-input-row input:focus { border-color: var(--accent); }
+        .pat-quick-input-row .btn { padding: 7px 14px; font-size: 0.75rem; }
+        .pat-quick-save-check {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        .pat-quick-save-check input { width: 14px; height: 14px; accent-color: var(--accent); }
+        .pat-quick-section-title {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+            margin-bottom: 6px;
+        }
+        .pat-quick-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-height: 110px;
+            overflow-y: auto;
+            margin-bottom: 8px;
+        }
+        .pat-quick-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--accent-soft);
+            color: var(--text-primary);
+            border-radius: 14px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid transparent;
+        }
+        .pat-quick-chip:hover { border-color: var(--accent); }
+        .pat-quick-chip:active { transform: scale(0.95); }
+        .pat-quick-chip .del {
+            color: var(--danger, #e74c3c);
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 2px;
+            font-size: 0.8rem;
+        }
+        .pat-quick-empty {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+        .pat-quick-manage-btn {
+            width: 100%;
+            padding: 7px;
+            font-size: 0.72rem;
+            background: rgba(245, 240, 250, 0.3);
+            border: 1px solid rgba(220, 200, 240, 0.1);
+            border-radius: 12px;
+            color: var(--text-secondary);
+        }
         .message small {
             display: block;
             font-size: 0.5rem;
@@ -1357,6 +1531,32 @@
                 <small>ta会从字卡中抽取回应</small>
             </div>
         </div>
+    </div>
+
+    <!-- 正在输入指示器 -->
+    <div class="typing-indicator" id="typingIndicator">
+        <span class="typing-dots"><span></span><span></span><span></span></span>
+        <span id="typingText">ta 正在输入…</span>
+    </div>
+
+    <!-- 拍一拍快捷面板 -->
+    <div class="pat-quick-panel" id="patQuickPanel">
+        <div class="pat-quick-header">
+            <span>👋 快速拍一拍</span>
+            <button class="pat-quick-close" id="closePatQuickPanel">✕</button>
+        </div>
+        <div class="pat-quick-input-row">
+            <input type="text" id="quickPatInput" placeholder="输入拍一拍内容（如：拍了拍肩膀）" autocomplete="off">
+            <button class="btn btn-primary-mod" id="sendQuickPatBtn">发送</button>
+        </div>
+        <label class="pat-quick-save-check">
+            <input type="checkbox" id="saveQuickPatCheck"> 保存到快捷回复
+        </label>
+        <div class="pat-quick-section-title">快捷回复（点击直接发送）</div>
+        <div class="pat-quick-chips" id="quickPatChips">
+            <span class="pat-quick-empty">暂无快捷回复</span>
+        </div>
+        <button class="btn pat-quick-manage-btn" id="manageAllPatsBtn">📋 管理全部拍一拍</button>
     </div>
 
     <!-- ===== 底部输入区 ===== -->
@@ -2513,6 +2713,7 @@
         let patSearch = '';
         let patSelectMode = false;
         let patSelected = new Set();
+        let quickPats = []; // 梦女自设拍一拍快捷回复
 
         // ===== 昵称/头像 =====
         let userName = '我';
@@ -2536,6 +2737,8 @@
         let patLastUserTime = 0;        // 上次我拍时间
         let patLastAngleTime = 0;       // 上次ta拍时间
         let autoSendTimer = null;       // 主动发送定时器
+        let chatTypingEnabled = true;   // 正在输入指示器开关
+        let typingTimer = null;         // 正在输入计时器
         let chatPickMode = 'random';
         let chatShowTimestamp = true;
         let chatShowAvatar = true;
@@ -3007,6 +3210,57 @@
         if (patAngleReplyChanceSliderEl) patAngleReplyChanceSliderEl.addEventListener('change', () => {
             patAngleReplyChance = parseInt(patAngleReplyChanceSliderEl.value);
             saveAppearance();
+        });
+        // 正在输入开关
+        const chatTypingEnabledEl = document.getElementById('chatTypingEnabled');
+        if (chatTypingEnabledEl) chatTypingEnabledEl.addEventListener('change', () => {
+            chatTypingEnabled = chatTypingEnabledEl.checked;
+            if (!chatTypingEnabled) hideTyping();
+            saveAppearance();
+        });
+
+        // 拍一拍快捷面板事件
+        const closePatQuickPanelBtn = document.getElementById('closePatQuickPanel');
+        if (closePatQuickPanelBtn) closePatQuickPanelBtn.addEventListener('click', closePatQuickPanel);
+        const manageAllPatsBtn = document.getElementById('manageAllPatsBtn');
+        if (manageAllPatsBtn) manageAllPatsBtn.addEventListener('click', () => {
+            closePatQuickPanel();
+            openModal(patModal);
+        });
+        const quickPatInputEl = document.getElementById('quickPatInput');
+        const sendQuickPatBtnEl = document.getElementById('sendQuickPatBtn');
+        const saveQuickPatCheckEl = document.getElementById('saveQuickPatCheck');
+        function doSendQuickPat() {
+            const text = quickPatInputEl.value.trim();
+            if (!text) { showToast('请输入拍一拍内容'); return; }
+            // 如果勾选保存，先加入快捷回复
+            if (saveQuickPatCheckEl && saveQuickPatCheckEl.checked) {
+                if (!quickPats.includes(text)) {
+                    quickPats.push(text);
+                    saveAppearance();
+                    renderQuickPatChips();
+                }
+            }
+            // 发送拍一拍
+            sendPat(text);
+            quickPatInputEl.value = '';
+            if (saveQuickPatCheckEl) saveQuickPatCheckEl.checked = false;
+        }
+        if (sendQuickPatBtnEl) sendQuickPatBtnEl.addEventListener('click', doSendQuickPat);
+        if (quickPatInputEl) quickPatInputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); doSendQuickPat(); }
+        });
+        // chip 删除事件（事件委托）
+        const quickPatChipsEl = document.getElementById('quickPatChips');
+        if (quickPatChipsEl) quickPatChipsEl.addEventListener('click', (e) => {
+            if (e.target.classList.contains('del')) {
+                const idx = parseInt(e.target.dataset.qpIdx);
+                if (!isNaN(idx) && idx >= 0 && idx < quickPats.length) {
+                    quickPats.splice(idx, 1);
+                    saveAppearance();
+                    renderQuickPatChips();
+                }
+            }
         });
         bindSlider('chatLetterMinSlider', 'chatLetterMinVal', v => {
             const unit = document.getElementById('chatLetterMinUnit');
@@ -4141,6 +4395,7 @@
 
         // ===== 回应抽取 =====
         function replyWithRandomCard() {
+            hideTyping();
             if (!cardLibrary.length) {
                 addChatMessage(`${angleName}沉默不语…… 字卡空空如也。`, 'system');
                 return;
@@ -4163,6 +4418,22 @@
             addChatMessage(`✦ ${picked}`, 'system');
         }
 
+        // ===== 正在输入指示器 =====
+        function showTyping() {
+            if (!chatTypingEnabled) return;
+            const el = document.getElementById('typingIndicator');
+            const txt = document.getElementById('typingText');
+            if (el) {
+                if (txt) txt.textContent = `${angleName} 正在输入…`;
+                el.classList.add('show');
+            }
+        }
+        function hideTyping() {
+            const el = document.getElementById('typingIndicator');
+            if (el) el.classList.remove('show');
+            if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
+        }
+
         function handleSend() {
             const text = userInput.value.trim();
             if (!text) return;
@@ -4173,35 +4444,188 @@
             const minD = Math.min(replyDelayMin, replyDelayMax);
             const maxD = Math.max(replyDelayMin, replyDelayMax);
             const delay = minD + Math.random() * (maxD - minD);
-            setTimeout(replyWithRandomCard, delay);
+            // 显示正在输入指示器
+            showTyping();
+            setTimeout(() => { replyWithRandomCard(); }, delay);
         }
 
         // ===== 拍一拍触发 =====
+        // 格式化拍一拍文案：将"靠了靠肩膀"拆分为"靠了靠"+"肩膀"，显示为"小鱼 靠了靠 我的肩膀"
+        function formatPatText(pat, sender, receiver) {
+            // ===== 预处理 =====
+            let cleaned = pat.trim();
+            cleaned = cleaned.replace(/^(我|你|您|ta|他|她|TA|它|对方|他的|她的)\s*/, '');
+            if (!cleaned) return `${sender} 拍了拍 ${receiver}`;
+
+            // 内部通用：按"了"字拆分 verb + body
+            function splitByLe(text) {
+                const idx = text.lastIndexOf('了');
+                if (idx < 0) return null;
+                const beforeLe = idx > 0 ? text[idx - 1] : '';
+                const afterLe = idx + 1 < text.length ? text[idx + 1] : '';
+                let verbEnd;
+                if (beforeLe && beforeLe === afterLe) verbEnd = idx + 2;  // A了A
+                else verbEnd = idx + 1;                                    // AA了 / 动词了
+                let verb = text.substring(0, verbEnd);
+                let body = text.substring(verbEnd).trim();
+                // body 去所属格前缀
+                body = body.replace(/^(他|她|ta|TA|我|你|您)的/, '');
+                return { verb, body };
+            }
+            function formatResult(verb, body) {
+                if (!body) return `${sender} ${verb} ${receiver}`;
+                // body 为纯代词，直接用 receiver 名
+                if (/^(他|她|ta|TA|我|你|您|对方)$/.test(body)) {
+                    return `${sender} ${verb} ${receiver}`;
+                }
+                return `${sender} ${verb} ${receiver}的${body}`;
+            }
+
+            // ===== 第一步：有"了"字，直接按了字拆分 =====
+            if (cleaned.indexOf('了') >= 0) {
+                const r = splitByLe(cleaned);
+                if (r) return formatResult(r.verb, r.body);
+            }
+
+            // ===== 第二步：无"了"字，匹配 [动词][代词][名词] 结构 =====
+            // 如 打你屁屁 / 摸你头 / 抱抱你 / 戳他肩膀 / 亲亲我
+            const m = cleaned.match(/^(.+?)(你|我|他|她|ta|TA|您)(.*)$/);
+            if (m) {
+                let verb = m[1];
+                let body = m[3].trim().replace(/^的/, '');
+                // 规范化动词（补"了"字）
+                let verbFmt;
+                if (/^(.)\1$/.test(verb)) {
+                    // AA重复型（抱抱/摸摸/亲亲）→ A了A
+                    verbFmt = verb[0] + '了' + verb[0];
+                } else if (verb.length === 1) {
+                    // 单字动词（打/摸/捏/戳/拍）→ V了
+                    verbFmt = verb + '了';
+                } else {
+                    // 多字动词（轻轻打 / 偷偷摸）→ 末尾补"了"
+                    verbFmt = verb + '了';
+                }
+                return formatResult(verbFmt, body);
+            }
+
+            // ===== 第三步：无"了"无代词，启发式补"了" =====
+            let fixed;
+            if (/^(.)\1/.test(cleaned) && cleaned.length > 2) {
+                // AA+名词 结构（摸摸头 / 捏捏脸 / 拍拍肩膀）→ A了A + 名词
+                fixed = cleaned[0] + '了' + cleaned[0] + cleaned.substring(2);
+            } else if (cleaned.length >= 2) {
+                // 单字动词+名词 结构（拍肩膀 / 捏脸蛋 / 打屁屁）→ V了 + 名词
+                fixed = cleaned[0] + '了' + cleaned.substring(1);
+            } else {
+                fixed = cleaned + '了';  // 单字兜底
+            }
+            const r2 = splitByLe(fixed);
+            if (r2) return formatResult(r2.verb, r2.body);
+
+            // ===== 第四步：兜底朴素输出 =====
+            return `${sender} ${cleaned} ${receiver}`;
+        }
+        // 添加拍一拍居中通知
+        function addPatNotice(text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message pat-notice';
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'msg-content';
+            contentDiv.textContent = text;
+            msgDiv.appendChild(contentDiv);
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        // 渲染快捷拍一拍 chips
+        function renderQuickPatChips() {
+            const container = document.getElementById('quickPatChips');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!quickPats.length) {
+                container.innerHTML = '<span class="pat-quick-empty">暂无快捷回复</span>';
+                return;
+            }
+            quickPats.forEach((p, i) => {
+                const chip = document.createElement('span');
+                chip.className = 'pat-quick-chip';
+                chip.innerHTML = p + ' <span class="del" data-qp-idx="' + i + '">×</span>';
+                // 点击 chip 文字部分发送
+                chip.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('del')) return;
+                    sendPat(p);
+                });
+                container.appendChild(chip);
+            });
+        }
+        // 发送指定拍一拍
+        function sendPat(patText) {
+            const now = Date.now();
+            if (now - patLastUserTime < patUserInterval) {
+                showToast('拍一拍太快了，稍等一下');
+                return;
+            }
+            patLastUserTime = now;
+            const userPatText = formatPatText(patText, userName, angleName);
+            addPatNotice(userPatText);
+            // 关闭面板
+            closePatQuickPanel();
+            // ta 回拍
+            if (now - patLastAngleTime >= patAngleInterval && Math.random() * 100 < patAngleReplyChance) {
+                patLastAngleTime = now;
+                setTimeout(() => {
+                    const allPats2 = [...Object.values(patGroups).flat(), ...quickPats];
+                    let anglePatText;
+                    if (!allPats2.length) {
+                        anglePatText = `${angleName} 拍了拍 ${userName}`;
+                    } else {
+                        const pat = allPats2[Math.floor(Math.random() * allPats2.length)];
+                        anglePatText = formatPatText(pat, angleName, userName);
+                    }
+                    addPatNotice(anglePatText);
+                }, patUserInterval + Math.random() * 2000);
+            }
+        }
+        // 打开/关闭拍一拍快捷面板
+        function openPatQuickPanel() {
+            const panel = document.getElementById('patQuickPanel');
+            if (panel) panel.classList.add('open');
+            renderQuickPatChips();
+        }
+        function closePatQuickPanel() {
+            const panel = document.getElementById('patQuickPanel');
+            if (panel) panel.classList.remove('open');
+        }
         function triggerPat() {
             if (!patDblClickEnabled) return;
             const now = Date.now();
             // 我拍间隔检查（可连续触发，但受间隔限制）
             if (now - patLastUserTime < patUserInterval) return;
             patLastUserTime = now;
-            // 从拍一拍库随机选一条
-            const allPats = Object.values(patGroups).flat();
+            // 从拍一拍库 + 快捷回复随机选一条
+            const allPats = [...Object.values(patGroups).flat(), ...quickPats];
+            let userPatText;
             if (!allPats.length) {
-                addChatMessage(`我拍了拍 ${angleName}`, 'user');
+                // 默认：我拍了拍 ta
+                userPatText = `${userName} 拍了拍 ${angleName}`;
             } else {
                 const pat = allPats[Math.floor(Math.random() * allPats.length)];
-                addChatMessage(`我 ${pat} ${angleName}`, 'user');
+                userPatText = formatPatText(pat, userName, angleName);
             }
+            addPatNotice(userPatText);
             // ta 回拍（概率触发 + 间隔限制）
             if (now - patLastAngleTime >= patAngleInterval && Math.random() * 100 < patAngleReplyChance) {
                 patLastAngleTime = now;
                 setTimeout(() => {
-                    const allPats2 = Object.values(patGroups).flat();
+                    const allPats2 = [...Object.values(patGroups).flat(), ...quickPats];
+                    let anglePatText;
                     if (!allPats2.length) {
-                        addChatMessage(`${angleName} 拍了拍我`, 'system');
+                        // 默认：ta 拍了拍 我
+                        anglePatText = `${angleName} 拍了拍 ${userName}`;
                     } else {
                         const pat = allPats2[Math.floor(Math.random() * allPats2.length)];
-                        addChatMessage(`${angleName} ${pat} 我`, 'system');
+                        anglePatText = formatPatText(pat, angleName, userName);
                     }
+                    addPatNotice(anglePatText);
                 }, patUserInterval + Math.random() * 2000);
             }
         }
@@ -4212,7 +4636,10 @@
             if (!autoSendEnabled || !cardLibrary.length) return;
             const intervalMs = autoSendInterval * 60 * 1000;
             autoSendTimer = setTimeout(() => {
-                replyWithRandomCard();
+                // 主动发送前显示正在输入
+                showTyping();
+                const shortDelay = 1500 + Math.random() * 2000;
+                setTimeout(() => { replyWithRandomCard(); }, shortDelay);
                 restartAutoSendTimer(); // 递归重启
             }, intervalMs);
         }
@@ -4587,6 +5014,8 @@
                     patUserInterval = a.patUserInterval != null ? a.patUserInterval : patUserInterval;
                     patAngleInterval = a.patAngleInterval != null ? a.patAngleInterval : patAngleInterval;
                     patAngleReplyChance = a.patAngleReplyChance != null ? a.patAngleReplyChance : patAngleReplyChance;
+                    chatTypingEnabled = a.chatTypingEnabled != null ? a.chatTypingEnabled : chatTypingEnabled;
+                    quickPats = Array.isArray(a.quickPats) ? a.quickPats : quickPats;
                     chatPickMode = a.chatPickMode || chatPickMode;
                     chatShowTimestamp = a.chatShowTimestamp != null ? a.chatShowTimestamp : chatShowTimestamp;
                     chatShowAvatar = a.chatShowAvatar != null ? a.chatShowAvatar : chatShowAvatar;
@@ -4653,12 +5082,16 @@
             if (asmEl) asmEl.checked = autoSendEnabled;
             const pdeEl = document.getElementById('patDblClickEnabled');
             if (pdeEl) pdeEl.checked = patDblClickEnabled;
+            const cteEl = document.getElementById('chatTypingEnabled');
+            if (cteEl) cteEl.checked = chatTypingEnabled;
             syncSlider('patUserIntervalSlider', patUserInterval, 'patUserIntervalVal', v => (v/1000).toFixed(1)+'s');
             syncSlider('patAngleIntervalSlider', patAngleInterval, 'patAngleIntervalVal', v => (v >= 60000 ? (v/60000).toFixed(1)+'分钟' : (v/1000).toFixed(1)+'s'));
             syncSlider('patAngleReplyChanceSlider', patAngleReplyChance, 'patAngleReplyChanceVal', v => v + '%');
             applyBubbleStyle();
             // 重启主动发送定时器
             restartAutoSendTimer();
+            // 渲染快捷拍一拍
+            renderQuickPatChips();
         }
         function saveAppearance() {
             const data = {
@@ -4667,6 +5100,8 @@
                 chatReplySpeed, replyDelayMin, replyDelayMax,
                 autoSendEnabled, autoSendInterval,
                 patDblClickEnabled, patUserInterval, patAngleInterval, patAngleReplyChance,
+                chatTypingEnabled,
+                quickPats,
                 chatPickMode, chatShowTimestamp, chatShowAvatar,
                 bubbleCustomCSS, customFontName, customFontFamily,
                 userCallsAngle, angleCallsUser
@@ -4757,6 +5192,7 @@
             autoSendEnabled = true; autoSendInterval = 5;
             patDblClickEnabled = true; patUserInterval = 500;
             patAngleInterval = 5000; patAngleReplyChance = 30;
+            chatTypingEnabled = true;
             chatShowTimestamp = true; chatShowAvatar = true;
             bubbleShape = 'round'; bubbleUserColor = '#e8ddf2'; bubbleAngleColor = '#f3eef8';
             bubbleRadius = 18; bgColor = '#fcfaff'; bgImage = '';
@@ -4792,7 +5228,12 @@
             // 底部按钮
             bottomCallBtn.addEventListener('click', () => { closeBottomSheet(); openModal(callModal); });
             bottomEmojiBtn.addEventListener('click', () => { closeBottomSheet(); openModal(emojiModal); });
-            bottomPatBtn.addEventListener('click', () => { closeBottomSheet(); openModal(patModal); });
+            bottomPatBtn.addEventListener('click', () => {
+                closeBottomSheet();
+                const panel = document.getElementById('patQuickPanel');
+                if (panel) panel.classList.toggle('open');
+                renderQuickPatChips();
+            });
 
             // 侧边栏按钮
             sideCardBtn.addEventListener('click', () => { closeSidePanel(); openModal(cardModal); });
