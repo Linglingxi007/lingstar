@@ -461,38 +461,58 @@
         .quote-bar .q-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
         .quote-bar .q-clear { cursor: pointer; color: var(--danger, #e74c3c); padding: 2px 6px; border-radius: 50%; font-weight: bold; }
         .quote-bar .q-clear:hover { background: rgba(231, 76, 60, 0.1); }
-        /* 消息拓展栏（气泡弹出工具栏） */
+        /* 消息拓展栏（气泡长按弹出悬浮工具栏） */
         .msg-toolbar {
             position: fixed;
             z-index: 150;
             background: rgba(255, 252, 255, 0.98);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(220, 200, 240, 0.2);
-            border-radius: 14px;
-            padding: 4px;
-            box-shadow: 0 8px 28px rgba(80, 50, 110, 0.18);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(181, 138, 255, 0.35);
+            border-radius: 16px;
+            padding: 6px;
+            box-shadow: 0 12px 34px rgba(125, 80, 190, 0.22),
+                        0 2px 6px rgba(181, 138, 255, 0.12) inset;
             display: none;
-            gap: 2px;
+            gap: 4px;
             align-items: center;
+            opacity: 0;
+            transform-origin: bottom center;
+            transform: translateY(6px) scale(0.92);
+            transition: opacity 0.16s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
         }
-        .msg-toolbar.show { display: inline-flex; }
+        .msg-toolbar.show {
+            display: inline-flex;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
         .msg-toolbar button {
-            background: none;
-            border: none;
-            padding: 6px 10px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(252,247,255,0.9) 100%);
+            border: 1px solid rgba(200, 170, 230, 0.18);
+            padding: 7px 12px;
             border-radius: 10px;
-            font-size: 0.72rem;
+            font-size: 0.76rem;
+            font-weight: 600;
             cursor: pointer;
             color: var(--text-primary);
             display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             transition: 0.15s;
             white-space: nowrap;
         }
-        .msg-toolbar button:hover { background: var(--accent-soft); }
-        .msg-toolbar button.danger:hover { background: rgba(231, 76, 60, 0.1); color: var(--danger, #e74c3c); }
-        .msg-toolbar button.danger-warn:hover { background: rgba(243, 156, 18, 0.1); color: #e67e22; }
+        .msg-toolbar button:hover { background: linear-gradient(135deg, #efe2ff, #ffd8ec); transform: translateY(-1px); box-shadow: 0 3px 8px rgba(181,138,255,0.18); }
+        .msg-toolbar button.danger:hover { background: linear-gradient(135deg, #ffe1de, #ffcfca); color: #e74c3c; }
+        .msg-toolbar button.danger-warn:hover { background: linear-gradient(135deg, #fff1dc, #ffe5bf); color: #d9820b; }
+        /* 长按触发时消息高亮 动画 */
+        @keyframes msg-long-press-hint {
+            0%   { box-shadow: 0 0 0 0 rgba(181, 138, 255, 0.0); border-radius: 14px; }
+            60%  { box-shadow: 0 0 0 4px rgba(181, 138, 255, 0.28); }
+            100% { box-shadow: 0 0 0 6px rgba(181, 138, 255, 0.0); }
+        }
+        .message.lp-highlight { animation: msg-long-press-hint 460ms ease-out forwards; }
         /* 撤回提示条 */
         .msg-recall-notice {
             align-self: center;
@@ -2289,13 +2309,13 @@
         <span class="q-clear" id="quoteBarClear" title="取消引用">✕</span>
     </div>
 
-    <!-- 消息拓展工具栏（点击气泡弹出） -->
+    <!-- 消息拓展工具栏（长按 / 右键 气泡弹出悬浮窗） -->
     <div class="msg-toolbar" id="msgToolbar">
+        <button data-action="recall" class="danger-warn" title="撤回消息">↶ 撤回</button>
+        <button data-action="delete" class="danger" title="删除消息">🗑 删除</button>
+        <button data-action="fav" title="收藏消息">⭐ 收藏</button>
+        <button data-action="mark"  title="给消息加标注">🏷 标注</button>
         <button data-action="quote" title="引用回复">↩ 引用</button>
-        <button data-action="mark" title="标注标注">🏷 标注</button>
-        <button data-action="fav" title="收藏">⭐ 收藏</button>
-        <button data-action="recall" class="danger-warn" title="撤回">↶ 撤回</button>
-        <button data-action="delete" class="danger" title="删除">🗑 删除</button>
     </div>
 
     <!-- 标注颜色选择浮层 -->
@@ -4767,26 +4787,7 @@
                 msgDiv.appendChild(star);
             }
 
-            // ============ 交互：点击消息=引用回复；右键/长按=工具栏 ============
-            const __key = mid + '|' + text.slice(0,30);
-            msgDiv.addEventListener('click', (ev) => {
-                if (ev.target.closest('.msg-toolbar') || ev.target.closest('.msg-recall-notice')) return;
-                // toggle: 同一条点两次 = 取消引用
-                if (quoteMsg && quoteMsg._key === __key) {
-                    quoteMsg = null; clearQuoteBar();
-                } else {
-                    quoteMsg = { _key: __key, sender: senderKey, text: text, msgId: mid };
-                    showQuoteBar(senderKey, text);
-                }
-                ev.stopPropagation();
-            });
-            msgDiv.addEventListener('contextmenu', (ev) => {
-                if (ev.target.closest('.msg-toolbar') || ev.target.closest('.msg-recall-notice')) return;
-                ev.preventDefault(); ev.stopPropagation();
-                try {
-                    if (typeof openMsgToolbar === 'function') openMsgToolbar(msgDiv, ev);
-                } catch(e) {}
-            });
+            // ============ 交互：点击消息什么都不做；长按 (450ms) / 右键 (桌面端回退) → 弹出悬浮工具栏 —— 全部通过 init() 里 chatBox 的委托事件监听，避免 IIFE 内 openMsgToolbar 函数作用域问题 ============
 
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -7283,33 +7284,77 @@
                 const sender = div.dataset.sender;
                 curToolbarMsgId = mid; curToolbarSender = sender; curToolbarDiv = div;
                 const rect = div.getBoundingClientRect();
-                toolbar.style.display = 'inline-flex';
-                const tbRect = toolbar.getBoundingClientRect();
-                let left = sender === 'usr' ? (rect.right - tbRect.width) : rect.left;
-                let top = rect.top - tbRect.height - 8;
-                if (top < 4) top = rect.bottom + 4;
-                if (left < 4) left = 4;
-                if (left + tbRect.width > window.innerWidth - 4) left = window.innerWidth - tbRect.width - 4;
-                toolbar.style.left = left + 'px';
-                toolbar.style.top = top + 'px';
-                toolbar.classList.add('show');
-                ev.stopPropagation();
+                toolbar.style.display = 'inline-flex'; // 先显示，下一帧再算 rect + 加 show class 得入场动画
+                requestAnimationFrame(() => {
+                    const tbRect = toolbar.getBoundingClientRect();
+                    // 长按触发者位置：放在消息正上方中间对齐；如果上方不够，就放下方
+                    let left = rect.left + (rect.width - tbRect.width) / 2;
+                    let top = rect.top - tbRect.height - 10;
+                    if (top < 8) top = rect.bottom + 10;
+                    if (left < 8) left = 8;
+                    if (left + tbRect.width > window.innerWidth - 8) left = window.innerWidth - tbRect.width - 8;
+                    toolbar.style.left = left + 'px';
+                    toolbar.style.top = top + 'px';
+                    toolbar.classList.add('show');
+                });
+                if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
             }
             function closeMsgToolbar() {
-                if (toolbar) { toolbar.classList.remove('show'); toolbar.style.display = ''; }
+                if (toolbar) { toolbar.classList.remove('show'); setTimeout(() => { if(toolbar && !toolbar.classList.contains('show')) toolbar.style.display = ''; }, 180); }
                 curToolbarMsgId = null; curToolbarSender = null; curToolbarDiv = null;
             }
-            // 消息：点击直接引用回复；右键/长按=工具栏（具体事件已在 addChatMessage 每条消息绑定）
-            // 这里的委托作为回退：忽略普通 click（避免和引用 toggle 冲突），只拦截 contextmenu
+            // ========== 长按触发（450ms）+ 桌面端右键回退 ==========
+            let __lpTimer = null;
+            let __lpMsgDiv = null;
+            let __lpFired = false;
+            function __lpClear() {
+                if (__lpTimer) { clearTimeout(__lpTimer); __lpTimer = null; }
+                if (__lpMsgDiv && __lpFired) { __lpMsgDiv.classList.remove('lp-highlight'); }
+                __lpMsgDiv = null; __lpFired = false;
+            }
+            function __lpStart(ev, msgDiv) {
+                __lpClear();
+                __lpMsgDiv = msgDiv;
+                __lpFired = false;
+                msgDiv.classList.add('lp-highlight');
+                __lpTimer = setTimeout(() => {
+                    __lpFired = true;
+                    try {
+                        if (window.navigator && navigator.vibrate) { try { navigator.vibrate(18); } catch(e){} } // 移动端触觉反馈
+                    } catch(e){}
+                    openMsgToolbar(msgDiv, ev);
+                }, 450);
+            }
+            // pointerdown / touchstart 开始计时
+            chatBox.addEventListener('pointerdown', (e) => {
+                const msgDiv = e.target.closest('.message');
+                if (!msgDiv) return;
+                if (e.target.closest('.msg-toolbar') || e.target.closest('.msg-recall-notice')) return;
+                // 只响应主键（鼠标左键 / 默认 pointerType）
+                if (e.button != null && e.button !== 0) return;
+                __lpStart(e, msgDiv);
+            }, { passive: true });
+            chatBox.addEventListener('touchstart', (e) => {
+                const msgDiv = e.target.closest('.message');
+                if (!msgDiv) return;
+                if (e.target.closest('.msg-toolbar') || e.target.closest('.msg-recall-notice')) return;
+                __lpStart(e, msgDiv);
+            }, { passive: true });
+            // 取消场景：up / cancel / leave / scroll / 按键抬起
+            ['pointerup','pointercancel','pointerleave','touchend','touchcancel','touchmove'].forEach(evt => {
+                chatBox.addEventListener(evt, __lpClear, { passive: true });
+            });
+            // 桌面端右键 → 直接弹出（长按的兼容备用）
             chatBox.addEventListener('contextmenu', (e) => {
                 const msgDiv = e.target.closest('.message');
                 if (msgDiv && !e.target.closest('.msg-recall-notice') && !e.target.closest('.msg-toolbar')) {
                     e.preventDefault(); e.stopPropagation();
+                    __lpClear();
                     openMsgToolbar(msgDiv, e);
                 }
             });
+            // 点击空白处关闭工具栏
             chatBox.addEventListener('click', (e) => {
-                // 空点击（没点到 message 子元素）→ 清工具栏
                 if (!e.target.closest('.message') && !e.target.closest('.msg-toolbar')) closeMsgToolbar();
             });
             document.addEventListener('click', (e) => {
