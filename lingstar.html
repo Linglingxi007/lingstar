@@ -634,18 +634,30 @@
             color: #fff;
             transform: translateY(-1px);
         }
+        .cal-header .cal-nav { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; }
         .cal-header .cal-jump-btn {
-            padding: 8px 14px; border-radius: 12px; border: none;
+            padding: 6px 8px; min-width: 34px; height: 34px; border-radius: 12px; border: none;
             background: linear-gradient(135deg, #9b6dd9 0%, #e27eb4 100%);
-            color: #fff; font-size: 0.78rem; cursor: pointer;
+            color: #fff; font-size: 0.95rem; cursor: pointer; line-height: 1;
             font-weight: 600;
             box-shadow: 0 2px 8px rgba(210,130,200,0.22);
-            transition: 0.15s;
+            transition: 0.15s; display: inline-flex; align-items: center; justify-content: center;
         }
         .cal-header .cal-jump-btn:hover {
             filter: brightness(1.05);
             transform: translateY(-1px);
         }
+        /* 跳转日期子弹窗美化 */
+        #jumpDateModal .modal-content { border-radius: 20px; overflow: hidden; border: 1px solid rgba(198,168,222,0.15); box-shadow: 0 20px 50px rgba(155,109,217,0.18); }
+        #jumpDateModal .dl-year-viewport, #jumpDateModal .dl-month-viewport, #jumpDateModal .dl-day-viewport {
+            background: linear-gradient(180deg, rgba(245,235,252,0.5) 0%, rgba(255,255,255,1) 100%);
+            border-radius: 14px; border: 1px solid rgba(200,170,220,0.18);
+        }
+        #jumpDateModal .dl-col-item.active {
+            background: linear-gradient(135deg, #b58aff, #e49cff); color: #fff; font-weight: 600; border-radius: 10px;
+        }
+        #jumpDateModal .btn-confirm { background: linear-gradient(135deg,#b58aff,#e49cff); color:#fff; border-radius:12px; padding:6px 18px; border:none; font-weight:600; }
+        #jumpDateModal .btn-cancel { background: rgba(200,170,220,0.15); color: var(--text-secondary); border-radius:12px; padding:6px 18px; border:none; }
         .cal-weekdays {
             display: grid; grid-template-columns: repeat(6, 1fr);
             gap: 6px; margin-bottom: 8px;
@@ -2686,20 +2698,22 @@
                     <div class="chat-section-title">时空来信间隔</div>
                     <div class="chat-slider-row">
                         <div class="slider-label">最少</div>
-                        <input type="range" id="chatLetterMinSlider" min="1" max="48" step="1" value="4">
-                        <span class="slider-value" id="chatLetterMinVal">4小时</span>
+                        <input type="range" id="chatLetterMinSlider" min="1" max="180" step="1" value="15">
+                        <span class="slider-value" id="chatLetterMinVal">15分钟</span>
                         <select id="chatLetterMinUnit">
-                            <option value="hour" selected>小时</option>
+                            <option value="minute" selected>分钟</option>
+                            <option value="hour">小时</option>
                             <option value="day">天</option>
                         </select>
                     </div>
                     <div class="chat-slider-row">
                         <div class="slider-label">最多</div>
-                        <input type="range" id="chatLetterMaxSlider" min="1" max="168" step="1" value="72">
-                        <span class="slider-value" id="chatLetterMaxVal">3天</span>
+                        <input type="range" id="chatLetterMaxSlider" min="2" max="480" step="1" value="60">
+                        <span class="slider-value" id="chatLetterMaxVal">60分钟</span>
                         <select id="chatLetterMaxUnit">
+                            <option value="minute" selected>分钟</option>
                             <option value="hour">小时</option>
-                            <option value="day" selected>天</option>
+                            <option value="day">天</option>
                         </select>
                     </div>
                     <div class="chat-switch-row">
@@ -2859,7 +2873,7 @@
                 </div>
                 <div class="cal-title" id="calTitle">2026年9月</div>
                 <div class="cal-nav">
-                    <button id="calJumpBtn" class="cal-jump-btn">🕹 跳转</button>
+                    <button id="calJumpBtn" class="cal-jump-btn" title="跳转到日期">🕹</button>
                     <button id="calNextMonth" title="下一月">›</button>
                     <button id="calNextYear" title="下一年">»</button>
                 </div>
@@ -3925,8 +3939,11 @@
         let chatVolume = 70;
         let angleCallChance = 30;       // 梦角回复开头混入称呼的概率 %（默认30%）
         // 梦角时间戳/已读/昵称状态缓存
-        let chatLetterMin = 4, chatLetterMinUnit = 'hour';
-        let chatLetterMax = 72, chatLetterMaxUnit = 'day';
+        // 主动写信间隔（默认最少时间单位改为分钟方便测验）
+        let chatLetterMin = 15, chatLetterMinUnit = 'minute';
+        let chatLetterMax = 60, chatLetterMaxUnit = 'minute';
+        let letterTimer = null;      // 主动写信定时器句柄
+        let replyTimer = null;       // 用户消息→梦角回复 定时器句柄
         let chatReplyMin = 10, chatReplyMinUnit = 'min';
         let chatReplyMax = 2, chatReplyMaxUnit = 'hour';
         let chatReplyMinSent = 5, chatReplyMaxSent = 20;
@@ -4483,13 +4500,17 @@
         });
         bindSlider('chatLetterMinSlider', 'chatLetterMinVal', v => {
             const unit = document.getElementById('chatLetterMinUnit');
-            const u = unit ? unit.value : 'hour';
-            return v + (u === 'hour' ? '小时' : '天');
+            const u = unit ? unit.value : 'minute';
+            if (u === 'minute' || u === 'min') return v + '分钟';
+            if (u === 'hour') return v + '小时';
+            return v + '天';
         });
         bindSlider('chatLetterMaxSlider', 'chatLetterMaxVal', v => {
             const unit = document.getElementById('chatLetterMaxUnit');
-            const u = unit ? unit.value : 'day';
-            return v + (u === 'hour' ? '小时' : '天');
+            const u = unit ? unit.value : 'minute';
+            if (u === 'minute' || u === 'min') return v + '分钟';
+            if (u === 'hour') return v + '小时';
+            return v + '天';
         });
         bindSlider('chatReplyMinSlider', 'chatReplyMinVal', v => {
             const unit = document.getElementById('chatReplyMinUnit');
@@ -4678,8 +4699,10 @@
             _msgIdCounter++;
             const mid = 'msg-' + _msgIdCounter + '-' + Date.now().toString(36);
             msgDiv.dataset.msgId = mid;
-            msgDiv.dataset.sender = type === 'user' ? 'usr' : 'angle';
+            const senderKey = type === 'user' ? 'usr' : 'angle';
+            msgDiv.dataset.sender = senderKey;
 
+            // ============ 开关：chatShowAvatar 为 true 时才渲染头像 ============
             if (chatShowAvatar) {
                 const avatarSpan = document.createElement('span');
                 avatarSpan.className = 'msg-avatar';
@@ -4698,11 +4721,10 @@
             const contentDiv = document.createElement('div');
             contentDiv.className = 'msg-content';
             contentDiv.innerHTML = text.replace(/\n/g, '<br>');
-            // 标注颜色（如果有）
             if (opts.markColor) {
                 contentDiv.style.background = opts.markColor;
                 contentDiv.style.borderRadius = '14px';
-                contentDiv.style.padding = opts.markColor && opts.markColor.includes('rgb') ? '6px 10px' : '6px 10px';
+                contentDiv.style.padding = '6px 10px';
             }
             bodyDiv.appendChild(contentDiv);
 
@@ -4711,23 +4733,28 @@
                 const q = document.createElement('div');
                 q.className = 'msg-quote';
                 const qLabel = opts.quote.sender === 'usr' ? userName : angleName;
-                q.innerHTML = `<span class="q-label">${qLabel}：</span><span class="q-text">${opts.quote.text.replace(/\n/g, ' ').slice(0, 80)}</span>`;
+                const safe = (opts.quote.text || '').replace(/\n/g, ' ').slice(0, 80);
+                q.innerHTML = `<span class="q-label">${qLabel}：</span><span class="q-text">${safe}</span>`;
                 bodyDiv.appendChild(q);
             }
 
-            // 时间戳 + 昵称 + 已读回执（在引用下方）
+            // 时间戳 + 昵称 + 已读回执（用户消息先显示未读 ✓ / 未读 ，1.5–5s 随机延迟后变 ✓✓ / 已读）
             const metaDiv = document.createElement('div');
             metaDiv.className = 'msg-meta';
             const now = opts.ts ? new Date(opts.ts) : new Date();
             const tsStr = formatTimestamp(now, chatTimestampStyle);
             const senderName = type === 'user' ? userName : angleName;
             const whoSpan = chatShowNickname ? `<span class="msg-who">${senderName}</span> · ` : '';
-            let readSpan = '';
+            let readHtml = '';
+            const readElId = mid + '-read';
             if (chatReadReceipt && type === 'user') {
-                if (chatReadStyle === 'text') readSpan = ` · <span class="msg-read-text">已读</span>`;
-                else readSpan = ` <span class="msg-read-graphic">✓✓</span>`;
+                if (chatReadStyle === 'text') {
+                    readHtml = ` · <span class="msg-read-text" id="${readElId}">未读</span>`;
+                } else {
+                    readHtml = ` <span class="msg-read-graphic" id="${readElId}" style="color:#a999c5;font-weight:700;">✓</span>`;
+                }
             }
-            metaDiv.innerHTML = `<small>${whoSpan}${tsStr}${readSpan}</small>`;
+            metaDiv.innerHTML = `<small>${whoSpan}${tsStr}${readHtml}</small>`;
             bodyDiv.appendChild(metaDiv);
 
             msgDiv.appendChild(bodyDiv);
@@ -4740,8 +4767,51 @@
                 msgDiv.appendChild(star);
             }
 
+            // ============ 交互：点击消息=引用回复；右键/长按=工具栏 ============
+            const __key = mid + '|' + text.slice(0,30);
+            msgDiv.addEventListener('click', (ev) => {
+                if (ev.target.closest('.msg-toolbar') || ev.target.closest('.msg-recall-notice')) return;
+                // toggle: 同一条点两次 = 取消引用
+                if (quoteMsg && quoteMsg._key === __key) {
+                    quoteMsg = null; clearQuoteBar();
+                } else {
+                    quoteMsg = { _key: __key, sender: senderKey, text: text, msgId: mid };
+                    showQuoteBar(senderKey, text);
+                }
+                ev.stopPropagation();
+            });
+            msgDiv.addEventListener('contextmenu', (ev) => {
+                if (ev.target.closest('.msg-toolbar') || ev.target.closest('.msg-recall-notice')) return;
+                ev.preventDefault(); ev.stopPropagation();
+                try {
+                    if (typeof openMsgToolbar === 'function') openMsgToolbar(msgDiv, ev);
+                } catch(e) {}
+            });
+
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            // ============ 已读回执：随机 1.5–5s 延迟再变已读（避免用户一发消息就秒已读）============
+            if (chatReadReceipt && type === 'user') {
+                const delay = 1500 + Math.floor(Math.random() * 3500);
+                setTimeout(() => {
+                    const el = document.getElementById(readElId);
+                    if (!el) return;
+                    if (chatReadStyle === 'text') {
+                        el.textContent = '已读';
+                        el.style.color = '#b496ff';
+                    } else {
+                        el.textContent = '✓✓';
+                        el.style.color = '#b496ff';
+                    }
+                }, delay);
+            }
+
+            // ============ 消息提示音：梦角消息发出时 playSfx('msg') ============
+            if (chatSoundMsg && (type === 'angle' || (type === 'system' && senderKey === 'angle'))) {
+                playSfx('msg');
+            }
+
             return { id: mid, div: msgDiv };
         }
 
@@ -5718,36 +5788,92 @@
         function replyWithRandomCard(isActive) {
             hideTyping();
             if (!cardLibrary.length) {
-                addChatMessage(`${angleName}沉默不语…… 字卡空空如也。`, 'system');
+                addChatMessage(`${angleName}沉默不语…… 字卡空空如也。`, 'angle');
                 return;
             }
-            let picked;
-            if (chatPickMode === 'sequence') {
-                picked = cardLibrary[seqCursor % cardLibrary.length];
-                seqCursor++;
-            } else if (chatPickMode === 'norepeat') {
-                if (!replyWithRandomCard._pool || !replyWithRandomCard._pool.length) {
-                    replyWithRandomCard._pool = [...cardLibrary];
+            // ========== chatCustomReplyRule：开=全套自定义，关=强制 simple random 一张 ==========
+            const useRule = !!chatCustomReplyRule;
+            const effPickMode = useRule ? chatPickMode : 'random';
+            const effMerge    = useRule ? !!chatMergeCards    : false;
+            const effEmoji    = useRule ? !!chatEmojiMix      : false;
+            const effKao      = useRule ? !!chatKaomojiMix    : false;
+
+            // 抽一张字卡
+            function pickOne() {
+                if (effPickMode === 'sequence') {
+                    const p = cardLibrary[seqCursor % cardLibrary.length];
+                    seqCursor++;
+                    return p;
+                } else if (effPickMode === 'norepeat') {
+                    if (!replyWithRandomCard._pool || !replyWithRandomCard._pool.length) {
+                        replyWithRandomCard._pool = cardLibrary.slice(0);
+                    }
+                    const ii = Math.floor(Math.random() * replyWithRandomCard._pool.length);
+                    return replyWithRandomCard._pool.splice(ii, 1)[0];
+                } else {
+                    return cardLibrary[Math.floor(Math.random() * cardLibrary.length)];
                 }
-                const i = Math.floor(Math.random() * replyWithRandomCard._pool.length);
-                picked = replyWithRandomCard._pool.splice(i, 1)[0];
-            } else {
-                const idx = Math.floor(Math.random() * cardLibrary.length);
-                picked = cardLibrary[idx];
             }
-            let msg = isActive ? `✦ ${picked}` : picked;
-            // 梦角回复开头混入称呼（按angleCallChance概率，从angleCallsUser选一个）
+
+            let msg;
+            if (effMerge) {
+                const count = 2 + Math.floor(Math.random() * 4); // 2–5 张
+                const parts = [];
+                for (let j = 0; j < count; j++) parts.push(pickOne());
+                // 50% 逗号，50% 换行拼接
+                msg = parts.join(Math.random() < 0.5 ? '，' : '\n');
+            } else {
+                msg = pickOne();
+            }
+            if (isActive) msg = '✦ ' + msg;
+
+            // ========== 表情混入（60% 概率，前/中/后 三段） ==========
+            if (effEmoji && Math.random() < 0.6) {
+                const flat = [];
+                for (const g in emojiGroups) flat.push.apply(flat, (emojiGroups[g] || []));
+                if (flat.length) {
+                    const em = flat[Math.floor(Math.random() * flat.length)];
+                    const roll = Math.random();
+                    if (roll < 0.35) msg = em + msg;
+                    else if (roll < 0.7) msg = msg + em;
+                    else {
+                        // 中间：按换行或逗号切
+                        const chunks = msg.split(/(\n|，)/);
+                        if (chunks.length >= 3) {
+                            const mid = Math.floor(chunks.length / 2);
+                            chunks.splice(mid, 0, em);
+                            msg = chunks.join('');
+                        } else {
+                            msg = msg.slice(0, Math.floor(msg.length / 2)) + em + msg.slice(Math.floor(msg.length / 2));
+                        }
+                    }
+                }
+            }
+
+            // 梦角回复开头混入称呼（按 angleCallChance 概率，从 angleCallsUser 选）
             if (angleCallsUser && angleCallsUser.length && Math.random() * 100 < angleCallChance) {
                 const call = angleCallsUser[Math.floor(Math.random() * angleCallsUser.length)];
                 msg = `${call}，${msg}`;
             }
-            // 如果用户是引用回复，梦角也可能带引用
+
+            // ========== 颜文字混入（50% 概率，换行 or 末尾空格） ==========
+            if (effKao && Math.random() < 0.5) {
+                const kaoFlat = [];
+                for (const g in kaomojiGroups) kaoFlat.push.apply(kaoFlat, (kaomojiGroups[g] || []));
+                if (kaoFlat.length) {
+                    const k = kaoFlat[Math.floor(Math.random() * kaoFlat.length)];
+                    if (Math.random() < 0.7) msg = msg + '\n' + k;
+                    else msg = msg + ' ' + k;
+                }
+            }
+
+            // 如果用户是引用回复，梦角也可能带引用；type 改成 angle 让 sender/头像/提示音 正确生效
             if (quoteMsg && Math.random() < 0.5) {
-                addChatMessage(msg, 'system', { quote: quoteMsg });
+                addChatMessage(msg, 'angle', { quote: quoteMsg });
                 quoteMsg = null;
                 return;
             }
-            addChatMessage(msg, 'system');
+            addChatMessage(msg, 'angle');
         }
 
         // ===== 正在输入指示器 =====
@@ -5772,8 +5898,9 @@
             const fromEl = document.getElementById('quoteBarFrom');
             const textEl = document.getElementById('quoteBarText');
             if (!bar) return;
+            const safeText = (text == null) ? '' : String(text);
             if (fromEl) fromEl.textContent = (sender === 'usr' ? userName : angleName) + '：';
-            if (textEl) textEl.textContent = text.length > 40 ? text.slice(0, 40) + '…' : text;
+            if (textEl) textEl.textContent = safeText.length > 40 ? safeText.slice(0, 40) + '…' : safeText;
             bar.classList.add('show');
         }
         function clearQuoteBar() {
@@ -5789,14 +5916,18 @@
             addChatMessage(text, 'user', opts);
             userInput.value = '';
             userInput.focus();
-            // 已读不回：若已开启 chatReadNoReply，随机跳过回复
-            if (chatReadNoReply && Math.random() < 0.25) return;
-            // 随机延迟区间回复
-            const minD = Math.min(replyDelayMin, replyDelayMax);
-            const maxD = Math.max(replyDelayMin, replyDelayMax);
-            const delay = minD + Math.random() * (maxD - minD);
+            if (chatSoundMsg) playSfx('send');
+            // 已读不回：已开启时 45% 概率不回（但消息还是会在 1.5–5s 延迟标记"已读" ✓✓）
+            if (chatReadNoReply && Math.random() < 0.45) return;
+            // 随机延迟区间回复：chatReplySpeed (ms) 作为基础，叠加 [minD,maxD]
+            const minD = Math.max(100, Math.floor(Math.min(replyDelayMin || 0, replyDelayMax || 0)));
+            const maxD = Math.max(minD + 200, Math.floor(Math.max(replyDelayMin || 0, replyDelayMax || 0)));
+            const baseSpeed = isNaN(chatReplySpeed) ? 0 : Math.max(0, Math.floor(chatReplySpeed));
+            const delay = baseSpeed + minD + Math.floor(Math.random() * Math.max(1, (maxD - minD)));
+            // 防止用户连发消息时定时器叠加：清掉上一条 pending replyTimer
+            if (replyTimer) { clearTimeout(replyTimer); replyTimer = null; }
             showTyping();
-            setTimeout(() => { replyWithRandomCard(); }, delay);
+            replyTimer = setTimeout(() => { replyWithRandomCard(); }, delay);
         }
 
         // ===== 拍一拍触发 =====
@@ -6512,8 +6643,8 @@
             if (cpm) cpm.value = chatPickMode;
             syncSlider('angleCallChanceSlider', angleCallChance, 'angleCallChanceVal', v => v + '%');
             syncSlider('chatVolumeSlider', chatVolume, 'chatVolumeVal', v => v + '%');
-            syncSlider('chatLetterMinSlider', chatLetterMin, 'chatLetterMinVal', v => v + (chatLetterMinUnit === 'day' ? '天' : '小时'));
-            syncSlider('chatLetterMaxSlider', chatLetterMax, 'chatLetterMaxVal', v => v + (chatLetterMaxUnit === 'day' ? '天' : '小时'));
+            syncSlider('chatLetterMinSlider', chatLetterMin, 'chatLetterMinVal', v => v + (chatLetterMinUnit === 'day' ? '天' : (chatLetterMinUnit === 'minute' || chatLetterMinUnit === 'min' ? '分钟' : '小时')));
+            syncSlider('chatLetterMaxSlider', chatLetterMax, 'chatLetterMaxVal', v => v + (chatLetterMaxUnit === 'day' ? '天' : (chatLetterMaxUnit === 'minute' || chatLetterMaxUnit === 'min' ? '分钟' : '小时')));
             syncSlider('chatReplyMinSlider', chatReplyMin, 'chatReplyMinVal', v => v + (chatReplyMinUnit === 'hour' ? '小时' : '分钟'));
             syncSlider('chatReplyMaxSlider', chatReplyMax, 'chatReplyMaxVal', v => v + (chatReplyMaxUnit === 'hour' ? '小时' : '分钟'));
             const selSync = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
@@ -6646,8 +6777,8 @@
             chatMergeCards = false; chatEmojiMix = false; chatKaomojiMix = false;
             chatSoundMsg = false; chatSoundCall = false; chatVolume = 70;
             angleCallChance = 30;
-            chatLetterMin = 4; chatLetterMinUnit = 'hour';
-            chatLetterMax = 72; chatLetterMaxUnit = 'day';
+            chatLetterMin = 15; chatLetterMinUnit = 'minute';
+            chatLetterMax = 60; chatLetterMaxUnit = 'minute';
             chatReplyMin = 10; chatReplyMinUnit = 'min';
             chatReplyMax = 2; chatReplyMaxUnit = 'hour';
             chatReplyMinSent = 5; chatReplyMaxSent = 20;
@@ -6695,7 +6826,11 @@
             arrowUpBtn.addEventListener('click', toggleBottomSheet);
 
             // 底部按钮
-            bottomCallBtn.addEventListener('click', () => { closeBottomSheet(); openModal(callModal); });
+            bottomCallBtn.addEventListener('click', () => {
+                closeBottomSheet();
+                if (chatSoundCall) playSfx('call');
+                openModal(callModal);
+            });
             bottomEmojiBtn.addEventListener('click', () => { closeBottomSheet(); openModal(emojiModal); });
             bottomPatBtn.addEventListener('click', () => {
                 closeBottomSheet();
@@ -7164,12 +7299,18 @@
                 if (toolbar) { toolbar.classList.remove('show'); toolbar.style.display = ''; }
                 curToolbarMsgId = null; curToolbarSender = null; curToolbarDiv = null;
             }
-            // 点击消息弹出工具栏（委托）
-            chatBox.addEventListener('click', (e) => {
+            // 消息：点击直接引用回复；右键/长按=工具栏（具体事件已在 addChatMessage 每条消息绑定）
+            // 这里的委托作为回退：忽略普通 click（避免和引用 toggle 冲突），只拦截 contextmenu
+            chatBox.addEventListener('contextmenu', (e) => {
                 const msgDiv = e.target.closest('.message');
                 if (msgDiv && !e.target.closest('.msg-recall-notice') && !e.target.closest('.msg-toolbar')) {
+                    e.preventDefault(); e.stopPropagation();
                     openMsgToolbar(msgDiv, e);
                 }
+            });
+            chatBox.addEventListener('click', (e) => {
+                // 空点击（没点到 message 子元素）→ 清工具栏
+                if (!e.target.closest('.message') && !e.target.closest('.msg-toolbar')) closeMsgToolbar();
             });
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.msg-toolbar') && !e.target.closest('.message')) closeMsgToolbar();
@@ -8829,14 +8970,13 @@
                 });
             }
 
-            // 快速插入行（字卡/表情缩略，点击插入到输入框）
+            // 快速插入行（用户要求：梦女/梦角 tab 都去掉字卡快捷插入，只保留 Emoji 符号快捷）
             function renderQuickRow() {
                 if (!diaryQuickRow) return;
                 diaryQuickRow.innerHTML = '';
-                const sampleWords = (cardLibrary||[]).slice(0, 10);
                 const sampleEmojis = [];
-                for (const g in emojiGroups) sampleEmojis.push(...(emojiGroups[g]||[]).slice(0,2));
-                [...sampleWords, ...sampleEmojis.slice(0,6)].forEach(w => {
+                for (const g in emojiGroups) sampleEmojis.push(...(emojiGroups[g]||[]).slice(0,3));
+                [...sampleEmojis.slice(0,12)].forEach(w => {
                     const c = document.createElement('div');
                     c.className = 'diary-quick-chip';
                     c.textContent = w.length > 10 ? w.slice(0,10)+'…' : w;
@@ -9143,6 +9283,84 @@
             return checks.some(m => m.classList.contains('active'));
         }
 
+        // ===== Web Audio 合成提示音（无需外部音频文件）=====
+        let __sfxCtx = null;
+        function playSfx(kind) {
+            try {
+                if (!__sfxCtx) __sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = __sfxCtx;
+                const now = ctx.currentTime;
+                const vol = Math.max(0.05, Math.min(1, chatVolume / 100));
+                function tone(freq, start, dur, type, gain) {
+                    const osc = ctx.createOscillator();
+                    const g = ctx.createGain();
+                    osc.type = type || 'sine';
+                    osc.frequency.value = freq;
+                    g.gain.setValueAtTime(0.0001, now + start);
+                    g.gain.exponentialRampToValueAtTime(vol * (gain||1), now + start + 0.01);
+                    g.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
+                    osc.connect(g); g.connect(ctx.destination);
+                    osc.start(now + start); osc.stop(now + start + dur + 0.02);
+                }
+                if (kind === 'msg') {
+                    tone(880, 0, 0.08, 'sine', 0.9);
+                    tone(1320, 0.09, 0.12, 'sine', 0.8);
+                } else if (kind === 'call') {
+                    for (var i = 0; i < 3; i++) {
+                        tone(660, i * 0.5, 0.18, 'triangle', 1);
+                        tone(990, i * 0.5 + 0.2, 0.18, 'triangle', 0.9);
+                    }
+                } else if (kind === 'send') {
+                    tone(1200, 0, 0.04, 'sine', 0.5);
+                }
+            } catch(e) {}
+        }
+
+        // ===== 主动写信：定时器 + 随机内容投递 =====
+        function __letterUnitMs(val, unit) {
+            if (unit === 'minute' || unit === 'min') return val * 60 * 1000;
+            if (unit === 'hour') return val * 60 * 60 * 1000;
+            if (unit === 'day') return val * 24 * 60 * 60 * 1000;
+            return val * 60 * 1000;
+        }
+        function randLetterDelay() {
+            const a = __letterUnitMs(chatLetterMin, chatLetterMinUnit);
+            const b = __letterUnitMs(chatLetterMax, chatLetterMaxUnit);
+            const lo = Math.min(a, b), hi = Math.max(a, b);
+            return Math.max(5000, Math.floor(lo + Math.random() * Math.max(1, (hi - lo))));
+        }
+        function deliverAutoLetter() {
+            if (!chatLetterEnabled) { restartLetterTimer(); return; }
+            try {
+                const titles = ['想你了', '碎碎念', '梦里见', '写给你', '今天的我', '月光下', '给你的信', '忽然想起你'];
+                const t = titles[Math.floor(Math.random() * titles.length)];
+                const n = 1 + Math.floor(Math.random() * 3);
+                const picks = [];
+                for (var i = 0; i < n; i++) if (cardLibrary.length) picks.push(cardLibrary[Math.floor(Math.random() * cardLibrary.length)]);
+                var content = picks.join('\n');
+                try {
+                    var f = [];
+                    for (var g in emojiGroups) f.push.apply(f, (emojiGroups[g]||[]));
+                    if (f.length) content += '\n' + f[Math.floor(Math.random() * f.length)];
+                } catch(e) {}
+                if (!letterBox.mine.inbox) letterBox.mine.inbox = [];
+                letterBox.mine.inbox.push({
+                    id: 'L' + Date.now() + '-' + Math.floor(Math.random()*10000),
+                    parentId: null, title: t, content: content,
+                    from: 'angle', to: 'usr', ts: Date.now(),
+                    read: false, replied: false, sourceBox: 'mine', replyTargetId: null, sourceLetterBox: 'mine', source: 'auto'
+                });
+                saveAppearance();
+                if (typeof showToast === 'function') showToast('✉ ta来信：' + t);
+                if (chatSoundMsg) playSfx('msg');
+            } catch(e) {}
+            restartLetterTimer();
+        }
+        function restartLetterTimer() {
+            if (letterTimer) { clearTimeout(letterTimer); letterTimer = null; }
+            if (!chatLetterEnabled) return;
+            letterTimer = setTimeout(deliverAutoLetter, randLetterDelay());
+        }
 
         // 颜色加深/减淡工具（用于 accent_deep 自动计算）
         function shade(hex, percent) {
@@ -9179,7 +9397,13 @@
         }
 
         init();
+        updateAllOpacityDisplays();
+        // 启动主动写信定时器（init 后 letterBox/letterBox.mine.inbox 已就绪）
+        restartLetterTimer();
     })();
 </script>
+<!-- ===== 消息提示音/通话提示音占位：实际声音由下方 Web Audio playSfx 合成（无需外部文件） ===== -->
+<audio id="sndMsg" preload="auto"></audio>
+<audio id="sndCall" preload="auto"></audio>
 </body>
 </html>
