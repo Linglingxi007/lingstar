@@ -188,6 +188,7 @@
             display: flex;
             align-items: flex-start;
             gap: 8px;
+            position: relative;
         }
         .message .msg-avatar {
             width: 24px;
@@ -1249,6 +1250,84 @@
             align-items: center;
             justify-content: center;
         }
+    
+        /* ===== 气泡预览区 ===== */
+        .bubble-preview-section {
+            background: var(--bg-input);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .bubble-preview-title {
+            font-size: 0.72rem;
+            color: var(--text-hint);
+            margin-bottom: 8px;
+        }
+        .bubble-preview-area {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 8px;
+            background: var(--bg-chat);
+            border-radius: 10px;
+        }
+        .preview-msg-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .preview-msg-row.user-row {
+            flex-direction: row-reverse;
+        }
+        .preview-avatar {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--avatar-bg-gradient);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .preview-bubble {
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 0.8rem;
+            max-width: 70%;
+            color: var(--text-primary);
+        }
+        .preview-user {
+            background: var(--bubble-user);
+        }
+        .preview-angle {
+            background: var(--bubble-angle);
+        }
+
+        /* ===== 称呼 chip ===== */
+        .call-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--accent-soft);
+            color: var(--text-primary);
+            border-radius: 14px;
+            font-size: 0.75rem;
+        }
+        .call-chip .del {
+            cursor: pointer;
+            color: var(--danger);
+            font-weight: bold;
+            margin-left: 2px;
+        }
+
+        /* ===== settings-section-title ===== */
+        .settings-section-title {
+            font-size: 0.72rem;
+            color: var(--text-hint);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -1715,12 +1794,14 @@
 
 <!-- ===== 昵称设置弹窗 ===== -->
 <div class="modal-overlay sub-modal" id="nicknameModal">
-    <div class="modal-content" style="max-width:400px;">
+    <div class="modal-content" style="max-width:460px;">
         <div class="modal-header">
             <h2>✏️ 昵称设置</h2>
             <button class="modal-close" id="closeNicknameModal">✕</button>
         </div>
         <div class="modal-body">
+            <!-- 基础昵称 -->
+            <div class="settings-section-title" style="font-size:0.75rem; color:#5a3d6b; font-weight:500; margin-bottom:6px;">基础昵称</div>
             <div style="display:flex; gap:12px; flex-wrap:wrap;">
                 <div style="flex:1; min-width:120px;">
                     <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.5; margin-bottom:4px;">梦女（我）</div>
@@ -1731,6 +1812,29 @@
                     <input type="text" id="angleNameInput" value="ta" style="width:100%; padding:8px 14px; border-radius:20px; border:1px solid rgba(200,170,220,0.15); font-size:0.85rem; outline:none;">
                 </div>
             </div>
+
+            <!-- 互相称呼 -->
+            <div class="settings-section-title" style="font-size:0.75rem; color:#5a3d6b; font-weight:500; margin:14px 0 6px;">💬 互相称呼（可自行添加）</div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
+                <div style="flex:1; min-width:120px;">
+                    <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.5; margin-bottom:4px;">梦女称呼梦角</div>
+                    <div id="userCallsAngleList" style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;"></div>
+                    <div style="display:flex; gap:4px;">
+                        <input type="text" id="newUserCallAngle" placeholder="例：宝贝、亲爱的" style="flex:1; padding:6px 12px; border-radius:16px; border:1px solid rgba(200,170,220,0.15); font-size:0.8rem; outline:none;">
+                        <button class="btn" id="addUserCallAngleBtn" style="padding:6px 10px; font-size:0.7rem;">+</button>
+                    </div>
+                </div>
+                <div style="flex:1; min-width:120px;">
+                    <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.5; margin-bottom:4px;">梦角称呼梦女</div>
+                    <div id="angleCallsUserList" style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;"></div>
+                    <div style="display:flex; gap:4px;">
+                        <input type="text" id="newAngleCallUser" placeholder="例：小猫、丫头" style="flex:1; padding:6px 12px; border-radius:16px; border:1px solid rgba(200,170,220,0.15); font-size:0.8rem; outline:none;">
+                        <button class="btn" id="addAngleCallUserBtn" style="padding:6px 10px; font-size:0.7rem;">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="mod-hint">💡 称呼会随机混入消息开头，保存后生效</div>
+
             <button class="btn btn-primary-mod" id="saveNicknameBtn" style="padding:8px 20px; margin-top:6px; align-self:flex-end;">保存</button>
         </div>
     </div>
@@ -1836,19 +1940,35 @@
 
 <!-- ===== 气泡设置弹窗 ===== -->
 <div class="modal-overlay sub-modal" id="bubbleModal">
-    <div class="modal-content" style="max-width:440px;">
+    <div class="modal-content" style="max-width:480px;">
         <div class="modal-header">
             <h2>💭 气泡</h2>
             <button class="modal-close" id="closeBubbleModal">✕</button>
         </div>
         <div class="modal-body">
+            <!-- 气泡预览区 -->
+            <div class="bubble-preview-section">
+                <div class="bubble-preview-title">👁 实时预览</div>
+                <div class="bubble-preview-area" id="bubblePreviewArea">
+                    <div class="preview-msg-row user-row">
+                        <span class="preview-avatar">🌸</span>
+                        <div class="preview-bubble preview-user" id="previewUserBubble">梦女示例消息</div>
+                    </div>
+                    <div class="preview-msg-row angle-row">
+                        <span class="preview-avatar">🌙</span>
+                        <div class="preview-bubble preview-angle" id="previewAngleBubble">梦角示例消息</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 基础设置 -->
             <div class="settings-item">
                 <div class="label">气泡形状</div>
                 <div class="desc">圆角 / 方角 / 尖角</div>
                 <select id="bubbleShapeSelect">
-                    <option value="round" selected>圆角</option>
-                    <option value="square">方角</option>
-                    <option value="sharp">尖角</option>
+                    <option value="round" selected>圆角（圆润）</option>
+                    <option value="square">方角（直角）</option>
+                    <option value="sharp">尖角（尖头）</option>
                 </select>
             </div>
             <div class="settings-item">
@@ -1869,42 +1989,67 @@
             </div>
             <div class="settings-item">
                 <div class="label">气泡圆角大小</div>
-                <div class="desc">数值越大越圆润</div>
+                <div class="desc">数值越大越圆润，方角模式下无效</div>
                 <div class="avatar-slider-row" style="margin-top:6px;">
-                    <input type="range" id="bubbleRadiusSlider" min="4" max="30" value="18">
+                    <input type="range" id="bubbleRadiusSlider" min="0" max="40" value="18">
                     <span class="value" id="bubbleRadiusValue">18px</span>
                 </div>
             </div>
-            <button class="btn btn-primary-mod" id="saveBubbleBtn" style="padding:8px 20px; align-self:flex-end;">保存气泡设置</button>
+
+            <!-- 自定义 CSS 区域 -->
+            <div class="settings-item">
+                <div class="label">🎨 自定义 CSS（高级）</div>
+                <div class="desc">可自行编写 CSS 调节气泡样式，影响所有消息气泡</div>
+                <textarea id="bubbleCustomCSS" class="mod-textarea" placeholder="/* 例： */
+.message { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.message.user { border: 1px solid var(--accent); }" style="font-family:monospace; font-size:0.7rem; min-height:100px;"></textarea>
+                <div class="color-row" style="margin-top:6px;">
+                    <button class="btn btn-primary-mod" id="applyBubbleCSSBtn" style="padding:6px 14px;">应用 CSS</button>
+                    <button class="btn" id="clearBubbleCSSBtn" style="padding:6px 14px;">清空</button>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:6px; justify-content:flex-end;">
+                <button class="btn" id="restoreBubbleBtn" style="padding:8px 20px;">恢复默认</button>
+                <button class="btn btn-primary-mod" id="saveBubbleBtn" style="padding:8px 20px;">保存气泡设置</button>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- ===== 背景&字体弹窗 ===== -->
 <div class="modal-overlay sub-modal" id="bgFontModal">
-    <div class="modal-content" style="max-width:440px;">
+    <div class="modal-content" style="max-width:480px;">
         <div class="modal-header">
             <h2>🔤 背景&字体</h2>
             <button class="modal-close" id="closeBgFontModal">✕</button>
         </div>
         <div class="modal-body">
+            <!-- 聊天背景颜色（与主题外观互通） -->
             <div class="settings-item">
                 <div class="label">聊天背景颜色</div>
-                <div class="desc">聊天区域背景色</div>
+                <div class="desc">与「主题外观」聊天背景颜色互通</div>
                 <div class="color-row" style="margin-top:6px;">
                     <input type="color" id="bgColorInput" value="#fcfaff">
                     <button class="btn" id="applyBgColorBtn">应用</button>
                 </div>
             </div>
+
+            <!-- 背景图片（URL + 上传） -->
             <div class="settings-item">
-                <div class="label">背景图片 URL</div>
-                <div class="desc">留空则使用纯色背景</div>
-                <input type="text" id="bgImageInput" placeholder="https://... 图片地址">
-                <div class="color-row" style="margin-top:6px;">
-                    <button class="btn" id="applyBgImageBtn">应用图片</button>
+                <div class="label">背景图片</div>
+                <div class="desc">URL 或本地上传（JPG/PNG），留空则用纯色背景</div>
+                <input type="text" id="bgImageInput" placeholder="https://... 图片地址（支持 JPG/PNG）">
+                <div class="avatar-upload-row" style="margin-top:6px;">
+                    <button class="btn" id="bgImageUploadBtn" type="button">📁 上传图片</button>
+                    <input type="file" id="bgImageFile" accept="image/jpeg,image/png,image/jpg" style="position:absolute;width:0;height:0;opacity:0;overflow:hidden;pointer-events:none;">
+                    <button class="btn" id="applyBgImageBtn">应用 URL</button>
                     <button class="btn btn-danger" id="clearBgImageBtn">移除图片</button>
                 </div>
+                <div class="mod-hint">💡 支持 URL 或本地上传（JPG / PNG）</div>
             </div>
+
+            <!-- 字体大小 -->
             <div class="settings-item">
                 <div class="label">字体大小</div>
                 <div class="desc">消息文字大小</div>
@@ -1913,18 +2058,39 @@
                     <span class="value" id="fontSizeValue">14px</span>
                 </div>
             </div>
+
+            <!-- 字体族（预置 + 自定义上传） -->
             <div class="settings-item">
                 <div class="label">字体族</div>
-                <div class="desc">消息显示字体</div>
-                <select id="fontFamilySelect">
-                    <option value="'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif" selected>默认</option>
+                <div class="desc">选择预置字体，或上传 .ttf/.otf/.woff 字体文件</div>
+                <select id="fontFamilySelect" style="margin-bottom:6px;">
+                    <option value="'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif" selected>默认（系统）</option>
                     <option value="'PingFang SC', sans-serif">苹方</option>
                     <option value="Georgia, serif">衬线 Georgia</option>
                     <option value="'Courier New', monospace">等宽 Courier</option>
                     <option value="'Microsoft YaHei', sans-serif">微软雅黑</option>
                 </select>
+                <div class="avatar-upload-row" style="margin-top:6px;">
+                    <button class="btn" id="fontUploadBtn" type="button">📁 上传字体</button>
+                    <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" style="position:absolute;width:0;height:0;opacity:0;overflow:hidden;pointer-events:none;">
+                    <span class="value" id="customFontName" style="font-size:0.7rem; color:#7a5b8c; flex:1;">未上传字体</span>
+                    <button class="btn btn-danger" id="removeCustomFontBtn" style="padding:6px 10px; font-size:0.7rem;">移除</button>
+                </div>
+                <div style="margin-top:8px;">
+                    <div class="label" style="font-size:0.75rem; margin-bottom:4px;">📱 加载手机系统字体</div>
+                    <div class="desc" style="margin-bottom:6px;">输入手机系统字体名称（如 苹方、宋体、Heiti SC、San Francisco 等）</div>
+                    <div class="avatar-upload-row">
+                        <input type="text" id="systemFontInput" placeholder="例：苹方" style="flex:1; padding:6px 12px; border-radius:16px; border:1px solid rgba(200,170,220,0.15); font-size:0.8rem; outline:none;">
+                        <button class="btn" id="applySystemFontBtn" style="padding:6px 10px; font-size:0.7rem;">应用</button>
+                    </div>
+                </div>
+                <div class="mod-hint">💡 支持上传 .ttf/.otf/.woff 字体文件，或输入手机系统字体名加载</div>
             </div>
-            <button class="btn btn-primary-mod" id="saveBgFontBtn" style="padding:8px 20px; align-self:flex-end;">保存背景&字体</button>
+
+            <div style="display:flex; gap:8px; margin-top:6px; justify-content:flex-end;">
+                <button class="btn" id="restoreBgFontBtn" style="padding:8px 20px;">恢复默认</button>
+                <button class="btn btn-primary-mod" id="saveBgFontBtn" style="padding:8px 20px;">保存背景&字体</button>
+            </div>
         </div>
     </div>
 </div>
@@ -2048,6 +2214,11 @@
                     <div class="quick-swatch" data-quick="forest" style="background:#6d8a6d;" title="深林绿"></div>
                     <div class="quick-swatch" data-quick="royal" style="background:#8b9bc0;" title="皇家蓝"></div>
                 </div>
+            </div>
+
+            <!-- 恢复默认 -->
+            <div class="theme-section" style="display:flex; justify-content:center;">
+                <button class="btn" id="restoreThemeBtn" style="padding:8px 24px; width:100%;">🔄 恢复默认主题（梦紫）</button>
             </div>
 
             <!-- 主题方案 -->
@@ -2333,6 +2504,11 @@
         let chatShowTimestamp = true;
         let chatShowAvatar = true;
         let bubbleShape = 'round';
+        let bubbleCustomCSS = '';
+        let customFontName = '';
+        let customFontFamily = '';
+        let userCallsAngle = [];
+        let angleCallsUser = [];
         let bubbleUserColor = '#e8ddf2';
         let bubbleAngleColor = '#f3eef8';
         let bubbleRadius = 18;
@@ -3914,6 +4090,304 @@
         }
 
         // ===== 外观设置：气泡 / 背景&字体 / 主题 应用 =====
+
+        // ===== 渲染称呼列表 =====
+        function renderCallLists() {
+            const uaList = document.getElementById('userCallsAngleList');
+            const auList = document.getElementById('angleCallsUserList');
+            if (uaList) {
+                uaList.innerHTML = '';
+                userCallsAngle.forEach((c, i) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'call-chip';
+                    chip.innerHTML = c + ' <span class="del" data-idx="' + i + '" data-dir="u2a">×</span>';
+                    uaList.appendChild(chip);
+                });
+            }
+            if (auList) {
+                auList.innerHTML = '';
+                angleCallsUser.forEach((c, i) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'call-chip';
+                    chip.innerHTML = c + ' <span class="del" data-idx="' + i + '" data-dir="a2u">×</span>';
+                    auList.appendChild(chip);
+                });
+            }
+        }
+
+        // ===== 主题外观：恢复默认 =====
+        const restoreThemeBtn = document.getElementById('restoreThemeBtn');
+        if (restoreThemeBtn) restoreThemeBtn.addEventListener('click', () => {
+            if (!confirm('恢复默认梦紫主题？所有自定义配色将被重置。')) return;
+            currentTheme = 'lavender';
+            localStorage.removeItem('lingstar_theme_vars');
+            localStorage.removeItem('lingstar_current_theme');
+            applyThemeVariables(THEME_PRESETS.lavender);
+            document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(x => x.classList.remove('active'));
+            document.querySelector('#themeQuickSwatches .quick-swatch[data-quick="lavender"]')?.classList.add('active');
+            // 主题外观不是预置之一，找最接近的 brown? 不对，恢复梦紫应该选 lavender
+            // lavender 不在 quick swatches 列表里，但 purple 接近。实际恢复默认就是应用 lavender 预设
+            showToast('已恢复默认主题');
+        });
+
+        // ===== 气泡：恢复默认 =====
+        const restoreBubbleBtn = document.getElementById('restoreBubbleBtn');
+        if (restoreBubbleBtn) restoreBubbleBtn.addEventListener('click', () => {
+            if (!confirm('恢复默认气泡设置？')) return;
+            bubbleShape = 'round';
+            bubbleUserColor = '#e8ddf2';
+            bubbleAngleColor = '#f3eef8';
+            bubbleRadius = 18;
+            bubbleCustomCSS = '';
+            document.getElementById('bubbleShapeSelect').value = 'round';
+            document.getElementById('bubbleUserColor').value = '#e8ddf2';
+            document.getElementById('bubbleAngleColor').value = '#f3eef8';
+            document.getElementById('bubbleRadiusSlider').value = 18;
+            document.getElementById('bubbleRadiusValue').textContent = '18px';
+            document.getElementById('bubbleCustomCSS').value = '';
+            // 同步到主题变量
+            document.documentElement.style.setProperty('--bubble-user', '#e8ddf2');
+            document.documentElement.style.setProperty('--bubble-angle', '#f3eef8');
+            applyBubbleStyle();
+            saveAppearance();
+            showToast('气泡已恢复默认');
+        });
+
+        // ===== 气泡自定义 CSS 应用/清空 =====
+        const applyBubbleCSSBtn = document.getElementById('applyBubbleCSSBtn');
+        if (applyBubbleCSSBtn) applyBubbleCSSBtn.addEventListener('click', () => {
+            bubbleCustomCSS = document.getElementById('bubbleCustomCSS').value;
+            applyBubbleStyle();
+            saveAppearance();
+            showToast('自定义 CSS 已应用');
+        });
+        const clearBubbleCSSBtn = document.getElementById('clearBubbleCSSBtn');
+        if (clearBubbleCSSBtn) clearBubbleCSSBtn.addEventListener('click', () => {
+            document.getElementById('bubbleCustomCSS').value = '';
+            bubbleCustomCSS = '';
+            applyBubbleStyle();
+            saveAppearance();
+            showToast('自定义 CSS 已清空');
+        });
+
+        // ===== 背景&字体：颜色与主题外观互通 =====
+        const bgColorInputEl = document.getElementById('bgColorInput');
+        const applyBgColorBtnEl = document.getElementById('applyBgColorBtn');
+        if (bgColorInputEl && applyBgColorBtnEl) {
+            applyBgColorBtnEl.addEventListener('click', () => {
+                bgColor = bgColorInputEl.value;
+                // 同步到主题外观的 --bg-chat 变量
+                document.documentElement.style.setProperty('--bg-chat', bgColor);
+                // 同步主题外观的聊天背景颜色输入
+                const tEl = document.getElementById('themeBgChatInput');
+                if (tEl) tEl.value = bgColor;
+                applyBubbleStyle();
+                saveAppearance();
+                saveCurrentThemeToStorage();
+                showToast('背景颜色已应用');
+            });
+            // 主题外观的聊天背景变化时同步到这里
+            const themeBgChatInput = document.getElementById('themeBgChatInput');
+            if (themeBgChatInput) {
+                themeBgChatInput.addEventListener('input', () => {
+                    bgColor = themeBgChatInput.value;
+                    bgColorInputEl.value = bgColor;
+                    applyBubbleStyle();
+                    saveAppearance();
+                });
+            }
+        }
+
+        // ===== 背景&字体：本地上传图片 =====
+        const bgImageUploadBtn = document.getElementById('bgImageUploadBtn');
+        const bgImageFile = document.getElementById('bgImageFile');
+        if (bgImageUploadBtn && bgImageFile) {
+            bgImageUploadBtn.addEventListener('click', () => bgImageFile.click());
+            bgImageFile.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
+                    showToast('仅支持 JPG / PNG 格式');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    bgImage = ev.target.result;
+                    document.getElementById('bgImageInput').value = '(本地上传)';
+                    applyBubbleStyle();
+                    saveAppearance();
+                    showToast('背景图片已应用');
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ===== 背景&字体：字体上传 =====
+        const fontUploadBtn = document.getElementById('fontUploadBtn');
+        const fontFile = document.getElementById('fontFile');
+        if (fontUploadBtn && fontFile) {
+            fontUploadBtn.addEventListener('click', () => fontFile.click());
+            fontFile.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.name.match(/\.(ttf|otf|woff|woff2)$/i)) {
+                    showToast('仅支持 .ttf / .otf / .woff / .woff2');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    // 注入 @font-face
+                    const fontName = 'CustomFont_' + Date.now();
+                    let fontFaceStyle = document.getElementById('customFontFace');
+                    if (!fontFaceStyle) {
+                        fontFaceStyle = document.createElement('style');
+                        fontFaceStyle.id = 'customFontFace';
+                        document.head.appendChild(fontFaceStyle);
+                    }
+                    fontFaceStyle.textContent = '@font-face { font-family: "' + fontName + '"; src: url(' + ev.target.result + '); }';
+                    customFontName = file.name;
+                    customFontFamily = fontName;
+                    fontFamily = fontName;
+                    // 添加到下拉
+                    const existing = Array.from(fontFamilySelect.options).find(o => o.value === fontName);
+                    if (!existing) {
+                        const opt = document.createElement('option');
+                        opt.value = fontName;
+                        opt.textContent = '自定义: ' + file.name;
+                        fontFamilySelect.appendChild(opt);
+                    }
+                    fontFamilySelect.value = fontName;
+                    document.getElementById('customFontName').textContent = '已上传: ' + file.name;
+                    applyBubbleStyle();
+                    saveAppearance();
+                    showToast('字体已加载: ' + file.name);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ===== 系统/手机字体加载 =====
+        const applySystemFontBtn = document.getElementById('applySystemFontBtn');
+        if (applySystemFontBtn) applySystemFontBtn.addEventListener('click', () => {
+            const input = document.getElementById('systemFontInput');
+            let v = input.value.trim();
+            if (!v) { showToast('请输入字体名称'); return; }
+            // 包装字体名
+            const fontVal = "'" + v.replace(/'/g, '') + "', sans-serif";
+            // 添加到下拉
+            const existing = Array.from(fontFamilySelect.options).find(o => o.value === fontVal);
+            if (!existing) {
+                const opt = document.createElement('option');
+                opt.value = fontVal;
+                opt.textContent = '系统: ' + v;
+                fontFamilySelect.appendChild(opt);
+            }
+            fontFamilySelect.value = fontVal;
+            fontFamily = fontVal;
+            customFontName = '系统: ' + v;
+            customFontFamily = '';
+            // 清除文件上传注入的 @font-face（系统字体不需要）
+            const ffs = document.getElementById('customFontFace');
+            if (ffs) ffs.textContent = '';
+            document.getElementById('customFontName').textContent = '系统字体: ' + v;
+            applyBubbleStyle();
+            saveAppearance();
+            showToast('系统字体已应用: ' + v);
+        });
+
+        // 移除自定义字体
+        const removeCustomFontBtn = document.getElementById('removeCustomFontBtn');
+        if (removeCustomFontBtn) removeCustomFontBtn.addEventListener('click', () => {
+            if (!customFontName) { showToast('未上传字体'); return; }
+            if (!confirm('移除自定义字体？')) return;
+            const ffs = document.getElementById('customFontFace');
+            if (ffs) ffs.textContent = '';
+            customFontName = '';
+            customFontFamily = '';
+            fontFamily = "'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif";
+            // 移除下拉中的自定义项（文件上传字体 + 系统字体）
+            const opts = Array.from(fontFamilySelect.options);
+            for (const o of opts) {
+                if (o.value.startsWith('CustomFont_') || (o.textContent && o.textContent.startsWith('系统:'))) fontFamilySelect.removeChild(o);
+            }
+            fontFamilySelect.value = fontFamily;
+            document.getElementById('customFontName').textContent = '未上传字体';
+            const sfi = document.getElementById('systemFontInput');
+            if (sfi) sfi.value = '';
+            applyBubbleStyle();
+            saveAppearance();
+            showToast('自定义字体已移除');
+        });
+
+        // ===== 背景&字体：恢复默认 =====
+        const restoreBgFontBtn = document.getElementById('restoreBgFontBtn');
+        if (restoreBgFontBtn) restoreBgFontBtn.addEventListener('click', () => {
+            if (!confirm('恢复默认背景&字体？')) return;
+            bgColor = '#fcfaff';
+            bgImage = '';
+            fontSize = 14;
+            fontFamily = "'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif";
+            document.getElementById('bgColorInput').value = bgColor;
+            document.getElementById('bgImageInput').value = '';
+            document.getElementById('fontSizeSlider').value = 14;
+            document.getElementById('fontSizeValue').textContent = '14px';
+            // 清除自定义字体（文件上传 + 系统字体）
+            const ffs = document.getElementById('customFontFace');
+            if (ffs) ffs.textContent = '';
+            customFontName = '';
+            customFontFamily = '';
+            const opts = Array.from(fontFamilySelect.options);
+            for (const o of opts) {
+                if (o.value.startsWith('CustomFont_') || (o.textContent && o.textContent.startsWith('系统:'))) fontFamilySelect.removeChild(o);
+            }
+            fontFamilySelect.value = fontFamily;
+            document.getElementById('customFontName').textContent = '未上传字体';
+            const sfi = document.getElementById('systemFontInput');
+            if (sfi) sfi.value = '';
+            // 同步主题外观
+            document.documentElement.style.setProperty('--bg-chat', bgColor);
+            const tEl = document.getElementById('themeBgChatInput');
+            if (tEl) tEl.value = bgColor;
+            applyBubbleStyle();
+            saveAppearance();
+            saveCurrentThemeToStorage();
+            showToast('背景&字体已恢复默认');
+        });
+
+        // ===== 昵称设置：双向称呼 =====
+        const addUserCallAngleBtn = document.getElementById('addUserCallAngleBtn');
+        if (addUserCallAngleBtn) addUserCallAngleBtn.addEventListener('click', () => {
+            const input = document.getElementById('newUserCallAngle');
+            const v = input.value.trim();
+            if (!v) return;
+            if (!userCallsAngle.includes(v)) userCallsAngle.push(v);
+            input.value = '';
+            renderCallLists();
+            saveAppearance();
+        });
+        const addAngleCallUserBtn = document.getElementById('addAngleCallUserBtn');
+        if (addAngleCallUserBtn) addAngleCallUserBtn.addEventListener('click', () => {
+            const input = document.getElementById('newAngleCallUser');
+            const v = input.value.trim();
+            if (!v) return;
+            if (!angleCallsUser.includes(v)) angleCallsUser.push(v);
+            input.value = '';
+            renderCallLists();
+            saveAppearance();
+        });
+        // 删除称呼 chip
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('del') && e.target.dataset.dir) {
+                const idx = parseInt(e.target.dataset.idx);
+                if (e.target.dataset.dir === 'u2a') userCallsAngle.splice(idx, 1);
+                else if (e.target.dataset.dir === 'a2u') angleCallsUser.splice(idx, 1);
+                renderCallLists();
+                saveAppearance();
+            }
+        });
+
+        // 自定义气泡 CSS 内容（变量已在前面声明）
+
         function applyBubbleStyle() {
             const style = document.getElementById('appDynamicStyle') || (() => {
                 const s = document.createElement('style');
@@ -3921,18 +4395,45 @@
                 document.head.appendChild(s);
                 return s;
             })();
-            const radius = bubbleRadius;
-            const userR = bubbleShape === 'square' ? '0' : (bubbleShape === 'sharp' ? '4px' : radius + 'px');
+            const radius = Math.max(0, bubbleRadius);
+            // 形状明显化：square=全直角, sharp=尖角(小圆角+三角尖尾), round=全圆角
+            let mainRadius, tailRadius, sharpExtra = '';
+            if (bubbleShape === 'square') {
+                mainRadius = '0'; tailRadius = '0';
+                sharpExtra = '.message.user::after, .message.system::after, .preview-user::after, .preview-angle::after { display: none !important; }';
+            } else if (bubbleShape === 'sharp') {
+                // 尖角：主体小圆角 + 三角形尖尾巴
+                mainRadius = '6px'; tailRadius = '0';
+                sharpExtra = `
+                .message.user::after { content:''; position:absolute; bottom:0; right:-7px; width:0; height:0; border-style:solid; border-width:0 0 8px 8px; border-color:transparent transparent transparent var(--bubble-user); display:block; }
+                .message.system::after { content:''; position:absolute; bottom:0; left:-7px; width:0; height:0; border-style:solid; border-width:0 8px 8px 0; border-color:transparent var(--bubble-angle) transparent transparent; display:block; }
+                .preview-user::after { content:''; position:absolute; bottom:0; right:-6px; width:0; height:0; border-style:solid; border-width:0 0 7px 7px; border-color:transparent transparent transparent var(--bubble-user); display:block; }
+                .preview-angle::after { content:''; position:absolute; bottom:0; left:-6px; width:0; height:0; border-style:solid; border-width:0 7px 7px 0; border-color:transparent var(--bubble-angle) transparent transparent; display:block; }
+                .preview-bubble { position: relative; }
+                `;
+            } else {
+                mainRadius = radius + 'px'; tailRadius = Math.max(2, Math.floor(radius/4)) + 'px';
+                sharpExtra = '.message.user::after, .message.system::after, .preview-user::after, .preview-angle::after { display: none !important; }';
+            }
             const css = `
-                .message.user { background:${bubbleUserColor}; border-bottom-right-radius:${bubbleShape === 'sharp' ? '0' : '4px'}; border-radius:${bubbleShape === 'square' ? '0' : userR}; }
-                .message.system { background:${bubbleAngleColor}; border-bottom-left-radius:${bubbleShape === 'sharp' ? '0' : '4px'}; border-radius:${bubbleShape === 'square' ? '0' : userR}; }
-                .chat-box { background:${bgImage ? 'transparent' : bgColor}; ${bgImage ? `background-image:url('${bgImage}'); background-size:cover; background-position:center;` : ''} }
+                .message.user {
+                    border-radius: ${mainRadius};
+                    border-bottom-right-radius: ${tailRadius};
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+                }
+                .message.system {
+                    border-radius: ${mainRadius};
+                    border-bottom-left-radius: ${tailRadius};
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+                }
+                ${sharpExtra}
+                .chat-box { background:${bgImage ? 'transparent' : 'var(--bg-chat)'}; ${bgImage ? `background-image:url('${bgImage}'); background-size:cover; background-position:center; background-attachment:fixed;` : ''} }
                 .message { font-size:${fontSize}px; font-family:${fontFamily}; }
-                .btn-send, .arrow-up-btn.active, .mod-group-tab.active, .shape-btn.active, .theme-swatch.active, .settings-section-card .arrow, .modal-header h2 {  }
+                /* 同步预览区 */
+                .preview-user { border-radius: ${mainRadius}; border-bottom-right-radius: ${tailRadius}; }
+                .preview-angle { border-radius: ${mainRadius}; border-bottom-left-radius: ${tailRadius}; }
             `;
-            style.textContent = css;
-            // 强调色应用
-            document.documentElement.style.setProperty('--accent', themeAccent);
+            style.textContent = css + (bubbleCustomCSS ? '\n' + bubbleCustomCSS : '');
         }
 
         function loadAppearance() {
@@ -3953,6 +4454,11 @@
                     chatPickMode = a.chatPickMode || chatPickMode;
                     chatShowTimestamp = a.chatShowTimestamp != null ? a.chatShowTimestamp : chatShowTimestamp;
                     chatShowAvatar = a.chatShowAvatar != null ? a.chatShowAvatar : chatShowAvatar;
+                    bubbleCustomCSS = a.bubbleCustomCSS || '';
+                    customFontName = a.customFontName || '';
+                    customFontFamily = a.customFontFamily || '';
+                    userCallsAngle = a.userCallsAngle || [];
+                    angleCallsUser = a.angleCallsUser || [];
                 } catch (e) {}
             }
             // 同步表单
@@ -3966,13 +4472,46 @@
             fontSizeSlider.value = fontSize;
             fontSizeValue.textContent = fontSize + 'px';
             fontFamilySelect.value = fontFamily;
+            // 同步自定义 CSS
+            const cssTA = document.getElementById('bubbleCustomCSS');
+            if (cssTA) cssTA.value = bubbleCustomCSS;
+            // 同步自定义字体
+            const cfn = document.getElementById('customFontName');
+            if (cfn) cfn.textContent = customFontName ? (customFontName.startsWith('系统:') ? customFontName : ('已上传: ' + customFontName)) : '未上传字体';
+            if (customFontFamily && fontFamilySelect) {
+                // 文件上传字体：添加自定义字体选项（注意：DataURL 在重载后丢失，需重新上传）
+                const existing = Array.from(fontFamilySelect.options).find(o => o.value === customFontFamily);
+                if (!existing) {
+                    const opt = document.createElement('option');
+                    opt.value = customFontFamily;
+                    opt.textContent = '自定义: ' + customFontName;
+                    fontFamilySelect.appendChild(opt);
+                }
+                fontFamilySelect.value = customFontFamily;
+            } else if (customFontName && customFontName.startsWith('系统:') && fontFamilySelect) {
+                // 系统字体：重新添加下拉选项
+                const existing = Array.from(fontFamilySelect.options).find(o => o.value === fontFamily);
+                if (!existing) {
+                    const opt = document.createElement('option');
+                    opt.value = fontFamily;
+                    opt.textContent = customFontName;
+                    fontFamilySelect.appendChild(opt);
+                }
+                fontFamilySelect.value = fontFamily;
+                const sfi = document.getElementById('systemFontInput');
+                if (sfi) sfi.value = customFontName.replace(/^系统:\s*/, '');
+            }
+            // 渲染称呼列表
+            renderCallLists();
             applyBubbleStyle();
         }
         function saveAppearance() {
             const data = {
                 bubbleShape, bubbleUserColor, bubbleAngleColor, bubbleRadius,
                 bgColor, bgImage, fontSize, fontFamily, themeAccent,
-                chatReplySpeed, chatPickMode, chatShowTimestamp, chatShowAvatar
+                chatReplySpeed, chatPickMode, chatShowTimestamp, chatShowAvatar,
+                bubbleCustomCSS, customFontName, customFontFamily,
+                userCallsAngle, angleCallsUser
             };
             localStorage.setItem('dream_appearance', JSON.stringify(data));
             applyBubbleStyle();
@@ -4328,8 +4867,36 @@
 
             // 气泡
             bubbleShapeSelect.addEventListener('change', function() { bubbleShape = this.value; applyBubbleStyle(); });
-            applyBubbleUserColor.addEventListener('click', () => { bubbleUserColor = bubbleUserColorInput.value; applyBubbleStyle(); });
-            applyBubbleAngleColor.addEventListener('click', () => { bubbleAngleColor = bubbleAngleColorInput.value; applyBubbleStyle(); });
+            applyBubbleUserColor.addEventListener('click', () => {
+                bubbleUserColor = bubbleUserColorInput.value;
+                // 同步到主题变量
+                document.documentElement.style.setProperty('--bubble-user', bubbleUserColor);
+                const tEl = document.getElementById('themeBubbleUserInput');
+                if (tEl) tEl.value = bubbleUserColor;
+                applyBubbleStyle();
+                saveCurrentThemeToStorage();
+            });
+            applyBubbleAngleColor.addEventListener('click', () => {
+                bubbleAngleColor = bubbleAngleColorInput.value;
+                document.documentElement.style.setProperty('--bubble-angle', bubbleAngleColor);
+                const tEl = document.getElementById('themeBubbleAngleInput');
+                if (tEl) tEl.value = bubbleAngleColor;
+                applyBubbleStyle();
+                saveCurrentThemeToStorage();
+            });
+            // 反向同步：主题外观气泡颜色变化时同步到这里
+            const themeBubbleUserInput = document.getElementById('themeBubbleUserInput');
+            if (themeBubbleUserInput) themeBubbleUserInput.addEventListener('input', () => {
+                bubbleUserColor = themeBubbleUserInput.value;
+                bubbleUserColorInput.value = bubbleUserColor;
+                applyBubbleStyle();
+            });
+            const themeBubbleAngleInput = document.getElementById('themeBubbleAngleInput');
+            if (themeBubbleAngleInput) themeBubbleAngleInput.addEventListener('input', () => {
+                bubbleAngleColor = themeBubbleAngleInput.value;
+                bubbleAngleColorInput.value = bubbleAngleColor;
+                applyBubbleStyle();
+            });
             bubbleRadiusSlider.addEventListener('input', function() {
                 bubbleRadius = parseInt(this.value);
                 bubbleRadiusValue.textContent = bubbleRadius + 'px';
