@@ -2809,7 +2809,7 @@
                 <span class="mod-empty">暂无字卡</span>
             </div>
             <div>
-                <textarea class="mod-textarea" id="modBatchInput" placeholder="一行一条字卡"></textarea>
+                <textarea class="mod-textarea" id="modBatchInput" placeholder="一行一条字卡，回车换行；Ctrl+Enter 批量导入"></textarea>
                 <div class="mod-row" style="margin-top:4px;">
                     <select id="modBatchGroupSelect"><option value="default">默认</option></select>
                     <button class="btn btn-primary-mod" id="modBatchImportBtn">导入</button>
@@ -2859,7 +2859,7 @@
             </div>
             <!-- 批量导入：换行分隔，一行一条 -->
             <div>
-                <textarea class="mod-textarea" id="emojiBatchInput" placeholder="一行一条表情，换行分隔"></textarea>
+                <textarea class="mod-textarea" id="emojiBatchInput" placeholder="一行一条表情，回车换行；Ctrl+Enter 批量导入"></textarea>
                 <div class="mod-row" style="margin-top:4px;">
                     <select id="emojiBatchGroupSelect"><option value="default">默认</option></select>
                     <button class="btn btn-primary-mod" id="emojiBatchImportBtn">导入</button>
@@ -2917,7 +2917,7 @@
             </div>
             <!-- 批量导入：换行分隔，一行一条 -->
             <div>
-                <textarea class="mod-textarea" id="patBatchInput" placeholder="一行一条拍一拍，换行分隔"></textarea>
+                <textarea class="mod-textarea" id="patBatchInput" placeholder="一行一条拍一拍，回车换行；Ctrl+Enter 批量导入"></textarea>
                 <div class="mod-row" style="margin-top:4px;">
                     <select id="patBatchGroupSelect"><option value="default">默认</option></select>
                     <button class="btn btn-primary-mod" id="patBatchImportBtn">导入</button>
@@ -6095,7 +6095,7 @@
             modBatchImportBtn.addEventListener('click', batchImportCards);
             modClearBatchBtn.addEventListener('click', () => { modBatchInput.value = ''; });
             modBatchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); batchImportCards(); }
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); batchImportCards(); }
             });
             modSelectBtn.addEventListener('click', toggleCardSelectMode);
             modDeleteSelectedBtn.addEventListener('click', deleteCardSelected);
@@ -6118,7 +6118,7 @@
             emojiBatchImportBtn.addEventListener('click', batchImportEmojis);
             emojiClearBatchBtn.addEventListener('click', () => { emojiBatchInput.value = ''; });
             emojiBatchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); batchImportEmojis(); }
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); batchImportEmojis(); }
             });
             emojiAddGroupBtn.addEventListener('click', addEmojiGroup);
             emojiGroupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addEmojiGroup(); });
@@ -6138,7 +6138,7 @@
             patBatchImportBtn.addEventListener('click', batchImportPats);
             patClearBatchBtn.addEventListener('click', () => { patBatchInput.value = ''; });
             patBatchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); batchImportPats(); }
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); batchImportPats(); }
             });
             patAddGroupBtn.addEventListener('click', addPatGroup);
             patGroupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addPatGroup(); });
@@ -6287,7 +6287,8 @@
                         break;
                     }
                     case 'fav': {
-                        const pool = favorites[sender] || (favorites[sender] = []);
+                        // 梦女（用户）手动收藏 → 存入「我的收藏」(favorites.usr)
+                        const pool = favorites['usr'] || (favorites['usr'] = []);
                         const already = pool.some(i => i.text === text);
                         if (already) { showToast('已收藏过此消息'); break; }
                         const item = { id: 'fav-' + Date.now().toString(36), text, sender, ts: Date.now(), from: (sender==='usr'? userName : angleName) };
@@ -6297,7 +6298,7 @@
                         star.className = 'msg-fav-star'; star.textContent = '⭐';
                         div.appendChild(star);
                         saveAppearance();
-                        showToast((sender==='usr'?'我的':'对方的') + '消息已收藏');
+                        showToast('已收藏到「我的收藏」');
                         closeMsgToolbar();
                         break;
                     }
@@ -6392,6 +6393,29 @@
                     if (c) showToast(`内容：${c.text}`);
                 });
                 last.remove();
+            }
+
+            // 梦角偶尔收藏梦女的最新消息 → 存入「ta 的收藏」(favorites.angle)
+            function angleFavUserMsgRandom() {
+                const userMsgs = chatBox.querySelectorAll('.message.user');
+                if (!userMsgs.length) return;
+                if (Math.random() > 0.04) return;  // 4% 概率
+                const last = userMsgs[userMsgs.length - 1];
+                const contentEl = last.querySelector('.msg-content');
+                const text = contentEl ? contentEl.textContent.trim() : '';
+                if (!text) return;
+                if (!favorites.angle) favorites.angle = [];
+                if (favorites.angle.some(i => i.text === text)) return;  // ta 已收藏过
+                const item = { id: 'fav-' + Date.now().toString(36), text, sender: 'usr', ts: Date.now(), from: userName };
+                favorites.angle.unshift(item);
+                // 若尚无星标则补一个
+                if (!last.querySelector('.msg-fav-star')) {
+                    const star = document.createElement('span');
+                    star.className = 'msg-fav-star'; star.textContent = '⭐';
+                    last.appendChild(star);
+                }
+                saveAppearance();
+                showToast(`${angleName} 收藏了你的一条消息`);
             }
 
             // ========== 标注：颜色选择 + 备注输入 ==========
@@ -6616,6 +6640,7 @@
             replyWithRandomCard = function() {
                 const ret = _origReply.apply(this, arguments);
                 setTimeout(angleRecallUserMsgRandom, 1500);
+                setTimeout(angleFavUserMsgRandom, 2000);
                 return ret;
             };
 
