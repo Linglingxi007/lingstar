@@ -218,6 +218,21 @@
             border-bottom-left-radius: 4px;
             border: 1px solid rgba(220, 200, 240, 0.10);
         }
+        /* 拍一拍通知（居中文字，无气泡） */
+        .message.pat-notice {
+            align-self: center;
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+            color: var(--text-muted, #999);
+            font-size: 0.72rem;
+            padding: 3px 14px;
+            text-align: center;
+            max-width: 90%;
+            opacity: 0.7;
+        }
+        .message.pat-notice .msg-avatar { display: none; }
+        .message.pat-notice small { display: none; }
         .message small {
             display: block;
             font-size: 0.5rem;
@@ -4177,6 +4192,36 @@
         }
 
         // ===== 拍一拍触发 =====
+        // 格式化拍一拍文案：将"靠了靠肩膀"拆分为"靠了靠"+"肩膀"，显示为"小鱼 靠了靠 我的肩膀"
+        function formatPatText(pat, sender, receiver) {
+            const idx = pat.lastIndexOf('了');
+            if (idx < 0) return `${sender} ${pat} ${receiver}`;
+            const afterLe = pat[idx + 1];
+            const beforeLe = pat[idx - 1];
+            let verbEnd;
+            if (beforeLe === afterLe) {
+                // A了A 模式（如 拍了拍肩膀 → 拍了拍 + 肩膀）
+                verbEnd = idx + 2;
+            } else {
+                // AA了 模式（如 牵起了手 → 牵起了 + 手）
+                verbEnd = idx + 1;
+            }
+            const verb = pat.substring(0, verbEnd);
+            const body = pat.substring(verbEnd);
+            if (body) return `${sender} ${verb} ${receiver}的${body}`;
+            return `${sender} ${pat} ${receiver}`;
+        }
+        // 添加拍一拍居中通知
+        function addPatNotice(text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message pat-notice';
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'msg-content';
+            contentDiv.textContent = text;
+            msgDiv.appendChild(contentDiv);
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
         function triggerPat() {
             if (!patDblClickEnabled) return;
             const now = Date.now();
@@ -4185,23 +4230,29 @@
             patLastUserTime = now;
             // 从拍一拍库随机选一条
             const allPats = Object.values(patGroups).flat();
+            let userPatText;
             if (!allPats.length) {
-                addChatMessage(`我拍了拍 ${angleName}`, 'user');
+                // 默认：我拍了拍 ta
+                userPatText = `${userName} 拍了拍 ${angleName}`;
             } else {
                 const pat = allPats[Math.floor(Math.random() * allPats.length)];
-                addChatMessage(`我 ${pat} ${angleName}`, 'user');
+                userPatText = formatPatText(pat, userName, angleName);
             }
+            addPatNotice(userPatText);
             // ta 回拍（概率触发 + 间隔限制）
             if (now - patLastAngleTime >= patAngleInterval && Math.random() * 100 < patAngleReplyChance) {
                 patLastAngleTime = now;
                 setTimeout(() => {
                     const allPats2 = Object.values(patGroups).flat();
+                    let anglePatText;
                     if (!allPats2.length) {
-                        addChatMessage(`${angleName} 拍了拍我`, 'system');
+                        // 默认：ta 拍了拍 我
+                        anglePatText = `${angleName} 拍了拍 ${userName}`;
                     } else {
                         const pat = allPats2[Math.floor(Math.random() * allPats2.length)];
-                        addChatMessage(`${angleName} ${pat} 我`, 'system');
+                        anglePatText = formatPatText(pat, angleName, userName);
                     }
+                    addPatNotice(anglePatText);
                 }, patUserInterval + Math.random() * 2000);
             }
         }
