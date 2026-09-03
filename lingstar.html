@@ -4452,35 +4452,78 @@
         // ===== 拍一拍触发 =====
         // 格式化拍一拍文案：将"靠了靠肩膀"拆分为"靠了靠"+"肩膀"，显示为"小鱼 靠了靠 我的肩膀"
         function formatPatText(pat, sender, receiver) {
-            // 预处理：去掉开头的主语代词（我/你/ta/他/她），避免和 sender 前缀重复
+            // ===== 预处理 =====
             let cleaned = pat.trim();
             cleaned = cleaned.replace(/^(我|你|您|ta|他|她|TA|它|对方|他的|她的)\s*/, '');
-            const idx = cleaned.lastIndexOf('了');
-            if (idx < 0) return `${sender} ${cleaned} ${receiver}`;
-            const beforeLe = idx > 0 ? cleaned[idx - 1] : '';
-            const afterLe = idx + 1 < cleaned.length ? cleaned[idx + 1] : '';
-            let verbEnd;
-            if (beforeLe && beforeLe === afterLe) {
-                // A了A 模式（如 拍了拍肩膀 → 拍了拍 + 肩膀）
-                verbEnd = idx + 2;
+            if (!cleaned) return `${sender} 拍了拍 ${receiver}`;
+
+            // 内部通用：按"了"字拆分 verb + body
+            function splitByLe(text) {
+                const idx = text.lastIndexOf('了');
+                if (idx < 0) return null;
+                const beforeLe = idx > 0 ? text[idx - 1] : '';
+                const afterLe = idx + 1 < text.length ? text[idx + 1] : '';
+                let verbEnd;
+                if (beforeLe && beforeLe === afterLe) verbEnd = idx + 2;  // A了A
+                else verbEnd = idx + 1;                                    // AA了 / 动词了
+                let verb = text.substring(0, verbEnd);
+                let body = text.substring(verbEnd).trim();
+                // body 去所属格前缀
+                body = body.replace(/^(他|她|ta|TA|我|你|您)的/, '');
+                return { verb, body };
+            }
+            function formatResult(verb, body) {
+                if (!body) return `${sender} ${verb} ${receiver}`;
+                // body 为纯代词，直接用 receiver 名
+                if (/^(他|她|ta|TA|我|你|您|对方)$/.test(body)) {
+                    return `${sender} ${verb} ${receiver}`;
+                }
+                return `${sender} ${verb} ${receiver}的${body}`;
+            }
+
+            // ===== 第一步：有"了"字，直接按了字拆分 =====
+            if (cleaned.indexOf('了') >= 0) {
+                const r = splitByLe(cleaned);
+                if (r) return formatResult(r.verb, r.body);
+            }
+
+            // ===== 第二步：无"了"字，匹配 [动词][代词][名词] 结构 =====
+            // 如 打你屁屁 / 摸你头 / 抱抱你 / 戳他肩膀 / 亲亲我
+            const m = cleaned.match(/^(.+?)(你|我|他|她|ta|TA|您)(.*)$/);
+            if (m) {
+                let verb = m[1];
+                let body = m[3].trim().replace(/^的/, '');
+                // 规范化动词（补"了"字）
+                let verbFmt;
+                if (/^(.)\1$/.test(verb)) {
+                    // AA重复型（抱抱/摸摸/亲亲）→ A了A
+                    verbFmt = verb[0] + '了' + verb[0];
+                } else if (verb.length === 1) {
+                    // 单字动词（打/摸/捏/戳/拍）→ V了
+                    verbFmt = verb + '了';
+                } else {
+                    // 多字动词（轻轻打 / 偷偷摸）→ 末尾补"了"
+                    verbFmt = verb + '了';
+                }
+                return formatResult(verbFmt, body);
+            }
+
+            // ===== 第三步：无"了"无代词，启发式补"了" =====
+            let fixed;
+            if (/^(.)\1/.test(cleaned) && cleaned.length > 2) {
+                // AA+名词 结构（摸摸头 / 捏捏脸 / 拍拍肩膀）→ A了A + 名词
+                fixed = cleaned[0] + '了' + cleaned[0] + cleaned.substring(2);
+            } else if (cleaned.length >= 2) {
+                // 单字动词+名词 结构（拍肩膀 / 捏脸蛋 / 打屁屁）→ V了 + 名词
+                fixed = cleaned[0] + '了' + cleaned.substring(1);
             } else {
-                // AA了 模式（如 牵起了手 → 牵起了 + 手）
-                verbEnd = idx + 1;
+                fixed = cleaned + '了';  // 单字兜底
             }
-            let verb = cleaned.substring(0, verbEnd);
-            let body = cleaned.substring(verbEnd).trim();
-            // 去掉 body 中的所属格前缀（他的/她的/ta的/我的/你的）
-            body = body.replace(/^(他|她|ta|TA|我|你|您)的/, '');
-            if (!body) {
-                // 无身体部位：X 轻轻抱了抱 Y
-                return `${sender} ${verb} ${receiver}`;
-            }
-            // body 是纯代词（他/她/我/ta/你）：忽略代词，直接拼接 receiver
-            if (/^(他|她|ta|TA|我|你|您|对方)$/.test(body)) {
-                return `${sender} ${verb} ${receiver}`;
-            }
-            // 正常有身体部位：X 亲了亲 Y的脸
-            return `${sender} ${verb} ${receiver}的${body}`;
+            const r2 = splitByLe(fixed);
+            if (r2) return formatResult(r2.verb, r2.body);
+
+            // ===== 第四步：兜底朴素输出 =====
+            return `${sender} ${cleaned} ${receiver}`;
         }
         // 添加拍一拍居中通知
         function addPatNotice(text) {
