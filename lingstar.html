@@ -3558,10 +3558,11 @@
             <button class="modal-close" id="closeEmojiModal">✕</button>
         </div>
         <div class="modal-body">
-            <!-- 大 tabs：颜文字 / emoji 图片 -->
+            <!-- 大 tabs：颜文字 / Emoji符号 / 自定义图片表情包（三分类） -->
             <div class="lib-tabs" style="margin-bottom:12px;">
                 <button class="tab-btn active" data-sticker-tab="kaomoji">⌨ 颜文字</button>
-                <button class="tab-btn" data-sticker-tab="emoji-img">🖼 emoji 图片</button>
+                <button class="tab-btn" data-sticker-tab="emoji-symbol">😀 Emoji符号</button>
+                <button class="tab-btn" data-sticker-tab="emoji-img">🖼 表情包（图片）</button>
             </div>
 
             <!-- ========= 颜文字 ========= -->
@@ -3610,6 +3611,44 @@
                 <div class="mod-actions" style="margin-top:4px;">
                     <button class="btn btn-danger" id="clearKaoBtn">清空全部</button>
                     <button class="btn" id="resetKaoBtn">恢复默认</button>
+                </div>
+            </div>
+
+            <!-- ========= Emoji 符号（Unicode 字符表情 😣 😊 😴 这类，三分类第二板块） ========= -->
+            <div id="emojiSymbolSection" style="display:none;">
+                <div class="mod-group-tabs" id="emSymGroupTabs">
+                    <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="emSymAllCount">0</span></span>
+                </div>
+                <div class="mod-search-row">
+                    <input type="text" id="emSymSearchInput" placeholder="🔍 搜索 Emoji 符号...">
+                </div>
+                <!-- 符号列表：大网格，点击直接插入到聊天输入框 -->
+                <div class="mod-list" id="emSymList" style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px;">
+                    <span class="mod-empty" style="grid-column:1/-1;">暂无 Emoji 符号</span>
+                </div>
+                <div class="mod-row" style="margin-top:8px;">
+                    <input type="text" id="emSymInput" placeholder="粘贴或输入 Emoji（可多个连写，按单字符拆分）" style="flex:2;font-size:1.2rem;">
+                    <select id="emSymGroupSelect" style="flex:1;min-width:80px;"><option value="default">默认</option></select>
+                    <button class="btn btn-primary-mod" id="addEmSymBtn">添加</button>
+                </div>
+                <div class="mod-row" style="margin-top:4px;">
+                    <input type="text" id="emSymGroupInput" placeholder="新分组名">
+                    <button class="btn" id="emSymAddGroupBtn">创建</button>
+                    <button class="btn btn-danger" id="emSymDeleteGroupBtn">删除</button>
+                </div>
+                <hr class="mod-divider">
+                <div class="mod-actions">
+                    <button class="btn" id="emSymSelectBtn">☑ 选择</button>
+                    <button class="btn btn-danger" id="emSymDeleteSelectedBtn" style="display:none;">删除选中</button>
+                    <span style="font-size:0.6rem; color:#7a5b8d;" id="emSymSelectInfo">已选 0</span>
+                </div>
+                <div class="mod-row" style="margin-top:4px; display:none;" id="emSymMoveRow">
+                    <select id="emSymMoveGroupSelect"><option value="">移动到...</option></select>
+                    <button class="btn" id="emSymMoveBtn">移动</button>
+                </div>
+                <div class="mod-actions" style="margin-top:4px;">
+                    <button class="btn btn-danger" id="clearEmSymBtn">清空全部</button>
+                    <button class="btn" id="resetEmSymBtn">恢复默认</button>
                 </div>
             </div>
 
@@ -3816,6 +3855,14 @@
         let kaoSearch = '';
         let kaoSelectMode = false;
         let kaoSelected = new Set();
+
+        // Emoji 符号（😣😌🌸 这类 Unicode 字符表情）— 之前拆分三分类时漏声明，导致心情日记 renderQuickRow 引用时报 ReferenceError
+        let emojiGroups = { default: [...DEFAULT_EMOJIS] };
+        let emojiGroupList = ['default'];
+        let emojiCurrentGroup = 'all';
+        let emojiSearch = '';
+        let emojiSelectMode = false;
+        let emojiSelected = new Set();
 
         // emoji 图片：每个分组是 [{id, url, name}]
         let emojiImgGroups = { default: [] };
@@ -7658,15 +7705,17 @@
                 });
             });
 
-            // ========== 颜文字 + emoji 图片 + 信封 ==========
-            // ===== 标签切换：颜文字 / emoji 图片 =====
+            // ========== 颜文字 + Emoji符号 + 图片表情包 + 信封 ==========
+            // ===== 标签切换：三分类（颜文字 / Emoji符号 / 图片） =====
             const kaomojiSection = document.getElementById('kaomojiSection');
+            const emojiSymbolSection = document.getElementById('emojiSymbolSection');
             const emojiImgSection = document.getElementById('emojiImgSection');
             document.querySelectorAll('[data-sticker-tab]').forEach(b => b.addEventListener('click', () => {
                 document.querySelectorAll('[data-sticker-tab]').forEach(x => x.classList.remove('active'));
                 b.classList.add('active');
                 const tab = b.dataset.stickerTab;
                 if (kaomojiSection) kaomojiSection.style.display = tab === 'kaomoji' ? '' : 'none';
+                if (emojiSymbolSection) emojiSymbolSection.style.display = tab === 'emoji-symbol' ? '' : 'none';
                 if (emojiImgSection) emojiImgSection.style.display = tab === 'emoji-img' ? '' : 'none';
             }));
 
@@ -7860,6 +7909,202 @@
                 saveAppearance(); renderKaos(); showToast('已恢复默认');
             });
             if (kaoSearchInput) kaoSearchInput.addEventListener('input', renderKaos);
+
+            // ===== Emoji 符号（Unicode 字符表情：😣 😊 😴 这类，对应 emojiGroups；三分类第二板块） =====
+            let emSymGroupTabs = document.getElementById('emSymGroupTabs');
+            let emSymList = document.getElementById('emSymList');
+            let emSymSearchInput = document.getElementById('emSymSearchInput');
+            let emSymInput = document.getElementById('emSymInput');
+            let emSymGroupSelect = document.getElementById('emSymGroupSelect');
+            let addEmSymBtn = document.getElementById('addEmSymBtn');
+            let emSymGroupInput = document.getElementById('emSymGroupInput');
+            let emSymAddGroupBtn = document.getElementById('emSymAddGroupBtn');
+            let emSymDeleteGroupBtn = document.getElementById('emSymDeleteGroupBtn');
+            let emSymSelectBtn = document.getElementById('emSymSelectBtn');
+            let emSymDeleteSelectedBtn = document.getElementById('emSymDeleteSelectedBtn');
+            let emSymSelectInfo = document.getElementById('emSymSelectInfo');
+            let emSymMoveRow = document.getElementById('emSymMoveRow');
+            let emSymMoveGroupSelect = document.getElementById('emSymMoveGroupSelect');
+            let emSymMoveBtn = document.getElementById('emSymMoveBtn');
+            let clearEmSymBtn = document.getElementById('clearEmSymBtn');
+            let resetEmSymBtn = document.getElementById('resetEmSymBtn');
+            let emSymAllCount = document.getElementById('emSymAllCount');
+            let emSymSelectMode = false;
+            function renderEmSymGroups() {
+                if (!emSymGroupTabs) return;
+                let total = 0;
+                for (const g in emojiGroups) total += emojiGroups[g].length;
+                emSymGroupTabs.innerHTML = `<span class="mod-group-tab ${emojiCurrentGroup==='all'?'active':''}" data-group="all">全部 <span class="count" id="emSymAllCount">${total}</span></span>`;
+                emojiGroupList.forEach(g => {
+                    const len = (emojiGroups[g]||[]).length;
+                    const s = document.createElement('span');
+                    s.className = 'mod-group-tab ' + (emojiCurrentGroup===g ? 'active' : '');
+                    s.dataset.group = g;
+                    s.innerHTML = `${g} <span class="count">${len}</span>`;
+                    emSymGroupTabs.appendChild(s);
+                });
+                emSymGroupTabs.querySelectorAll('[data-group]').forEach(t => t.addEventListener('click', () => {
+                    emojiCurrentGroup = t.dataset.group;
+                    renderEmSymGroups(); renderEmSyms();
+                }));
+                [emSymGroupSelect, emSymMoveGroupSelect].forEach(sel => {
+                    if (!sel) return;
+                    const cur = sel.value;
+                    sel.innerHTML = '';
+                    emojiGroupList.forEach(g => {
+                        const o = document.createElement('option');
+                        o.value = g; o.textContent = g;
+                        sel.appendChild(o);
+                    });
+                    if (emojiGroupList.includes(cur)) sel.value = cur;
+                });
+                if (emSymAllCount) emSymAllCount.textContent = String(total);
+            }
+            function renderEmSyms() {
+                if (!emSymList) return;
+                let items = emojiCurrentGroup === 'all'
+                    ? (function(){ let a = []; for (const g in emojiGroups) a = a.concat(emojiGroups[g].map(v=>({group:g,value:v}))); return a; })()
+                    : (emojiGroups[emojiCurrentGroup]||[]).map(v => ({group:emojiCurrentGroup, value:v}));
+                const kw = (emSymSearchInput?.value || '').toLowerCase();
+                if (kw) items = items.filter(x => x.value.toLowerCase().includes(kw));
+                emSymList.innerHTML = '';
+                if (!items.length) {
+                    const e = document.createElement('span');
+                    e.className = 'mod-empty';
+                    e.style.gridColumn = '1/-1';
+                    e.textContent = kw ? '未找到匹配 Emoji' : (emojiCurrentGroup==='all' ? '暂无 Emoji 符号' : '「'+emojiCurrentGroup+'」为空');
+                    emSymList.appendChild(e);
+                } else {
+                    items.forEach(({group, value}) => {
+                        const key = group+'|'+value;
+                        const d = document.createElement('div');
+                        d.className = 'em-img-item' + (emojiSelected.has(key) ? ' selected' : '');
+                        d.style.cssText = 'aspect-ratio:1/1;border-radius:12px;background:rgba(255,255,255,0.6);border:1px solid rgba(200,170,220,0.25);display:flex;align-items:center;justify-content:center;font-size:1.8rem;cursor:pointer;transition:0.15s;position:relative;user-select:none;';
+                        d.textContent = value;
+                        d.title = value;
+                        if (emSymSelectMode) {
+                            if (emojiSelected.has(key)) {
+                                d.style.background = 'linear-gradient(135deg,#b58aff,#e49cff)';
+                                d.style.color = '#fff';
+                                d.style.boxShadow = '0 0 0 2px #c6a8de inset';
+                            }
+                            d.addEventListener('click', () => {
+                                if (emojiSelected.has(key)) emojiSelected.delete(key);
+                                else emojiSelected.add(key);
+                                renderEmSyms();
+                            });
+                            const del = document.createElement('span');
+                            del.className = 'del';
+                            del.style.cssText = 'position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#e74c3c;color:#fff;font-size:0.7rem;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;';
+                            del.textContent = '✕';
+                            del.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                emojiGroups[group] = (emojiGroups[group]||[]).filter(x => x !== value);
+                                emojiSelected.delete(key);
+                                saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                            });
+                            d.appendChild(del);
+                        } else {
+                            d.addEventListener('click', () => {
+                                if (typeof userInput !== 'undefined' && userInput) { userInput.value += value; userInput.focus(); }
+                                closeModal(emojiModal);
+                            });
+                        }
+                        emSymList.appendChild(d);
+                    });
+                }
+                if (emSymSelectInfo) emSymSelectInfo.textContent = '已选 '+emojiSelected.size;
+                if (emSymDeleteSelectedBtn) emSymDeleteSelectedBtn.style.display = emSymSelectMode ? '' : 'none';
+                if (emSymMoveRow) emSymMoveRow.style.display = emSymSelectMode ? '' : 'none';
+                if (emSymSelectBtn) emSymSelectBtn.textContent = emSymSelectMode ? '✔ 取消' : '☑ 选择';
+            }
+            function addEmSym() {
+                const raw = (emSymInput?.value || '').trim();
+                if (!raw) { showToast('请输入 Emoji 符号'); return; }
+                const grp = (emSymGroupSelect?.value || 'default') || 'default';
+                if (!emojiGroups[grp]) emojiGroups[grp] = [];
+                // Array.from 按 code point 拆分，正确处理 surrogate pair emoji
+                const symbols = Array.from(raw).filter(c => c && c.trim().length);
+                let added = 0;
+                symbols.forEach(s => {
+                    if (!emojiGroups[grp].includes(s)) { emojiGroups[grp].push(s); added++; }
+                });
+                if (!added) { showToast('全部已存在'); if (emSymInput) emSymInput.value=''; return; }
+                saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                if (emSymInput) emSymInput.value = '';
+                showToast('已添加 '+added+' 个 Emoji');
+            }
+            if (addEmSymBtn) addEmSymBtn.addEventListener('click', addEmSym);
+            if (emSymInput) emSymInput.addEventListener('keydown', e => { if (e.key === 'Enter') addEmSym(); });
+            if (emSymGroupInput && emSymAddGroupBtn) emSymAddGroupBtn.addEventListener('click', () => {
+                const g = (emSymGroupInput.value || '').trim();
+                if (!g) return showToast('请输入分组名');
+                if (emojiGroupList.includes(g)) return showToast('分组已存在');
+                emojiGroupList.push(g); emojiGroups[g] = [];
+                saveAppearance(); renderEmSymGroups();
+                emSymGroupInput.value = '';
+                showToast('分组已创建');
+            });
+            if (emSymDeleteGroupBtn) emSymDeleteGroupBtn.addEventListener('click', () => {
+                const g = (emSymGroupSelect?.value || 'default');
+                if (!g || g === 'default') return showToast('默认分组不可删除');
+                if (!confirm('删除分组「'+g+'」？组内 Emoji 将一并移除。')) return;
+                emojiGroupList = emojiGroupList.filter(x => x !== g);
+                delete emojiGroups[g];
+                if (emojiCurrentGroup === g) emojiCurrentGroup = 'all';
+                saveAppearance(); renderEmSymGroups(); renderEmSyms();
+                showToast('分组已删除');
+            });
+            if (emSymSelectBtn) emSymSelectBtn.addEventListener('click', () => {
+                emSymSelectMode = !emSymSelectMode;
+                if (!emSymSelectMode) emojiSelected.clear();
+                renderEmSyms();
+            });
+            if (emSymDeleteSelectedBtn) emSymDeleteSelectedBtn.addEventListener('click', () => {
+                if (!emojiSelected.size) return showToast('未选中');
+                if (!confirm('删除选中的 '+emojiSelected.size+' 个 Emoji？')) return;
+                emojiSelected.forEach(key => {
+                    const [g, v] = key.split('|');
+                    if (emojiGroups[g]) emojiGroups[g] = emojiGroups[g].filter(x => x !== v);
+                });
+                emojiSelected.clear(); emSymSelectMode = false;
+                saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                showToast('已删除');
+            });
+            if (emSymMoveBtn) emSymMoveBtn.addEventListener('click', () => {
+                const tgt = (emSymMoveGroupSelect?.value || '');
+                if (!tgt || !emojiSelected.size) return;
+                let moved = 0;
+                emojiSelected.forEach(key => {
+                    const [g, v] = key.split('|');
+                    if (g === tgt) return;
+                    if (emojiGroups[g]) emojiGroups[g] = emojiGroups[g].filter(x => x !== v);
+                    if (!emojiGroups[tgt]) emojiGroups[tgt] = [];
+                    if (!emojiGroups[tgt].includes(v)) { emojiGroups[tgt].push(v); moved++; }
+                });
+                emojiSelected.clear(); emSymSelectMode = false;
+                saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                showToast('已移动 '+moved+' 个');
+            });
+            if (clearEmSymBtn) clearEmSymBtn.addEventListener('click', () => {
+                const cnt = Object.values(emojiGroups).reduce((a,b)=>a+b.length,0);
+                if (!cnt) return showToast('当前没有 Emoji 可清空');
+                if (!confirm('清空全部 '+cnt+' 个 Emoji 符号？（不可恢复）')) return;
+                for (const g of emojiGroupList) emojiGroups[g] = [];
+                emojiSelected.clear(); emSymSelectMode = false; saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                showToast('已清空');
+            });
+            if (resetEmSymBtn) resetEmSymBtn.addEventListener('click', () => {
+                const curCnt = Object.values(emojiGroups).reduce((a,b)=>a+b.length,0);
+                if (curCnt && !confirm('恢复默认 Emoji 符号？当前自定义内容将丢失。')) return;
+                emojiGroups = { default: [...DEFAULT_EMOJIS] };
+                emojiGroupList = ['default'];
+                emojiCurrentGroup = 'all';
+                emojiSelected.clear(); emSymSelectMode = false;
+                saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                showToast('已恢复默认');
+            });
+            if (emSymSearchInput) emSymSearchInput.addEventListener('input', renderEmSyms);
 
             // ===== emoji 图片 =====
             let emImgList = document.getElementById('emImgList');
@@ -8076,7 +8321,7 @@
             const firstTab = document.querySelector('[data-sticker-tab="kaomoji"]');
             if (firstTab) firstTab.classList.add('active');
             // 初次渲染
-            renderKaos(); renderEmImgs();
+            renderKaos(); renderEmSymGroups(); renderEmSyms(); renderEmImgs();
 
             // ========== 信封板块 ==========
             const envelopeModal = document.getElementById('envelopeModal');
