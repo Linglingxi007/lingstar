@@ -590,7 +590,274 @@
             border-radius: 50%;
         }
         .lib-item .lib-remove:hover { background: rgba(231,76,60,0.1); color: var(--danger, #e74c3c); }
+        .lib-item .lib-jump {
+            margin-top: 8px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #b58aff, #e49cff);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.68rem;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+        .lib-item .lib-jump:hover { filter: brightness(1.08); }
         .lib-empty { text-align: center; padding: 30px 0; font-size: 0.75rem; color: var(--text-muted); opacity: 0.5; }
+
+        /* ===== 日历 ===== */
+        .cal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 6px; margin-bottom: 10px;
+            background: linear-gradient(135deg, rgba(181,138,255,0.15), rgba(228,156,255,0.15));
+            border-radius: 14px;
+        }
+        .cal-header .cal-title {
+            font-size: 1rem; font-weight: 700; color: var(--accent-deep);
+        }
+        .cal-header .cal-nav { display: flex; gap: 4px; }
+        .cal-header .cal-nav button {
+            width: 32px; height: 32px; border-radius: 10px; border: none;
+            background: #fff; color: var(--accent-deep); cursor: pointer; font-size: 0.9rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .cal-header .cal-nav button:hover { background: var(--accent, #c79eff); color: #fff; }
+        .cal-header .cal-jump-btn {
+            padding: 6px 12px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #b58aff, #e49cff);
+            color: #fff; font-size: 0.72rem; cursor: pointer;
+        }
+        .cal-weekdays {
+            display: grid; grid-template-columns: repeat(6, 1fr);
+            gap: 4px; margin-bottom: 6px;
+        }
+        .cal-weekdays div {
+            text-align: center; font-size: 0.65rem; color: var(--text-muted);
+            padding: 4px 0; font-weight: 600;
+        }
+        .cal-grid {
+            display: grid; grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+        }
+        .cal-cell {
+            aspect-ratio: 1 / 1;
+            border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 0.78rem; color: var(--text-secondary);
+            cursor: pointer;
+            background: rgba(245, 240, 250, 0.3);
+            border: 1px solid transparent;
+            position: relative;
+            transition: 0.15s;
+        }
+        .cal-cell.empty { background: transparent; cursor: default; border-color: transparent; }
+        .cal-cell:not(.empty):hover { border-color: var(--accent); background: rgba(199,158,255,0.08); }
+        .cal-cell.today {
+            background: linear-gradient(135deg, rgba(181,138,255,0.25), rgba(228,156,255,0.25));
+            color: var(--accent-deep); font-weight: 700;
+            border-color: var(--accent);
+        }
+        .cal-cell.selected {
+            background: linear-gradient(135deg, #b58aff, #e49cff);
+            color: #fff; font-weight: 700;
+            border-color: var(--accent);
+        }
+        .cal-cell .has-diary {
+            position: absolute; bottom: 4px;
+            width: 5px; height: 5px; border-radius: 50%;
+            background: #ff8ab3;
+        }
+        .cal-cell .mood-tag {
+            position: absolute; top: 2px; right: 2px;
+            font-size: 0.55rem; line-height: 1;
+        }
+
+        /* 跳转日期：滚轮选择器 */
+        .jump-dl-wrap {
+            display: flex; gap: 10px; padding: 14px 0; justify-content: center;
+        }
+        .jump-dl-col {
+            display: flex; flex-direction: column; align-items: center;
+            width: 72px;
+        }
+        .jump-dl-col .dl-label { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 4px; }
+        .jump-dl-col .dl-viewport {
+            width: 100%;
+            height: 150px;
+            overflow-y: scroll;
+            border-radius: 12px;
+            background: rgba(245,240,250,0.3);
+            border: 1px solid rgba(200,170,220,0.15);
+            padding: 60px 0;
+            position: relative;
+            scrollbar-width: none;
+        }
+        .jump-dl-col .dl-viewport::-webkit-scrollbar { display: none; }
+        .jump-dl-col .dl-viewport::before, .jump-dl-col .dl-viewport::after {
+            content: ''; position: absolute; left: 0; right: 0; height: 50px; pointer-events: none;
+        }
+        .jump-dl-col .dl-viewport::before { top: 0; background: linear-gradient(180deg, #fff 0%, transparent 100%); border-radius: 12px 12px 0 0; }
+        .jump-dl-col .dl-viewport::after { bottom: 0; background: linear-gradient(0deg, #fff 0%, transparent 100%); border-radius: 0 0 12px 12px; }
+        .jump-dl-col .dl-item {
+            height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: 0.15s;
+        }
+        .jump-dl-col .dl-item.center { color: var(--accent-deep); font-size: 1.05rem; font-weight: 700; }
+        .dl-selection-row { display: flex; justify-content: center; gap: 8px; padding-bottom: 10px; }
+        .dl-selection-row button {
+            padding: 6px 18px; border-radius: 10px; border: none;
+            font-size: 0.78rem; cursor: pointer;
+        }
+        .dl-selection-row .btn-cancel { background: rgba(200,170,220,0.1); color: var(--text-secondary); }
+        .dl-selection-row .btn-confirm { background: linear-gradient(135deg,#b58aff,#e49cff); color: #fff; }
+
+        /* ===== 心情日记 ===== */
+        .diary-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, rgba(255,180,210,0.15), rgba(181,138,255,0.15));
+            border-radius: 14px;
+        }
+        .diary-header .d-date { font-size: 0.95rem; font-weight: 700; color: var(--accent-deep); }
+        .diary-header .d-nav-btns { display: flex; gap: 6px; }
+        .diary-header .d-nav-btns button {
+            width: 32px; height: 32px; border-radius: 10px; border: none;
+            background: #fff; color: var(--accent-deep); cursor: pointer; font-size: 0.9rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .diary-input-area {
+            border: 1px solid rgba(200,170,220,0.15);
+            border-radius: 14px;
+            padding: 10px;
+            margin-bottom: 12px;
+            background: rgba(255,255,255,0.4);
+        }
+        .diary-author-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+        .diary-author-tabs button {
+            padding: 6px 12px; border-radius: 10px; border: none;
+            background: rgba(200,170,220,0.1); color: var(--text-secondary);
+            font-size: 0.72rem; cursor: pointer;
+        }
+        .diary-author-tabs button.active {
+            background: linear-gradient(135deg,#b58aff,#e49cff); color: #fff;
+        }
+        .diary-author-tabs button[data-author="angle"].active {
+            background: linear-gradient(135deg,#ffb3d1,#ffd4e4); color: #8d2e5e;
+        }
+        .diary-quick-row {
+            display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;
+        }
+        .diary-quick-chip {
+            padding: 3px 8px; background: rgba(245,240,250,0.4);
+            border-radius: 8px; font-size: 0.68rem; cursor: pointer;
+            border: 1px solid rgba(200,170,220,0.1); color: var(--text-secondary);
+        }
+        .diary-quick-chip:hover { background: rgba(199,158,255,0.15); }
+        .diary-quick-chip.mood-selected { background: rgba(255,154,190,0.3); border-color: #ff9abe; color: #a6355e; font-weight: 600; }
+        .diary-mood-row {
+            display: flex; gap: 6px; margin-bottom: 8px; align-items: center; flex-wrap: wrap;
+        }
+        .diary-mood-row .mood-label { font-size: 0.68rem; color: var(--text-muted); }
+        .diary-mood {
+            padding: 3px 10px; border-radius: 20px; cursor: pointer;
+            font-size: 0.7rem; border: 1px solid rgba(200,170,220,0.1);
+            background: rgba(245,240,250,0.4); color: var(--text-secondary);
+        }
+        .diary-mood.selected { background: rgba(255,154,190,0.3); border-color: #ff9abe; color: #a6355e; }
+        .diary-input {
+            width: 100%; min-height: 60px;
+            border: 1px solid rgba(200,170,220,0.2); border-radius: 10px;
+            padding: 8px 10px; font-size: 0.78rem; outline: none;
+            background: rgba(255,255,255,0.5); resize: vertical;
+            font-family: inherit;
+        }
+        .diary-input:focus { border-color: var(--accent); }
+        .diary-send-row { display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px; }
+        .diary-send-row button {
+            padding: 5px 12px; border-radius: 10px; border: none; font-size: 0.72rem; cursor: pointer;
+        }
+        .diary-send-row .btn-insert { background: rgba(200,170,220,0.1); color: var(--accent-deep); }
+        .diary-send-row .btn-save { background: linear-gradient(135deg,#b58aff,#e49cff); color: #fff; }
+
+        .diary-list {
+            display: flex; flex-direction: column; gap: 8px;
+            max-height: 360px; overflow-y: auto;
+        }
+        .diary-entry {
+            padding: 10px 12px; border-radius: 12px;
+            background: rgba(245,240,250,0.3);
+            border: 1px solid rgba(220,200,240,0.12);
+            position: relative;
+        }
+        .diary-entry.usr {
+            border-left: 3px solid #b58aff;
+            background: linear-gradient(135deg, rgba(181,138,255,0.08), rgba(245,240,250,0.3));
+        }
+        .diary-entry.angle {
+            border-left: 3px solid #ff9abe;
+            background: linear-gradient(135deg, rgba(255,154,190,0.08), rgba(255,224,238,0.1));
+        }
+        .diary-entry .d-meta {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 6px;
+        }
+        .diary-entry .d-author {
+            font-size: 0.65rem; font-weight: 700;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .diary-entry.usr .d-author { color: var(--accent-deep); }
+        .diary-entry.angle .d-author { color: #c24273; }
+        .diary-entry .d-time { font-size: 0.6rem; color: var(--text-muted); opacity: 0.65; }
+        .diary-entry .d-mood {
+            font-size: 0.65rem; padding: 1px 6px; border-radius: 8px;
+            background: rgba(255,154,190,0.2); color: #a6355e;
+        }
+        .diary-entry .d-content {
+            font-size: 0.78rem; color: var(--text-primary);
+            word-break: break-all; white-space: pre-wrap; line-height: 1.5;
+        }
+        .diary-entry .d-del {
+            position: absolute; top: 6px; right: 10px;
+            background: none; border: none;
+            color: #ccc; cursor: pointer; font-size: 0.75rem; padding: 2px 6px; border-radius: 50%;
+        }
+        .diary-entry .d-del:hover { background: rgba(231,76,60,0.1); color: var(--danger, #e74c3c); }
+
+        /* 表情/字卡快速选择器 */
+        .quick-pick-wrap {
+            position: relative;
+        }
+        .quick-pick-panel {
+            position: absolute; z-index: 10;
+            bottom: 100%; left: 0;
+            width: 280px; max-height: 220px;
+            overflow-y: auto;
+            background: #fff; border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            padding: 8px; display: none;
+            border: 1px solid rgba(200,170,220,0.15);
+        }
+        .quick-pick-panel.show { display: block; }
+        .quick-pick-panel .qp-title {
+            font-size: 0.65rem; color: var(--text-muted); padding: 4px 6px 6px;
+        }
+        .quick-pick-panel .qp-grid {
+            display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
+            margin-bottom: 8px;
+        }
+        .quick-pick-panel .qp-chip {
+            padding: 4px; background: rgba(245,240,250,0.4);
+            border-radius: 8px; text-align: center; cursor: pointer;
+            font-size: 0.7rem; color: var(--text-secondary);
+        }
+        .quick-pick-panel .qp-chip:hover { background: rgba(199,158,255,0.18); color: var(--accent-deep); }
+        .quick-pick-panel .qp-words {
+            display: flex; flex-wrap: wrap; gap: 4px;
+        }
+
         /* 标注颜色选择器 */
         .mark-color-picker {
             display: flex; gap: 6px; padding: 6px;
@@ -1874,6 +2141,14 @@
             <span class="icon">🏷</span>
             <span class="label">标注</span>
         </div>
+        <div class="side-grid-item" id="sideCalendarBtn">
+            <span class="icon">🗓</span>
+            <span class="label">日历</span>
+        </div>
+        <div class="side-grid-item" id="sideDiaryBtn">
+            <span class="icon">📖</span>
+            <span class="label">心情日记</span>
+        </div>
     </div>
 </div>
 
@@ -2281,7 +2556,10 @@
     <div class="modal-content" style="max-width:520px;">
         <div class="modal-header">
             <h2>⭐ 收藏匣</h2>
-            <button class="modal-close" id="closeFavModal">✕</button>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-danger" id="favClearAllBtn" style="font-size:0.78rem;padding:4px 10px;">清空全部</button>
+                <button class="modal-close" id="closeFavModal">✕</button>
+            </div>
         </div>
         <div class="modal-body">
             <div class="lib-tabs">
@@ -2299,7 +2577,10 @@
     <div class="modal-content" style="max-width:520px;">
         <div class="modal-header">
             <h2>🏷 标注</h2>
-            <button class="modal-close" id="closeMarkModal">✕</button>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-danger" id="markClearAllBtn" style="font-size:0.78rem;padding:4px 10px;">清空全部</button>
+                <button class="modal-close" id="closeMarkModal">✕</button>
+            </div>
         </div>
         <div class="modal-body">
             <div class="lib-tabs">
@@ -2308,6 +2589,123 @@
             </div>
             <input type="text" class="lib-search" id="markSearchInput" placeholder="🔍 搜索标注内容/备注...">
             <div class="lib-list" id="markList"><div class="lib-empty">暂无标注</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 日历弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="calendarModal">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <h2>🗓 日历</h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-primary-mod" id="calToDiaryBtn" style="font-size:0.78rem;padding:4px 10px;">📖 打开日记</button>
+                <button class="modal-close" id="closeCalendarModal">✕</button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="cal-header">
+                <div class="cal-nav">
+                    <button id="calPrevYear" title="上一年">«</button>
+                    <button id="calPrevMonth" title="上一月">‹</button>
+                </div>
+                <div class="cal-title" id="calTitle">2026年9月</div>
+                <div class="cal-nav">
+                    <button id="calJumpBtn" class="cal-jump-btn">🕹 跳转</button>
+                    <button id="calNextMonth" title="下一月">›</button>
+                    <button id="calNextYear" title="下一年">»</button>
+                </div>
+            </div>
+            <div class="cal-weekdays">
+                <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 跳转日期选择器（子弹窗） ===== -->
+<div class="modal-overlay sub-modal" id="jumpDateModal">
+    <div class="modal-content" style="max-width:420px;">
+        <div class="modal-header">
+            <h2>🕹 跳转到日期</h2>
+            <button class="modal-close" id="closeJumpDateModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="jump-dl-wrap">
+                <div class="jump-dl-col">
+                    <div class="dl-label">年</div>
+                    <div class="dl-viewport" id="dlYearViewport"></div>
+                </div>
+                <div class="jump-dl-col">
+                    <div class="dl-label">月</div>
+                    <div class="dl-viewport" id="dlMonthViewport"></div>
+                </div>
+                <div class="jump-dl-col">
+                    <div class="dl-label">日</div>
+                    <div class="dl-viewport" id="dlDayViewport"></div>
+                </div>
+            </div>
+            <div class="dl-selection-row">
+                <button class="btn-cancel" id="dlCancelBtn">取消</button>
+                <button class="btn-confirm" id="dlConfirmBtn">跳转</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 心情日记弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="diaryModal">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h2>📖 心情日记</h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-primary-mod" id="diaryToCalBtn" style="font-size:0.78rem;padding:4px 10px;">🗓 打开日历</button>
+                <button class="modal-close" id="closeDiaryModal">✕</button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="diary-header">
+                <div class="d-nav-btns">
+                    <button id="diaryPrevDay" title="前一天">‹</button>
+                </div>
+                <div class="d-date" id="diaryDateLabel">2026年9月3日</div>
+                <div class="d-nav-btns">
+                    <button id="diaryTodayBtn" title="回到今天">今</button>
+                    <button id="diaryNextDay" title="后一天">›</button>
+                </div>
+            </div>
+
+            <!-- 日记输入区 -->
+            <div class="diary-input-area">
+                <div class="diary-author-tabs">
+                    <button data-author="usr" class="active">🌸 梦女</button>
+                    <button data-author="angle">🌙 梦角</button>
+                </div>
+
+                <!-- 梦角写日记时需要选心情 -->
+                <div class="diary-mood-row" id="diaryMoodRow" style="display:none;">
+                    <span class="mood-label">梦角心情：</span>
+                    <div id="diaryMoodList" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
+                </div>
+
+                <!-- 快速插入：字卡/表情 -->
+                <div class="diary-quick-row" id="diaryQuickRow"></div>
+
+                <textarea class="diary-input" id="diaryInput" placeholder="今天发生了什么？（Ctrl+Enter 保存）"></textarea>
+                <div class="diary-send-row">
+                    <div class="quick-pick-wrap">
+                        <button class="btn-insert" id="diaryInsertBtn">✨ 插入字卡/表情</button>
+                        <div class="quick-pick-panel" id="diaryPickPanel"></div>
+                    </div>
+                    <button class="btn-save" id="diarySaveBtn">保存</button>
+                </div>
+            </div>
+
+            <!-- 日记列表（按时间顺序） -->
+            <div class="diary-list" id="diaryList">
+                <div class="lib-empty">当天没有心情日记，写一条吧~</div>
+            </div>
         </div>
     </div>
 </div>
@@ -3095,10 +3493,13 @@
         // 引用内容缓存
         let quoteMsg = null;
         // 收藏与标注：梦女(usr)与梦角(angle)区分
-        let favorites = { usr: [], angle: [] };   // {id, text, sender, ts, from}
-        let marks = { usr: [], angle: [] };       // {id, text, sender, ts, color, note}
+        let favorites = { usr: [], angle: [] };   // {id, msgId, text, sender, ts, from}
+        let marks = { usr: [], angle: [] };       // {id, msgId, text, sender, ts, color, note, from}
         // 撤回消息内容缓存（查看"使你撤回了什么消息"）
         let recalledCache = {};  // noticeId -> {originText, sender, ts, originalContent, recalledBy}
+        // 心情日记：按日期key -> [entries按ts排序]
+        // entries: {id, dateKey, ts, author: 'usr'|'angle', content, mood?: string(梦角心情)}
+        let moodDiaries = {};
         let bubbleShape = 'round';
         let bubbleCustomCSS = '';
         let customFontName = '';
@@ -3765,6 +4166,20 @@
         }
 
         // 按选择的样式格式化时间戳
+        function formatDateCN(ts) {
+            const d = new Date(ts);
+            return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+        }
+        function formatTimeHMS(ts) {
+            const d = new Date(ts);
+            const pad = n => String(n).padStart(2, '0');
+            return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        }
+        function formatDateKey(ts) {
+            const d = new Date(ts);
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+        }
         function formatTimestamp(d, style) {
             const h24 = d.getHours();
             const m = d.getMinutes();
@@ -5519,6 +5934,7 @@
                     marks = a.marks && typeof a.marks === 'object' ? a.marks : { usr: [], angle: [] };
                     if (!marks.usr) marks.usr = []; if (!marks.angle) marks.angle = [];
                     recalledCache = a.recalledCache && typeof a.recalledCache === 'object' ? a.recalledCache : {};
+                    moodDiaries = a.moodDiaries && typeof a.moodDiaries === 'object' ? a.moodDiaries : {};
                 } catch (e) {}
             }
             // 同步表单
@@ -5643,7 +6059,7 @@
                 chatLetterMin, chatLetterMinUnit, chatLetterMax, chatLetterMaxUnit,
                 chatReplyMin, chatReplyMinUnit, chatReplyMax, chatReplyMaxUnit,
                 chatReplyMinSent, chatReplyMaxSent,
-                favorites, marks, recalledCache
+                favorites, marks, recalledCache, moodDiaries
             };
             localStorage.setItem('dream_appearance', JSON.stringify(data));
             applyBubbleStyle();
@@ -5749,6 +6165,7 @@
             favorites = { usr: [], angle: [] };
             marks = { usr: [], angle: [] };
             recalledCache = {};
+            moodDiaries = {};
             quickPats = [];
             bubbleShape = 'round'; bubbleUserColor = '#e8ddf2'; bubbleAngleColor = '#f3eef8';
             bubbleRadius = 18; bgColor = '#fcfaff'; bgImage = '';
@@ -6287,24 +6704,63 @@
                         break;
                     }
                     case 'fav': {
-                        // 梦女（用户）手动收藏 → 存入「我的收藏」(favorites.usr)
                         const pool = favorites['usr'] || (favorites['usr'] = []);
-                        const already = pool.some(i => i.text === text);
-                        if (already) { showToast('已收藏过此消息'); break; }
-                        const item = { id: 'fav-' + Date.now().toString(36), text, sender, ts: Date.now(), from: (sender==='usr'? userName : angleName) };
-                        pool.unshift(item);
-                        // 给消息加星标
-                        const star = document.createElement('span');
-                        star.className = 'msg-fav-star'; star.textContent = '⭐';
-                        div.appendChild(star);
-                        saveAppearance();
-                        showToast('已收藏到「我的收藏」');
+                        // 查是否已经收藏过该条消息（按 msgId 或 按文本+发送者）
+                        const existIdx = pool.findIndex(i => (mid && i.msgId === mid) || (!mid && i.text === text && i.sender === sender));
+                        if (existIdx >= 0) {
+                            // 再次点击 = 取消收藏
+                            pool.splice(existIdx, 1);
+                            // 移除 DOM 星标
+                            const starEl = div.querySelector('.msg-fav-star');
+                            if (starEl) starEl.remove();
+                            saveAppearance();
+                            showToast('已取消收藏');
+                        } else {
+                            const item = {
+                                id: 'fav-' + Date.now().toString(36),
+                                msgId: mid || '',
+                                text, sender,
+                                ts: Date.now(),
+                                from: (sender==='usr' ? userName : angleName)
+                            };
+                            pool.unshift(item);
+                            // 给消息加星标
+                            if (!div.querySelector('.msg-fav-star')) {
+                                const star = document.createElement('span');
+                                star.className = 'msg-fav-star'; star.textContent = '⭐';
+                                div.appendChild(star);
+                            }
+                            saveAppearance();
+                            showToast('已收藏到「我的收藏」');
+                        }
                         closeMsgToolbar();
                         break;
                     }
                     case 'mark': {
-                        // 弹出颜色选择器
-                        openMarkPicker(div, sender, text);
+                        // 再次点击已标注的消息 = 取消标注
+                        const contentDiv = div.querySelector('.msg-content');
+                        const curColor = contentDiv && contentDiv.style.background ? contentDiv.style.background : '';
+                        const pool = marks[sender] || (marks[sender] = []);
+                        // 查找同一条消息（按 msgId 或 按文本+发送者+已标注色）
+                        const existIdx = pool.findIndex(i =>
+                            (mid && i.msgId === mid) ||
+                            (!mid && i.text === text && i.sender === sender && (i.color ? curColor.includes(i.color.slice(1,7)) : !curColor))
+                        );
+                        if (existIdx >= 0 && curColor) {
+                            // 取消标注
+                            const removed = pool.splice(existIdx, 1)[0];
+                            if (contentDiv) {
+                                contentDiv.style.background = '';
+                                contentDiv.style.padding = '';
+                                contentDiv.style.borderRadius = '';
+                            }
+                            saveAppearance();
+                            showToast('已取消标注');
+                            closeMsgToolbar();
+                        } else {
+                            // 打开颜色选择器，把 msgId 带过去
+                            openMarkPicker(div, sender, text, mid);
+                        }
                         break;
                     }
                     case 'delete': {
@@ -6444,8 +6900,8 @@
                 });
             }
             let pendingMark = null;
-            function openMarkPicker(div, sender, text) {
-                pendingMark = { div, sender, text };
+            function openMarkPicker(div, sender, text, msgId) {
+                pendingMark = { div, sender, text, msgId: msgId || '' };
                 const tbRect = toolbar.getBoundingClientRect();
                 markColorPicker.style.left = Math.max(4, Math.min(window.innerWidth - 300, tbRect.left)) + 'px';
                 markColorPicker.style.top = (tbRect.bottom + 6) + 'px';
@@ -6490,13 +6946,28 @@
             });
             function savePendingMark(note) {
                 if (!pendingMark) return;
-                const { sender, text, color } = pendingMark;
+                const { sender, text, color, msgId } = pendingMark;
                 const pool = marks[sender] || (marks[sender] = []);
-                const id = 'm-' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-                // 去除同名同色同备注
-                const existing = pool.find(i => i.text === text && i.color === color);
-                if (existing) { existing.note = note || existing.note; }
-                else pool.unshift({ id, text, sender, ts: Date.now(), color: color || '', note: note || '', from: sender==='usr'?userName:angleName });
+                // 先按 msgId 或 文本+发送者+颜色 去重
+                const existingIdx = pool.findIndex(i =>
+                    (msgId && i.msgId === msgId) ||
+                    (!msgId && i.text === text && i.color === (color||''))
+                );
+                const now = Date.now();
+                if (existingIdx >= 0) {
+                    pool[existingIdx].note = note || pool[existingIdx].note;
+                    pool[existingIdx].color = color || pool[existingIdx].color || '';
+                    pool[existingIdx].ts = now;
+                } else {
+                    const id = 'm-' + now.toString(36) + Math.random().toString(36).slice(2,6);
+                    pool.unshift({
+                        id, msgId: msgId || '',
+                        text, sender, ts: now,
+                        color: color || '',
+                        note: note || '',
+                        from: sender==='usr'?userName:angleName
+                    });
+                }
                 saveAppearance();
                 showToast('已标注');
                 closeMarkPickers();
@@ -6530,6 +7001,37 @@
             }));
             if (favSearchInput) favSearchInput.addEventListener('input', renderFavList);
             if (markSearchInput) markSearchInput.addEventListener('input', renderMarkList);
+
+            // 跳转到消息（按 msgId 或 按内容匹配）
+            function jumpToMsg(item, typeLabel) {
+                // 优先用 msgId 精确查找
+                let target = null;
+                if (item.msgId) target = document.querySelector(`.message[data-msg-id="${item.msgId}"]`);
+                // 找不到再按内容+发送者匹配
+                if (!target) {
+                    const all = chatBox.querySelectorAll('.message');
+                    for (const m of all) {
+                        const s = m.dataset.sender;
+                        const t = (m.querySelector('.msg-content')?.textContent || '').trim();
+                        if (t === item.text && s === item.sender) { target = m; break; }
+                    }
+                }
+                closeModal(favModal); closeModal(markModal);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 高亮闪一下
+                    target.style.transition = 'box-shadow 0.3s, outline 0.3s';
+                    target.style.outline = '2px solid #c79eff';
+                    target.style.boxShadow = '0 0 20px rgba(199,158,255,0.5)';
+                    setTimeout(() => {
+                        target.style.outline = '';
+                        target.style.boxShadow = '';
+                    }, 1800);
+                } else {
+                    showToast('内容已被删除，无法跳转');
+                }
+            }
+
             function renderFavList() {
                 if (!favList) return;
                 const kw = (favSearchInput?.value || '').toLowerCase();
@@ -6540,9 +7042,10 @@
                     const d = document.createElement('div');
                     d.className = 'lib-item';
                     d.innerHTML = `
-                        <button class="lib-remove" title="移除">✕</button>
-                        <div class="lib-head"><span class="lib-sender">${item.from || (item.sender==='usr'?userName:angleName)}</span><span class="lib-ts">${formatTimestamp(new Date(item.ts||Date.now()), chatTimestampStyle)}</span></div>
-                        <div class="lib-text"></div>`;
+                        <button class="lib-remove" title="删除收藏">✕</button>
+                        <div class="lib-head"><span class="lib-sender">${item.from || (item.sender==='usr'?userName:angleName)}</span><span class="lib-ts">📅 ${formatDateCN(item.ts||Date.now())} ${formatTimestamp(new Date(item.ts||Date.now()), chatTimestampStyle)}</span></div>
+                        <div class="lib-text"></div>
+                        <button class="lib-jump" title="跳转至原消息">↗ 查看原消息</button>`;
                     d.querySelector('.lib-text').textContent = item.text;
                     d.querySelector('.lib-remove').addEventListener('click', (e) => {
                         e.stopPropagation();
@@ -6550,8 +7053,11 @@
                         saveAppearance();
                         renderFavList();
                     });
+                    d.querySelector('.lib-jump').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        jumpToMsg(item, '收藏');
+                    });
                     d.addEventListener('click', () => {
-                        // 点击直接填入输入框
                         userInput.value = item.text;
                         closeModal(favModal);
                         userInput.focus();
@@ -6571,10 +7077,11 @@
                     if (item.color) d.style.background = item.color;
                     const noteBlock = item.note ? `<div class="lib-note">📝 ${item.note}</div>` : '';
                     d.innerHTML = `
-                        <button class="lib-remove" title="移除">✕</button>
-                        <div class="lib-head"><span class="lib-sender">${item.from || (item.sender==='usr'?userName:angleName)}</span><span class="lib-ts">${formatTimestamp(new Date(item.ts||Date.now()), chatTimestampStyle)}</span></div>
+                        <button class="lib-remove" title="删除标注">✕</button>
+                        <div class="lib-head"><span class="lib-sender">${item.from || (item.sender==='usr'?userName:angleName)}</span><span class="lib-ts">📅 ${formatDateCN(item.ts||Date.now())} ${formatTimestamp(new Date(item.ts||Date.now()), chatTimestampStyle)}</span></div>
                         <div class="lib-text"></div>
-                        ${noteBlock}`;
+                        ${noteBlock}
+                        <button class="lib-jump" title="跳转至原消息">↗ 查看原消息</button>`;
                     d.querySelector('.lib-text').textContent = item.text;
                     d.querySelector('.lib-remove').addEventListener('click', (e) => {
                         e.stopPropagation();
@@ -6582,9 +7089,35 @@
                         saveAppearance();
                         renderMarkList();
                     });
+                    d.querySelector('.lib-jump').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        jumpToMsg(item, '标注');
+                    });
                     markList.appendChild(d);
                 });
             }
+
+            // 清空全部
+            const favClearAllBtn = document.getElementById('favClearAllBtn');
+            const markClearAllBtn = document.getElementById('markClearAllBtn');
+            if (favClearAllBtn) favClearAllBtn.addEventListener('click', () => {
+                const cnt = (favorites[favCurTab] || []).length;
+                if (!cnt) { showToast('当前没有收藏可清空'); return; }
+                if (!confirm(`确定清空当前tab的${cnt}条收藏吗？（不可恢复）`)) return;
+                favorites[favCurTab] = [];
+                saveAppearance();
+                renderFavList();
+                showToast('已清空');
+            });
+            if (markClearAllBtn) markClearAllBtn.addEventListener('click', () => {
+                const cnt = (marks[markCurTab] || []).length;
+                if (!cnt) { showToast('当前没有标注可清空'); return; }
+                if (!confirm(`确定清空当前tab的${cnt}条标注吗？（不可恢复）`)) return;
+                marks[markCurTab] = [];
+                saveAppearance();
+                renderMarkList();
+                showToast('已清空');
+            });
 
             // ========== 底部/侧边：收藏匣 / 标注 / 设置按钮 ==========
             if (bottomFavBtn) bottomFavBtn.addEventListener('click', () => { closeBottomSheet(); renderFavList(); openModal(favModal); });
@@ -6635,12 +7168,431 @@
                 });
             });
 
+            // ========== 日历 + 跳转日期 + 心情日记 ==========
+            const calendarModal = document.getElementById('calendarModal');
+            const closeCalendarModal = document.getElementById('closeCalendarModal');
+            const calGrid = document.getElementById('calGrid');
+            const calTitle = document.getElementById('calTitle');
+            const calToDiaryBtn = document.getElementById('calToDiaryBtn');
+
+            const jumpDateModal = document.getElementById('jumpDateModal');
+            const closeJumpDateModal = document.getElementById('closeJumpDateModal');
+            const dlYearViewport = document.getElementById('dlYearViewport');
+            const dlMonthViewport = document.getElementById('dlMonthViewport');
+            const dlDayViewport = document.getElementById('dlDayViewport');
+            const dlCancelBtn = document.getElementById('dlCancelBtn');
+            const dlConfirmBtn = document.getElementById('dlConfirmBtn');
+
+            const diaryModal = document.getElementById('diaryModal');
+            const closeDiaryModal = document.getElementById('closeDiaryModal');
+            const diaryDateLabel = document.getElementById('diaryDateLabel');
+            const diaryPrevDay = document.getElementById('diaryPrevDay');
+            const diaryNextDay = document.getElementById('diaryNextDay');
+            const diaryTodayBtn = document.getElementById('diaryTodayBtn');
+            const diaryToCalBtn = document.getElementById('diaryToCalBtn');
+            const diaryInput = document.getElementById('diaryInput');
+            const diarySaveBtn = document.getElementById('diarySaveBtn');
+            const diaryList = document.getElementById('diaryList');
+            const diaryQuickRow = document.getElementById('diaryQuickRow');
+            const diaryMoodRow = document.getElementById('diaryMoodRow');
+            const diaryMoodList = document.getElementById('diaryMoodList');
+            const diaryInsertBtn = document.getElementById('diaryInsertBtn');
+            const diaryPickPanel = document.getElementById('diaryPickPanel');
+
+            const sideCalendarBtn = document.getElementById('sideCalendarBtn');
+            const sideDiaryBtn = document.getElementById('sideDiaryBtn');
+
+            const MOODS = ['😊 开心','🥰 甜蜜','😌 平静','😔 低落','😤 生气','😴 困倦','🥺 委屈','😇 乖巧','🌸 心动','🌙 思念'];
+            const QUICK_WORDS = ['想你了', '一起看月亮吧', '晚安，我的月亮', '今天的你也很好', '抱抱', '梦里见', '谢谢你', '有你真好'];
+
+            // 日历状态
+            let calState = {
+                viewYear: new Date().getFullYear(),
+                viewMonth: new Date().getMonth(),  // 0-based
+                selDate: formatDateKey(Date.now())   // 'YYYY-MM-DD'
+            };
+            // 日记状态
+            let diaryState = {
+                dateKey: formatDateKey(Date.now()),
+                author: 'usr',
+                mood: MOODS[0].split(' ')[1]  // 梦角默认心情标签
+            };
+
+            function renderCalendar() {
+                if (!calGrid || !calTitle) return;
+                const y = calState.viewYear, m = calState.viewMonth;
+                calTitle.textContent = `${y}年${m+1}月`;
+                const todayKey = formatDateKey(Date.now());
+                const firstDay = new Date(y, m, 1);
+                const daysInMonth = new Date(y, m + 1, 0).getDate();
+                // 周一起始：周一=0 ... 周日=6
+                let offset = firstDay.getDay() - 1;
+                if (offset < 0) offset = 6;
+                const totalCells = Math.ceil((offset + daysInMonth) / 6) * 6;
+                calGrid.innerHTML = '';
+                for (let i = 0; i < totalCells; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cal-cell';
+                    const dayNum = i - offset + 1;
+                    if (dayNum < 1 || dayNum > daysInMonth) {
+                        cell.classList.add('empty');
+                        calGrid.appendChild(cell);
+                        continue;
+                    }
+                    const pad = n => String(n).padStart(2,'0');
+                    const dk = `${y}-${pad(m+1)}-${pad(dayNum)}`;
+                    cell.textContent = String(dayNum);
+                    if (dk === todayKey) cell.classList.add('today');
+                    if (dk === calState.selDate) cell.classList.add('selected');
+                    // 判断是否有日记 & 梦角心情
+                    const entries = moodDiaries[dk] || [];
+                    const angEntries = entries.filter(e => e.author==='angle');
+                    if (entries.length) {
+                        const dot = document.createElement('div');
+                        dot.className = 'has-diary';
+                        cell.appendChild(dot);
+                    }
+                    if (angEntries.length) {
+                        const lastMood = angEntries.sort((a,b)=>a.ts-b.ts)[angEntries.length-1].mood;
+                        if (lastMood) {
+                            const mt = document.createElement('div');
+                            mt.className = 'mood-tag';
+                            mt.textContent = lastMood;
+                            cell.appendChild(mt);
+                        }
+                    }
+                    cell.addEventListener('click', () => {
+                        calState.selDate = dk;
+                        diaryState.dateKey = dk;
+                        renderCalendar();
+                        // 点击日期直接跳转日记
+                        openDiaryFor(dk);
+                    });
+                    calGrid.appendChild(cell);
+                }
+            }
+
+            function openCalendarFor(dateKey) {
+                if (dateKey) {
+                    const [y,m,_] = dateKey.split('-');
+                    calState.viewYear = parseInt(y,10);
+                    calState.viewMonth = parseInt(m,10)-1;
+                    calState.selDate = dateKey;
+                }
+                renderCalendar();
+                closeModal(diaryModal);
+                openModal(calendarModal);
+            }
+
+            function openDiaryFor(dateKey) {
+                if (dateKey) diaryState.dateKey = dateKey;
+                const [y,m,d] = diaryState.dateKey.split('-');
+                diaryDateLabel.textContent = `${y}年${parseInt(m,10)}月${parseInt(d,10)}日`;
+                // 日历同步跳转
+                calState.viewYear = parseInt(y,10);
+                calState.viewMonth = parseInt(m,10)-1;
+                calState.selDate = diaryState.dateKey;
+                renderDiaryList();
+                renderMoodList();
+                renderQuickRow();
+                closeModal(calendarModal);
+                openModal(diaryModal);
+            }
+
+            // 心情列表（梦角写日记时选）
+            function renderMoodList() {
+                if (!diaryMoodList) return;
+                diaryMoodList.innerHTML = '';
+                MOODS.forEach(m => {
+                    const [emoji, label] = m.split(' ');
+                    const d = document.createElement('div');
+                    d.className = 'diary-mood';
+                    d.textContent = `${emoji} ${label}`;
+                    if (diaryState.mood === label) d.classList.add('selected');
+                    d.addEventListener('click', () => {
+                        diaryState.mood = label;
+                        renderMoodList();
+                    });
+                    diaryMoodList.appendChild(d);
+                });
+            }
+
+            // 快速插入行（字卡/表情缩略，点击插入到输入框）
+            function renderQuickRow() {
+                if (!diaryQuickRow) return;
+                diaryQuickRow.innerHTML = '';
+                const sampleWords = (cardLibrary||[]).slice(0, 10);
+                const sampleEmojis = [];
+                for (const g in emojiGroups) sampleEmojis.push(...(emojiGroups[g]||[]).slice(0,2));
+                [...sampleWords, ...sampleEmojis.slice(0,6)].forEach(w => {
+                    const c = document.createElement('div');
+                    c.className = 'diary-quick-chip';
+                    c.textContent = w.length > 10 ? w.slice(0,10)+'…' : w;
+                    c.title = w;
+                    c.addEventListener('click', () => {
+                        diaryInput.value += w;
+                        diaryInput.focus();
+                    });
+                    diaryQuickRow.appendChild(c);
+                });
+            }
+
+            // 日记列表（按时间由早到晚排序）
+            function renderDiaryList() {
+                if (!diaryList) return;
+                const entries = (moodDiaries[diaryState.dateKey] || []).slice().sort((a,b)=>a.ts-b.ts);
+                diaryList.innerHTML = '';
+                if (!entries.length) {
+                    diaryList.innerHTML = '<div class="lib-empty">当天没有心情日记，写一条吧~</div>';
+                    return;
+                }
+                entries.forEach(item => {
+                    const d = document.createElement('div');
+                    d.className = 'diary-entry ' + item.author;
+                    const authorLabel = item.author === 'usr'
+                        ? `<span>🌸</span><span>${userName}</span>`
+                        : `<span>🌙</span><span>${angleName}</span>`;
+                    const moodBlock = (item.author === 'angle' && item.mood)
+                        ? `<span class="d-mood">${item.mood}</span>` : '';
+                    d.innerHTML = `
+                        <button class="d-del" title="删除">✕</button>
+                        <div class="d-meta">
+                            <div class="d-author">${authorLabel}${moodBlock}</div>
+                            <div class="d-time">${formatTimeHMS(item.ts)}</div>
+                        </div>
+                        <div class="d-content"></div>`;
+                    d.querySelector('.d-content').textContent = item.content;
+                    d.querySelector('.d-del').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (!confirm('确定删除这条日记吗？')) return;
+                        let arr = moodDiaries[diaryState.dateKey] || [];
+                        arr = arr.filter(x => x.id !== item.id);
+                        if (!arr.length) delete moodDiaries[diaryState.dateKey];
+                        else moodDiaries[diaryState.dateKey] = arr;
+                        saveAppearance();
+                        renderDiaryList();
+                        renderCalendar();
+                    });
+                    diaryList.appendChild(d);
+                });
+            }
+
+            function saveDiary() {
+                const t = (diaryInput?.value || '').trim();
+                if (!t) { showToast('请先写点什么'); return; }
+                if (diaryState.author === 'angle' && !diaryState.mood) {
+                    showToast('梦角写日记请先选择心情'); return;
+                }
+                const now = Date.now();
+                const dk = diaryState.dateKey;
+                if (!moodDiaries[dk]) moodDiaries[dk] = [];
+                const entry = {
+                    id: 'diary-' + now.toString(36) + Math.random().toString(36).slice(2,6),
+                    dateKey: dk,
+                    ts: now,
+                    author: diaryState.author,
+                    content: t
+                };
+                if (entry.author === 'angle') entry.mood = diaryState.mood;
+                moodDiaries[dk].push(entry);
+                saveAppearance();
+                diaryInput.value = '';
+                renderDiaryList();
+                renderCalendar();
+                showToast('已保存');
+            }
+
+            // 梦角回复后有小概率自动写一条心情日记
+            function angleAutoDiaryRandom() {
+                if (!cardLibrary.length) return;
+                if (Math.random() > 0.08) return;  // 8%
+                const picked = cardLibrary[Math.floor(Math.random()*cardLibrary.length)];
+                const mood = MOODS[Math.floor(Math.random()*MOODS.length)].split(' ')[1];
+                const dk = formatDateKey(Date.now());
+                if (!moodDiaries[dk]) moodDiaries[dk] = [];
+                moodDiaries[dk].push({
+                    id: 'diary-' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+                    dateKey: dk, ts: Date.now(), author: 'angle',
+                    content: picked, mood
+                });
+                saveAppearance();
+                if (calendarModal && calendarModal.classList.contains('active')) renderCalendar();
+            }
+
+            // ============ 日历按钮绑定 ============
+            if (document.getElementById('calPrevMonth')) document.getElementById('calPrevMonth').addEventListener('click', () => {
+                calState.viewMonth--;
+                if (calState.viewMonth < 0) { calState.viewMonth = 11; calState.viewYear--; }
+                renderCalendar();
+            });
+            if (document.getElementById('calNextMonth')) document.getElementById('calNextMonth').addEventListener('click', () => {
+                calState.viewMonth++;
+                if (calState.viewMonth > 11) { calState.viewMonth = 0; calState.viewYear++; }
+                renderCalendar();
+            });
+            if (document.getElementById('calPrevYear')) document.getElementById('calPrevYear').addEventListener('click', () => {
+                calState.viewYear--; renderCalendar();
+            });
+            if (document.getElementById('calNextYear')) document.getElementById('calNextYear').addEventListener('click', () => {
+                calState.viewYear++; renderCalendar();
+            });
+            if (calToDiaryBtn) calToDiaryBtn.addEventListener('click', () => openDiaryFor(calState.selDate));
+            if (closeCalendarModal) closeCalendarModal.addEventListener('click', () => closeModal(calendarModal));
+
+            // ============ 跳转日期选择器（3列滚动列表）============
+            let dlSelection = { year: new Date().getFullYear(), month: new Date().getMonth()+1, day: new Date().getDate() };
+            function buildDLColumn(viewport, start, end, key, initial) {
+                if (!viewport) return;
+                viewport.innerHTML = '';
+                for (let i = start; i <= end; i++) {
+                    const d = document.createElement('div');
+                    d.className = 'dl-item';
+                    d.dataset.val = i;
+                    d.textContent = i;
+                    d.addEventListener('click', () => {
+                        dlSelection[key] = i;
+                        updateDLCenter();
+                        scrollToItem(viewport, i, start);
+                    });
+                    viewport.appendChild(d);
+                }
+                // 初始滚动到指定值
+                setTimeout(() => scrollToItem(viewport, initial, start), 0);
+                // 滚动时找中心值
+                viewport.addEventListener('scroll', () => {
+                    const idx = Math.round(viewport.scrollTop / 50);
+                    const val = start + idx;
+                    if (val >= start && val <= end) dlSelection[key] = val;
+                    updateDLCenter();
+                });
+            }
+            function scrollToItem(viewport, val, start) {
+                if (!viewport) return;
+                const idx = val - start;
+                // center
+                viewport.scrollTop = idx * 50;
+            }
+            function updateDLCenter() {
+                [dlYearViewport, dlMonthViewport, dlDayViewport].forEach((vp, i) => {
+                    if (!vp) return;
+                    const col = vp.querySelectorAll('.dl-item');
+                    const target = i === 0 ? dlSelection.year : (i === 1 ? dlSelection.month : dlSelection.day);
+                    col.forEach(c => c.classList.toggle('center', parseInt(c.dataset.val,10) === target));
+                });
+            }
+            function openJumpDate() {
+                const t = new Date();
+                dlSelection = {
+                    year: calState.viewYear,
+                    month: calState.viewMonth + 1,
+                    day: parseInt(calState.selDate.slice(-2),10) || t.getDate()
+                };
+                const daysInMonth = new Date(dlSelection.year, dlSelection.month, 0).getDate();
+                buildDLColumn(dlYearViewport, 1900, 2999, 'year', dlSelection.year);
+                buildDLColumn(dlMonthViewport, 1, 12, 'month', dlSelection.month);
+                buildDLColumn(dlDayViewport, 1, daysInMonth, 'day', Math.min(dlSelection.day, daysInMonth));
+                updateDLCenter();
+                openModal(jumpDateModal);
+            }
+            if (document.getElementById('calJumpBtn')) document.getElementById('calJumpBtn').addEventListener('click', openJumpDate);
+            if (closeJumpDateModal) closeJumpDateModal.addEventListener('click', () => closeModal(jumpDateModal));
+            if (dlCancelBtn) dlCancelBtn.addEventListener('click', () => closeModal(jumpDateModal));
+            if (dlConfirmBtn) dlConfirmBtn.addEventListener('click', () => {
+                const y = dlSelection.year, m = dlSelection.month, d = dlSelection.day;
+                // 调整日范围
+                const maxD = new Date(y, m, 0).getDate();
+                const finalD = Math.min(d, maxD);
+                const pad = n => String(n).padStart(2,'0');
+                const dk = `${y}-${pad(m)}-${pad(finalD)}`;
+                calState.viewYear = y;
+                calState.viewMonth = m - 1;
+                calState.selDate = dk;
+                diaryState.dateKey = dk;
+                renderCalendar();
+                closeModal(jumpDateModal);
+                showToast(`已跳转到 ${y}年${m}月${finalD}日`);
+            });
+
+            // ============ 心情日记绑定 ============
+            document.querySelectorAll('.diary-author-tabs button').forEach(b => b.addEventListener('click', () => {
+                document.querySelectorAll('.diary-author-tabs button').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                diaryState.author = b.dataset.author;
+                if (diaryMoodRow) diaryMoodRow.style.display = diaryState.author === 'angle' ? 'flex' : 'none';
+            }));
+            if (diaryPrevDay) diaryPrevDay.addEventListener('click', () => {
+                const d = new Date(diaryState.dateKey + 'T00:00:00');
+                d.setDate(d.getDate() - 1);
+                openDiaryFor(formatDateKey(d.getTime()));
+            });
+            if (diaryNextDay) diaryNextDay.addEventListener('click', () => {
+                const d = new Date(diaryState.dateKey + 'T00:00:00');
+                d.setDate(d.getDate() + 1);
+                openDiaryFor(formatDateKey(d.getTime()));
+            });
+            if (diaryTodayBtn) diaryTodayBtn.addEventListener('click', () => openDiaryFor(formatDateKey(Date.now())));
+            if (diaryToCalBtn) diaryToCalBtn.addEventListener('click', () => openCalendarFor(diaryState.dateKey));
+            if (closeDiaryModal) closeDiaryModal.addEventListener('click', () => closeModal(diaryModal));
+
+            if (diarySaveBtn) diarySaveBtn.addEventListener('click', saveDiary);
+            if (diaryInput) diaryInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveDiary(); }
+            });
+
+            // 插入字卡/表情选择面板
+            if (diaryInsertBtn && diaryPickPanel) {
+                diaryInsertBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const show = diaryPickPanel.classList.toggle('show');
+                    if (!show) return;
+                    diaryPickPanel.innerHTML = '';
+                    // 表情分组
+                    let html = '<div class="qp-title">😊 表情</div><div class="qp-grid">';
+                    const emoAll = [];
+                    for (const g in emojiGroups) emoAll.push(...(emojiGroups[g]||[]));
+                    emoAll.slice(0, 48).forEach(em => {
+                        html += `<div class="qp-chip">${em}</div>`;
+                    });
+                    html += '</div>';
+                    // 字卡
+                    html += '<div class="qp-title">📜 字卡</div><div class="qp-words">';
+                    (cardLibrary||[]).slice(0, 40).forEach(w => {
+                        html += `<div class="qp-chip" style="width:auto;grid-column:span 1;">${w.length>10?w.slice(0,10)+'…':w}</div>`;
+                    });
+                    html += '</div>';
+                    diaryPickPanel.innerHTML = html;
+                    diaryPickPanel.querySelectorAll('.qp-chip').forEach(c => {
+                        c.addEventListener('click', (ev) => {
+                            ev.stopPropagation();
+                            diaryInput.value += c.textContent.replace(/…$/,'');
+                            diaryInput.focus();
+                            diaryPickPanel.classList.remove('show');
+                        });
+                    });
+                });
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#diaryPickPanel') && !e.target.closest('#diaryInsertBtn')) {
+                        diaryPickPanel.classList.remove('show');
+                    }
+                });
+            }
+
+            // 侧边栏按钮：日历 + 日记
+            if (sideCalendarBtn) sideCalendarBtn.addEventListener('click', () => { closeSidePanel(); openCalendarFor(formatDateKey(Date.now())); });
+            if (sideDiaryBtn) sideDiaryBtn.addEventListener('click', () => { closeSidePanel(); openDiaryFor(formatDateKey(Date.now())); });
+
+            // 遮罩点击关闭（日历/日记/跳转日期）
+            [calendarModal, diaryModal, jumpDateModal].forEach(m => {
+                if (m) m.addEventListener('click', (e) => { if (e.target === m) closeModal(m); });
+            });
+
             // ========== 梦角自主撤回（收到回复后有小概率撤回我的消息）==========
             const _origReply = replyWithRandomCard;
             replyWithRandomCard = function() {
                 const ret = _origReply.apply(this, arguments);
                 setTimeout(angleRecallUserMsgRandom, 1500);
                 setTimeout(angleFavUserMsgRandom, 2000);
+                setTimeout(angleAutoDiaryRandom, 3000);  // 梦角偶尔自动写日记+心情
                 return ret;
             };
 
@@ -6661,12 +7613,15 @@
                     if (patModal.classList.contains('active')) closeModal(patModal);
                     if (favModal.classList.contains('active')) closeModal(favModal);
                     if (markModal.classList.contains('active')) closeModal(markModal);
+                    if (calendarModal.classList.contains('active')) closeModal(calendarModal);
+                    if (diaryModal.classList.contains('active')) closeModal(diaryModal);
+                    if (jumpDateModal.classList.contains('active')) closeModal(jumpDateModal);
                 }
             });
         }
 
         function isAnySubModalOpen() {
-            return [nicknameModal, avatarModal, bubbleModal, bgFontModal, themeModal, favModal, markModal].some(m => m.classList.contains('active'));
+            return [nicknameModal, avatarModal, bubbleModal, bgFontModal, themeModal, favModal, markModal, calendarModal, diaryModal, jumpDateModal].some(m => m.classList.contains('active'));
         }
 
 
