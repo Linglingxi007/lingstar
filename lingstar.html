@@ -1,0 +1,3290 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>梦语 · 传讯</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #e8e0ee;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .phone-frame {
+            max-width: 420px;
+            width: 100%;
+            height: 94vh;
+            max-height: 820px;
+            min-height: 600px;
+            background: #ffffff;
+            border-radius: 36px;
+            box-shadow: 0 20px 60px rgba(80, 50, 110, 0.10);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ===== 顶栏 ===== */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            padding: 12px 18px 8px 18px;
+            flex-shrink: 0;
+            gap: 8px;
+            background: #ffffff;
+            border-bottom: 1px solid rgba(220, 200, 240, 0.06);
+        }
+        .angle-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            cursor: pointer;
+        }
+        .angle-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+            box-shadow: 0 2px 6px rgba(180, 150, 210, 0.15);
+            flex-shrink: 0;
+            transition: 0.2s;
+            background: linear-gradient(135deg, #dcc3ed, #c6a8de);
+            object-fit: cover;
+            overflow: hidden;
+        }
+        .angle-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .angle-avatar:hover {
+            transform: scale(1.05);
+        }
+        .angle-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #2d1a39;
+            letter-spacing: 0.3px;
+        }
+        .angle-status {
+            font-size: 0.55rem;
+            color: #7a5b8c;
+            opacity: 0.4;
+            margin-left: 2px;
+        }
+        .top-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #5a3d6b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.15s;
+        }
+        .icon-btn:hover {
+            background: rgba(200, 175, 220, 0.10);
+        }
+        .icon-btn:active {
+            transform: scale(0.90);
+        }
+
+        /* ===== 聊天区域 ===== */
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 16px 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #fcfaff;
+            min-height: 0;
+        }
+        .chat-box::-webkit-scrollbar { width: 3px; }
+        .chat-box::-webkit-scrollbar-thumb { background: #d6c8e0; border-radius: 12px; }
+
+        .message {
+            max-width: 82%;
+            padding: 9px 15px;
+            border-radius: 18px;
+            word-break: break-word;
+            line-height: 1.45;
+            font-size: 0.9rem;
+            animation: fadeIn 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .message .msg-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            background: rgba(220, 200, 240, 0.2);
+            overflow: hidden;
+        }
+        .message .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .message .msg-content { flex: 1; }
+        .message.user {
+            align-self: flex-end;
+            background: #e8ddf2;
+            color: #1f1129;
+            border-bottom-right-radius: 4px;
+        }
+        .message.system {
+            align-self: flex-start;
+            background: #f3eef8;
+            color: #2c1b36;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(220, 200, 240, 0.10);
+        }
+        .message small {
+            display: block;
+            font-size: 0.5rem;
+            opacity: 0.25;
+            margin-top: 3px;
+            letter-spacing: 0.2px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== 底部输入区 ===== */
+        .input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 16px 14px 16px;
+            flex-shrink: 0;
+            border-top: 1px solid rgba(220, 200, 240, 0.06);
+            background: #ffffff;
+        }
+        .arrow-up-btn {
+            background: #f5f0fa;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #5a3d6b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.15s;
+            flex-shrink: 0;
+        }
+        .arrow-up-btn:hover { background: #ede6f5; }
+        .arrow-up-btn.active { background: #c6a8de; color: white; }
+
+        .input-area {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            align-items: center;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 11px 16px;
+            border: none;
+            border-radius: 30px;
+            background: #f5f0fa;
+            font-size: 0.88rem;
+            outline: none;
+            transition: 0.2s;
+            color: #2d1a39;
+        }
+        .input-area input:focus {
+            background: #ede6f5;
+            box-shadow: 0 0 0 2px #c6a8de;
+        }
+        .input-area input::placeholder { color: #a585b8; font-weight: 300; }
+        .btn-send {
+            background: #c6a8de;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 30px;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: 0.15s;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+        .btn-send:hover { background: #b697cc; }
+        .btn-send:active { transform: scale(0.95); }
+
+        /* ===== 底部上弹侧边栏 ===== */
+        .bottom-sheet {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-height: 0;
+            overflow: hidden;
+            background: rgba(255, 252, 255, 0.98);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 28px 28px 0 0;
+            box-shadow: 0 -8px 32px rgba(80, 50, 110, 0.06);
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+            z-index: 100;
+            padding: 0 16px;
+            border-top: 1px solid rgba(220, 200, 240, 0.06);
+        }
+        .bottom-sheet.open {
+            max-height: 300px;
+            padding: 16px 16px 20px 16px;
+        }
+        .bottom-sheet-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            justify-items: center;
+        }
+        .sheet-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: 0.15s;
+            padding: 6px 0;
+            border-radius: 16px;
+            width: 100%;
+            background: rgba(245, 240, 250, 0.2);
+            border: 1px solid transparent;
+        }
+        .sheet-item:hover { background: rgba(245, 240, 250, 0.5); }
+        .sheet-item:active { transform: scale(0.94); }
+        .sheet-item .icon { font-size: 1.6rem; line-height: 1.2; }
+        .sheet-item .label { font-size: 0.6rem; color: #5a3d6b; opacity: 0.6; font-weight: 400; letter-spacing: 0.3px; }
+
+        /* ===== 右侧侧边栏 ===== */
+        .side-overlay {
+            position: fixed;
+            top: 0; right: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.20);
+            z-index: 900;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .side-overlay.active { display: block; opacity: 1; }
+        .side-panel {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 300px;
+            max-width: 80vw;
+            height: 100%;
+            background: rgba(255, 252, 255, 0.98);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 1000;
+            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -4px 0 40px rgba(80, 50, 110, 0.06);
+            padding: 20px 16px 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .side-panel.open { right: 0; }
+        .side-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(200, 175, 220, 0.06);
+            flex-shrink: 0;
+        }
+        .side-header h2 { font-weight: 400; font-size: 1rem; color: #3f2a4f; letter-spacing: 0.5px; }
+        .side-close {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #7a5b8c;
+            padding: 0 4px;
+            transition: 0.2s;
+        }
+        .side-close:hover { color: #3f2a4f; transform: rotate(90deg); }
+        .side-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .side-grid-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: rgba(245, 240, 250, 0.25);
+            border-radius: 18px;
+            padding: 18px 8px;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid rgba(220, 200, 240, 0.06);
+            text-align: center;
+        }
+        .side-grid-item:hover { background: rgba(245, 240, 250, 0.5); transform: translateY(-2px); }
+        .side-grid-item:active { transform: scale(0.94); }
+        .side-grid-item .icon { font-size: 1.8rem; }
+        .side-grid-item .label { font-size: 0.7rem; color: #5a3d6b; opacity: 0.6; font-weight: 400; letter-spacing: 0.3px; }
+
+        /* ===== 弹窗 (通用) ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.30);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { display: flex; }
+        /* 子板块弹窗层级更高，覆盖在设置弹窗之上 */
+        .modal-overlay.sub-modal { z-index: 3000; }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 28px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 82vh;
+            height: auto;
+            padding: 20px 18px 24px;
+            box-shadow: 0 24px 64px rgba(80, 50, 110, 0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalIn 0.2s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.94) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(200, 175, 220, 0.06);
+            flex-shrink: 0;
+        }
+        .modal-header h2 { font-weight: 500; font-size: 1rem; color: #3f2a4f; letter-spacing: 0.3px; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #7a5b8c;
+            padding: 0 4px;
+            transition: 0.2s;
+        }
+        .modal-close:hover { color: #3f2a4f; transform: rotate(90deg); }
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0 2px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .modal-body::-webkit-scrollbar { width: 3px; }
+        .modal-body::-webkit-scrollbar-thumb { background: #d6c8e0; border-radius: 12px; }
+
+        /* ===== 字卡/表情/拍一拍 通用模块样式 ===== */
+        .mod-group-tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+        .mod-group-tab {
+            padding: 3px 12px;
+            border-radius: 30px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            background: rgba(240, 228, 248, 0.2);
+            border: 1px solid transparent;
+            transition: 0.15s;
+            color: #5a3d6b;
+        }
+        .mod-group-tab:hover { background: rgba(220, 200, 240, 0.2); }
+        .mod-group-tab.active { background: #c6a8de; color: white; border-color: #b088cc; }
+        .mod-group-tab .count { font-size: 0.55rem; opacity: 0.7; margin-left: 2px; }
+
+        .mod-search-row { display: flex; gap: 6px; margin-bottom: 4px; }
+        .mod-search-row input {
+            flex: 1;
+            padding: 5px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(200, 170, 220, 0.10);
+            background: #f8f4fc;
+            outline: none;
+            font-size: 0.75rem;
+            color: #2d1a39;
+            transition: 0.15s;
+        }
+        .mod-search-row input:focus { border-color: #b088cc; box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
+
+        .mod-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-height: 90px;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+        .mod-list::-webkit-scrollbar { width: 3px; }
+        .mod-list::-webkit-scrollbar-thumb { background: #d6c8e0; border-radius: 12px; }
+        .mod-item {
+            background: rgba(255, 240, 255, 0.3);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            border: 1px solid #d6bce8;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.15s;
+            cursor: pointer;
+        }
+        .mod-item .del { cursor: pointer; opacity: 0.2; font-size: 0.6rem; }
+        .mod-item .del:hover { opacity: 1; color: #d9534f; }
+        .mod-item .group-label {
+            font-size: 0.5rem;
+            background: rgba(180, 150, 210, 0.08);
+            padding: 0 5px;
+            border-radius: 20px;
+            color: #6a4a7a;
+        }
+        .mod-item.selected { background: #c6a8de; border-color: #9f79c2; }
+        .mod-empty { color: #816b93; font-size: 0.7rem; opacity: 0.4; padding: 4px 0; }
+
+        .mod-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .mod-row input,
+        .mod-row select {
+            flex: 1;
+            min-width: 60px;
+            padding: 5px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(200, 170, 220, 0.10);
+            background: #f8f4fc;
+            outline: none;
+            font-size: 0.75rem;
+            color: #2d1a39;
+            transition: 0.15s;
+        }
+        .mod-row input:focus,
+        .mod-row select:focus { border-color: #b088cc; box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
+        .mod-row .btn {
+            padding: 5px 14px;
+            font-size: 0.7rem;
+            border-radius: 30px;
+            background: #efe3f7;
+            border: none;
+            cursor: pointer;
+            transition: 0.15s;
+            color: #3d284b;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .mod-row .btn:hover { background: #e0ceec; }
+        .mod-row .btn-danger { background: #f0e0e8; color: #6d3b4a; }
+        .mod-row .btn-danger:hover { background: #e8d0d8; }
+        .mod-row .btn-primary-mod { background: #c6a8de; color: white; }
+        .mod-row .btn-primary-mod:hover { background: #b697cc; }
+
+        .mod-textarea {
+            width: 100%;
+            padding: 6px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(200, 170, 220, 0.10);
+            background: #f8f4fc;
+            outline: none;
+            font-size: 0.75rem;
+            resize: vertical;
+            min-height: 40px;
+            font-family: inherit;
+            color: #2d1a39;
+            transition: 0.15s;
+        }
+        .mod-textarea:focus { border-color: #b088cc; box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
+        .mod-hint { font-size: 0.58rem; color: #816b93; opacity: 0.4; margin-top: 2px; }
+        .mod-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+        .mod-actions .btn { padding: 4px 12px; font-size: 0.66rem; border-radius: 30px; }
+        .mod-divider { border: none; border-top: 1px solid rgba(200, 175, 220, 0.06); margin: 4px 0; }
+
+        /* ===== 模拟通话弹窗 ===== */
+        .call-avatars {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 8px 0;
+            justify-content: center;
+        }
+        .call-avatar-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .call-avatar-box .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: 2px solid rgba(200, 175, 220, 0.08);
+            position: relative;
+            background: rgba(220, 200, 240, 0.12);
+            overflow: hidden;
+        }
+        .call-avatar-box .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .call-avatar-box .avatar .dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: #ccc;
+        }
+        .call-avatar-box .avatar .dot.on { background: #4caf50; }
+        .call-avatar-box .avatar .dot.calling { background: #ff9800; animation: pulse 1s infinite; }
+        .call-avatar-box .name { font-size: 0.6rem; color: #7a5b8c; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .call-controls { display: flex; gap: 12px; justify-content: center; }
+        .call-controls .btn-call {
+            padding: 6px 22px;
+            font-size: 0.78rem;
+            border-radius: 30px;
+            border: none;
+            background: #4caf50;
+            color: white;
+            cursor: pointer;
+        }
+        .call-controls .btn-call.ringing { background: #ff9800; }
+        .call-controls .btn-hangup {
+            padding: 6px 22px;
+            font-size: 0.78rem;
+            border-radius: 30px;
+            border: none;
+            background: #e53935;
+            color: white;
+            cursor: pointer;
+        }
+        .call-status-text { font-size: 0.65rem; color: #7a5b8c; opacity: 0.4; text-align: center; }
+
+        /* ===== 设置三大板块 ===== */
+        .settings-sections { display: flex; flex-direction: column; gap: 10px; }
+        .settings-section-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(245, 240, 250, 0.35);
+            border-radius: 18px;
+            padding: 16px 16px;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid rgba(220, 200, 240, 0.06);
+        }
+        .settings-section-card:hover {
+            background: rgba(245, 240, 250, 0.6);
+            transform: translateY(-2px);
+        }
+        .settings-section-card:active { transform: scale(0.98); }
+        .settings-section-card .icon {
+            font-size: 1.8rem;
+            width: 42px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .settings-section-card .title { font-size: 0.88rem; font-weight: 500; color: #3f2a4f; }
+        .settings-section-card .desc { font-size: 0.66rem; color: #816b93; opacity: 0.55; margin-top: 2px; }
+        .settings-section-card .arrow { margin-left: auto; color: #b697cc; font-size: 1rem; opacity: 0.5; }
+
+        .settings-sub-view { display: flex; flex-direction: column; gap: 10px; }
+        .settings-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.72rem;
+            color: #7a5b8c;
+            cursor: pointer;
+            align-self: flex-start;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(245, 240, 250, 0.4);
+            transition: 0.15s;
+        }
+        .settings-back:hover { background: rgba(220, 200, 240, 0.25); }
+
+        /* 外观设置五子板块 */
+        .appearance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .appearance-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: rgba(245, 240, 250, 0.3);
+            border-radius: 18px;
+            padding: 18px 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid rgba(220, 200, 240, 0.06);
+            text-align: center;
+        }
+        .appearance-btn:hover { background: rgba(245, 240, 250, 0.6); transform: translateY(-2px); }
+        .appearance-btn:active { transform: scale(0.94); }
+        .appearance-btn .icon { font-size: 1.6rem; }
+        .appearance-btn .label { font-size: 0.7rem; color: #5a3d6b; opacity: 0.6; }
+
+        /* ===== 头像设置弹窗 ===== */
+        .avatar-preview-area {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0;
+            background: rgba(245, 240, 250, 0.15);
+            border-radius: 16px;
+            margin-bottom: 8px;
+        }
+        .avatar-preview-box { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .avatar-preview-box .label { font-size: 0.6rem; color: #7a5b8c; opacity: 0.5; }
+        .avatar-preview {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            background: rgba(220, 200, 240, 0.1);
+            border: 2px solid rgba(200, 175, 220, 0.1);
+            overflow: hidden;
+            transition: border-radius 0.3s;
+        }
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-preview.shape-circle { border-radius: 50%; }
+        .avatar-preview.shape-square { border-radius: 0; }
+        .avatar-preview.shape-round { border-radius: 16px; }
+
+        .avatar-shape-selector { display: flex; gap: 8px; justify-content: center; margin: 6px 0; }
+        .shape-btn {
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(200, 170, 220, 0.2);
+            background: none;
+            cursor: pointer;
+            font-size: 0.7rem;
+            color: #5a3d6b;
+            transition: 0.15s;
+        }
+        .shape-btn:hover { background: rgba(200, 170, 220, 0.1); }
+        .shape-btn.active { background: #c6a8de; color: white; border-color: #b088cc; }
+        .avatar-upload-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .avatar-upload-row input[type="text"] {
+            flex: 1;
+            min-width: 120px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(200, 170, 220, 0.1);
+            background: #f8f4fc;
+            outline: none;
+            font-size: 0.75rem;
+            color: #2d1a39;
+        }
+        .avatar-upload-row input[type="text"]:focus { border-color: #b088cc; box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
+        .avatar-upload-row .btn {
+            padding: 4px 14px;
+            font-size: 0.7rem;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: 0.15s;
+            background: #efe3f7;
+            color: #3d284b;
+        }
+        .avatar-upload-row .btn:hover { background: #e0ceec; }
+        .avatar-upload-row .btn-danger { background: #f0e0e8; color: #6d3b4a; }
+        .avatar-upload-row .btn-danger:hover { background: #e8d0d8; }
+        .avatar-slider-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+        .avatar-slider-row .label { font-size: 0.7rem; color: #7a5b8c; min-width: 36px; }
+        .avatar-slider-row input[type="range"] { flex: 1; accent-color: #c6a8de; height: 4px; }
+        .avatar-slider-row .value { font-size: 0.7rem; color: #5a3d6b; min-width: 32px; text-align: right; }
+
+        /* ===== 通用设置项 ===== */
+        .settings-item {
+            background: rgba(245, 240, 250, 0.2);
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid rgba(220, 200, 240, 0.06);
+        }
+        .settings-item .label { font-size: 0.8rem; font-weight: 500; color: #5a3d6b; margin-bottom: 4px; }
+        .settings-item .desc { font-size: 0.68rem; color: #816b93; opacity: 0.5; }
+        .settings-item select,
+        .settings-item input[type="text"],
+        .settings-item input[type="number"] {
+            margin-top: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(200, 170, 220, 0.1);
+            background: #f8f4fc;
+            outline: none;
+            font-size: 0.75rem;
+            color: #2d1a39;
+            width: 100%;
+        }
+
+        /* 主题色块 */
+        .theme-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+        .theme-swatch {
+            width: 44px; height: 44px;
+            border-radius: 14px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.85);
+        }
+        .theme-swatch:hover { transform: translateY(-2px); }
+        .theme-swatch.active { border-color: #5a3d6b; box-shadow: 0 0 0 2px rgba(90,61,107,0.15); }
+
+        .color-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .color-row input[type="color"] {
+            width: 38px; height: 28px; padding: 0; border: none; border-radius: 8px; cursor: pointer; background: none;
+        }
+        .color-row .btn {
+            padding: 5px 14px; font-size: 0.7rem; border-radius: 20px; border: none; cursor: pointer;
+            background: #efe3f7; color: #3d284b; transition: 0.15s;
+        }
+        .color-row .btn:hover { background: #e0ceec; }
+
+        /* 数据管理 */
+        .data-actions { display: flex; flex-direction: column; gap: 8px; }
+        .data-actions .btn {
+            padding: 8px 14px; font-size: 0.75rem; border-radius: 20px; border: none; cursor: pointer; transition: 0.15s;
+            text-align: left; display: flex; align-items: center; gap: 8px;
+        }
+        .data-actions .btn-export { background: #efe3f7; color: #3d284b; }
+        .data-actions .btn-export:hover { background: #e0ceec; }
+        .data-actions .btn-import { background: #e3f0e8; color: #2d4b35; }
+        .data-actions .btn-import:hover { background: #d0e0d8; }
+        .data-actions .btn-danger { background: #f0e0e8; color: #6d3b4a; }
+        .data-actions .btn-danger:hover { background: #e8d0d8; }
+        .data-actions textarea {
+            width: 100%; min-height: 70px; padding: 8px 12px; border-radius: 14px;
+            border: 1px solid rgba(200, 170, 220, 0.1); background: #f8f4fc; outline: none;
+            font-size: 0.7rem; color: #2d1a39; resize: vertical; font-family: inherit;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 440px) {
+            .phone-frame { border-radius: 28px; height: 96vh; max-height: 780px; }
+            .top-bar { padding: 10px 14px 6px 14px; }
+            .chat-box { padding: 10px 12px 6px 12px; }
+            .input-wrapper { padding: 8px 12px 12px 12px; }
+            .angle-avatar { width: 30px; height: 30px; font-size: 0.95rem; }
+            .angle-name { font-size: 0.82rem; }
+            .modal-content { border-radius: 24px; padding: 16px 14px 20px; }
+            .bottom-sheet.open { padding: 12px 12px 16px 12px; max-height: 260px; }
+            .bottom-sheet-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+            .sheet-item .icon { font-size: 1.3rem; }
+            .side-panel { width: 260px; max-width: 78vw; right: -280px; padding: 16px 14px 24px; }
+            .side-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .side-grid-item { padding: 14px 6px; }
+            .side-grid-item .icon { font-size: 1.5rem; }
+            .appearance-grid { grid-template-columns: 1fr 1fr; }
+            .avatar-preview-area { flex-direction: row; gap: 12px; }
+            .avatar-preview { width: 48px; height: 48px; font-size: 1.2rem; }
+        }
+        @media (max-height: 700px) {
+            .phone-frame { height: 92vh; min-height: 500px; }
+            .chat-box { padding: 8px 12px; }
+            .message { font-size: 0.82rem; padding: 7px 13px; }
+            .bottom-sheet.open { max-height: 220px; padding: 10px 12px 14px 12px; }
+            .side-panel { padding: 14px 12px 20px; }
+            .mod-list { max-height: 60px; }
+        }
+    </style>
+</head>
+<body>
+<div class="phone-frame" id="app">
+
+    <!-- ===== 顶栏 ===== -->
+    <div class="top-bar">
+        <div class="angle-profile" id="profileClick">
+            <div class="angle-avatar" id="angleAvatarDisplay">🌙</div>
+            <div>
+                <span class="angle-name" id="angleNameDisplay">ta</span>
+                <span class="angle-status">· 在线</span>
+            </div>
+        </div>
+        <div class="top-actions">
+            <button class="icon-btn" id="openSidePanelBtn" title="功能面板">📚</button>
+            <button class="icon-btn" id="openSettingsBtn" title="设置">⚙</button>
+        </div>
+    </div>
+
+    <!-- ===== 聊天区域 ===== -->
+    <div class="chat-box" id="chatBox">
+        <div class="message system">
+            <span class="msg-avatar" id="systemAvatar">🌙</span>
+            <div class="msg-content">
+                ✦ 递出你的话语……<br>
+                <small>ta会从字卡中抽取回应</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 底部输入区 ===== -->
+    <div class="input-wrapper">
+        <button class="arrow-up-btn" id="arrowUpBtn" title="更多">↑</button>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="输入消息..." autocomplete="off">
+            <button class="btn-send" id="sendBtn">发送</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 底部上弹侧边栏 ===== -->
+<div class="bottom-sheet" id="bottomSheet">
+    <div class="bottom-sheet-grid">
+        <div class="sheet-item" id="bottomCallBtn">
+            <span class="icon">📹</span>
+            <span class="label">模拟通话</span>
+        </div>
+        <div class="sheet-item" id="bottomEmojiBtn">
+            <span class="icon">😊</span>
+            <span class="label">表情包</span>
+        </div>
+        <div class="sheet-item" id="bottomPatBtn">
+            <span class="icon">👋</span>
+            <span class="label">拍一拍</span>
+        </div>
+        <div class="sheet-item" style="opacity:0.3;">
+            <span class="icon">➕</span>
+            <span class="label">更多</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 右侧侧边栏 ===== -->
+<div class="side-overlay" id="sideOverlay"></div>
+<div class="side-panel" id="sidePanel">
+    <div class="side-header">
+        <h2>✦ 功能面板</h2>
+        <button class="side-close" id="sideCloseBtn">✕</button>
+    </div>
+    <div class="side-grid">
+        <div class="side-grid-item" id="sideCardBtn">
+            <span class="icon">📜</span>
+            <span class="label">字卡</span>
+        </div>
+        <div class="side-grid-item" id="sideEmojiBtn">
+            <span class="icon">😊</span>
+            <span class="label">表情包</span>
+        </div>
+        <div class="side-grid-item" id="sidePatBtn">
+            <span class="icon">👋</span>
+            <span class="label">拍一拍</span>
+        </div>
+        <div class="side-grid-item" style="opacity:0.2;">
+            <span class="icon">➕</span>
+            <span class="label">更多</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 设置主弹窗（三大板块） ===== -->
+<div class="modal-overlay" id="settingsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>⚙ 设置</h2>
+            <button class="modal-close" id="closeSettingsBtn">✕</button>
+        </div>
+        <div class="modal-body" id="settingsBody">
+            <!-- 主视图：三大板块 -->
+            <div class="settings-sections" id="settingsMainView">
+                <div class="settings-section-card" id="openAppearanceBtn">
+                    <span class="icon">🎨</span>
+                    <div>
+                        <div class="title">外观设置</div>
+                        <div class="desc">昵称 · 头像 · 气泡 · 背景&字体 · 主题外观</div>
+                    </div>
+                    <span class="arrow">›</span>
+                </div>
+                <div class="settings-section-card" id="openChatSettingsBtn">
+                    <span class="icon">💬</span>
+                    <div>
+                        <div class="title">聊天设置</div>
+                        <div class="desc">回应速度 · 抽取方式 · 显示选项</div>
+                    </div>
+                    <span class="arrow">›</span>
+                </div>
+                <div class="settings-section-card" id="openDataMgmtBtn">
+                    <span class="icon">💾</span>
+                    <div>
+                        <div class="title">数据管理</div>
+                        <div class="desc">导出 · 导入 · 清空所有数据</div>
+                    </div>
+                    <span class="arrow">›</span>
+                </div>
+            </div>
+
+            <!-- 外观设置视图：五个子板块 -->
+            <div class="settings-sub-view" id="appearanceView" style="display:none;">
+                <div class="settings-back" id="backFromAppearance">← 返回</div>
+                <div class="appearance-grid">
+                    <div class="appearance-btn" id="openNicknameBtn">
+                        <span class="icon">✏️</span>
+                        <span class="label">昵称设置</span>
+                    </div>
+                    <div class="appearance-btn" id="openAvatarBtn">
+                        <span class="icon">🖼️</span>
+                        <span class="label">头像设置</span>
+                    </div>
+                    <div class="appearance-btn" id="openBubbleBtn">
+                        <span class="icon">💭</span>
+                        <span class="label">气泡</span>
+                    </div>
+                    <div class="appearance-btn" id="openBgFontBtn">
+                        <span class="icon">🔤</span>
+                        <span class="label">背景&字体</span>
+                    </div>
+                    <div class="appearance-btn" id="openThemeBtn">
+                        <span class="icon">🎨</span>
+                        <span class="label">主题外观</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聊天设置视图 -->
+            <div class="settings-sub-view" id="chatSettingsView" style="display:none;">
+                <div class="settings-back" id="backFromChat">← 返回</div>
+                <div class="settings-item">
+                    <div class="label">回应速度</div>
+                    <div class="desc">ta 回复前的等待时长（毫秒）</div>
+                    <select id="chatReplySpeedSelect">
+                        <option value="0">即时</option>
+                        <option value="300" selected>较快 (300ms)</option>
+                        <option value="800">舒适 (800ms)</option>
+                        <option value="1500">缓慢 (1500ms)</option>
+                    </select>
+                </div>
+                <div class="settings-item">
+                    <div class="label">字卡抽取方式</div>
+                    <div class="desc">控制 ta 从字卡中抽取回应的方式</div>
+                    <select id="chatPickModeSelect">
+                        <option value="random" selected>随机抽取</option>
+                        <option value="sequence">顺序抽取</option>
+                        <option value="norepeat">不重复抽取</option>
+                    </select>
+                </div>
+                <div class="settings-item">
+                    <div class="label">显示时间戳</div>
+                    <div class="desc">在每条消息下方显示发送时间</div>
+                    <select id="chatShowTimestampSelect">
+                        <option value="1" selected>显示</option>
+                        <option value="0">隐藏</option>
+                    </select>
+                </div>
+                <div class="settings-item">
+                    <div class="label">显示头像</div>
+                    <div class="desc">在每条消息前显示头像</div>
+                    <select id="chatShowAvatarSelect">
+                        <option value="1" selected>显示</option>
+                        <option value="0">隐藏</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 数据管理视图 -->
+            <div class="settings-sub-view" id="dataMgmtView" style="display:none;">
+                <div class="settings-back" id="backFromData">← 返回</div>
+                <div class="settings-item">
+                    <div class="label">导出数据</div>
+                    <div class="desc">将字卡 / 表情包 / 拍一拍 / 个人资料导出为 JSON</div>
+                    <div class="data-actions" style="margin-top:6px;">
+                        <button class="btn btn-export" id="dataExportBtn">⬇ 导出全部数据</button>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="label">导入数据</div>
+                    <div class="desc">粘贴此前导出的 JSON，覆盖当前数据</div>
+                    <textarea id="dataImportInput" placeholder='粘贴 JSON 数据...'></textarea>
+                    <div class="data-actions" style="margin-top:6px;">
+                        <button class="btn btn-import" id="dataImportBtn">⬆ 导入数据</button>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="label">清空所有数据</div>
+                    <div class="desc">清空本地存储的全部数据并恢复默认（不可恢复）</div>
+                    <div class="data-actions" style="margin-top:6px;">
+                        <button class="btn btn-danger" id="dataClearBtn">🗑 清空所有数据</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 昵称设置弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="nicknameModal">
+    <div class="modal-content" style="max-width:400px;">
+        <div class="modal-header">
+            <h2>✏️ 昵称设置</h2>
+            <button class="modal-close" id="closeNicknameModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:120px;">
+                    <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.5; margin-bottom:4px;">梦女（我）</div>
+                    <input type="text" id="userNameInput" value="我" style="width:100%; padding:8px 14px; border-radius:20px; border:1px solid rgba(200,170,220,0.15); font-size:0.85rem; outline:none;">
+                </div>
+                <div style="flex:1; min-width:120px;">
+                    <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.5; margin-bottom:4px;">梦角（ta）</div>
+                    <input type="text" id="angleNameInput" value="ta" style="width:100%; padding:8px 14px; border-radius:20px; border:1px solid rgba(200,170,220,0.15); font-size:0.85rem; outline:none;">
+                </div>
+            </div>
+            <button class="btn btn-primary-mod" id="saveNicknameBtn" style="padding:8px 20px; margin-top:6px; align-self:flex-end;">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 头像设置弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="avatarModal">
+    <div class="modal-content" style="max-width:460px;">
+        <div class="modal-header">
+            <h2>🖼️ 头像设置</h2>
+            <button class="modal-close" id="closeAvatarModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="avatar-preview-area">
+                <div class="avatar-preview-box">
+                    <span class="label">实时预览</span>
+                    <div class="avatar-preview shape-circle" id="previewUserAvatar">
+                        <span id="previewUserEmoji">🌸</span>
+                    </div>
+                    <span style="font-size:0.6rem; color:#7a5b8c;" id="previewUserName">我</span>
+                </div>
+                <div style="color:#b697cc; font-size:1.2rem;">⟷</div>
+                <div class="avatar-preview-box">
+                    <span class="label">实时预览</span>
+                    <div class="avatar-preview shape-circle" id="previewAngleAvatar">
+                        <span id="previewAngleEmoji">🌙</span>
+                    </div>
+                    <span style="font-size:0.6rem; color:#7a5b8c;" id="previewAngleName">ta</span>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+                <span style="font-size:0.7rem; color:#7a5b8c; display:flex; align-items:center;">形状：</span>
+                <button class="shape-btn active" data-shape="circle">圆形</button>
+                <button class="shape-btn" data-shape="square">方形</button>
+                <button class="shape-btn" data-shape="round">方圆角</button>
+            </div>
+
+            <hr class="mod-divider">
+
+            <div style="margin-top:4px;">
+                <div style="font-size:0.75rem; font-weight:500; color:#5a3d6b; margin-bottom:4px;">🌸 我的头像</div>
+                <div class="avatar-upload-row">
+                    <input type="text" id="userAvatarInput" placeholder="图片URL或Emoji" value="🌸">
+                    <button class="btn" id="applyUserAvatarBtn">应用</button>
+                    <button class="btn btn-danger" id="removeUserAvatarBtn">移除</button>
+                </div>
+                <div class="avatar-slider-row">
+                    <span class="label">大小</span>
+                    <input type="range" id="userSizeSlider" min="40" max="120" value="60">
+                    <span class="value" id="userSizeValue">60px</span>
+                </div>
+                <div class="avatar-slider-row">
+                    <span class="label">左右</span>
+                    <input type="range" id="userLeftSlider" min="-20" max="20" value="0">
+                    <span class="value" id="userLeftValue">0px</span>
+                </div>
+                <div class="avatar-slider-row">
+                    <span class="label">上下</span>
+                    <input type="range" id="userTopSlider" min="-20" max="20" value="0">
+                    <span class="value" id="userTopValue">0px</span>
+                </div>
+            </div>
+            <hr class="mod-divider">
+
+            <div>
+                <div style="font-size:0.75rem; font-weight:500; color:#5a3d6b; margin-bottom:4px;">🌙 梦角的头像</div>
+                <div class="avatar-upload-row">
+                    <input type="text" id="angleAvatarInput" placeholder="图片URL或Emoji" value="🌙">
+                    <button class="btn" id="applyAngleAvatarBtn">应用</button>
+                    <button class="btn btn-danger" id="removeAngleAvatarBtn">移除</button>
+                </div>
+                <div class="avatar-slider-row">
+                    <span class="label">大小</span>
+                    <input type="range" id="angleSizeSlider" min="40" max="120" value="60">
+                    <span class="value" id="angleSizeValue">60px</span>
+                </div>
+                <div class="avatar-slider-row">
+                    <span class="label">左右</span>
+                    <input type="range" id="angleLeftSlider" min="-20" max="20" value="0">
+                    <span class="value" id="angleLeftValue">0px</span>
+                </div>
+                <div class="avatar-slider-row">
+                    <span class="label">上下</span>
+                    <input type="range" id="angleTopSlider" min="-20" max="20" value="0">
+                    <span class="value" id="angleTopValue">0px</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary-mod" id="saveAvatarBtn" style="padding:8px 20px; margin-top:6px; align-self:flex-end;">保存头像设置</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 气泡设置弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="bubbleModal">
+    <div class="modal-content" style="max-width:440px;">
+        <div class="modal-header">
+            <h2>💭 气泡</h2>
+            <button class="modal-close" id="closeBubbleModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="settings-item">
+                <div class="label">气泡形状</div>
+                <div class="desc">圆角 / 方角 / 尖角</div>
+                <select id="bubbleShapeSelect">
+                    <option value="round" selected>圆角</option>
+                    <option value="square">方角</option>
+                    <option value="sharp">尖角</option>
+                </select>
+            </div>
+            <div class="settings-item">
+                <div class="label">我的气泡颜色</div>
+                <div class="desc">梦女消息气泡背景色</div>
+                <div class="color-row" style="margin-top:6px;">
+                    <input type="color" id="bubbleUserColor" value="#e8ddf2">
+                    <button class="btn" id="applyBubbleUserColor">应用</button>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="label">ta 的气泡颜色</div>
+                <div class="desc">梦角消息气泡背景色</div>
+                <div class="color-row" style="margin-top:6px;">
+                    <input type="color" id="bubbleAngleColor" value="#f3eef8">
+                    <button class="btn" id="applyBubbleAngleColor">应用</button>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="label">气泡圆角大小</div>
+                <div class="desc">数值越大越圆润</div>
+                <div class="avatar-slider-row" style="margin-top:6px;">
+                    <input type="range" id="bubbleRadiusSlider" min="4" max="30" value="18">
+                    <span class="value" id="bubbleRadiusValue">18px</span>
+                </div>
+            </div>
+            <button class="btn btn-primary-mod" id="saveBubbleBtn" style="padding:8px 20px; align-self:flex-end;">保存气泡设置</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 背景&字体弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="bgFontModal">
+    <div class="modal-content" style="max-width:440px;">
+        <div class="modal-header">
+            <h2>🔤 背景&字体</h2>
+            <button class="modal-close" id="closeBgFontModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="settings-item">
+                <div class="label">聊天背景颜色</div>
+                <div class="desc">聊天区域背景色</div>
+                <div class="color-row" style="margin-top:6px;">
+                    <input type="color" id="bgColorInput" value="#fcfaff">
+                    <button class="btn" id="applyBgColorBtn">应用</button>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="label">背景图片 URL</div>
+                <div class="desc">留空则使用纯色背景</div>
+                <input type="text" id="bgImageInput" placeholder="https://... 图片地址">
+                <div class="color-row" style="margin-top:6px;">
+                    <button class="btn" id="applyBgImageBtn">应用图片</button>
+                    <button class="btn btn-danger" id="clearBgImageBtn">移除图片</button>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="label">字体大小</div>
+                <div class="desc">消息文字大小</div>
+                <div class="avatar-slider-row" style="margin-top:6px;">
+                    <input type="range" id="fontSizeSlider" min="12" max="22" value="14">
+                    <span class="value" id="fontSizeValue">14px</span>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="label">字体族</div>
+                <div class="desc">消息显示字体</div>
+                <select id="fontFamilySelect">
+                    <option value="'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif" selected>默认</option>
+                    <option value="'PingFang SC', sans-serif">苹方</option>
+                    <option value="Georgia, serif">衬线 Georgia</option>
+                    <option value="'Courier New', monospace">等宽 Courier</option>
+                    <option value="'Microsoft YaHei', sans-serif">微软雅黑</option>
+                </select>
+            </div>
+            <button class="btn btn-primary-mod" id="saveBgFontBtn" style="padding:8px 20px; align-self:flex-end;">保存背景&字体</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 主题外观弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="themeModal">
+    <div class="modal-content" style="max-width:440px;">
+        <div class="modal-header">
+            <h2>🎨 主题外观</h2>
+            <button class="modal-close" id="closeThemeModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="settings-item">
+                <div class="label">预设主题</div>
+                <div class="desc">点选一种预设主题色调</div>
+                <div class="theme-swatches" id="themeSwatches" style="margin-top:8px;">
+                    <div class="theme-swatch active" data-theme="lavender" style="background:linear-gradient(135deg,#dcc3ed,#c6a8de);">梦紫</div>
+                    <div class="theme-swatch" data-theme="pink" style="background:linear-gradient(135deg,#f7c8d8,#e89bb5);">樱粉</div>
+                    <div class="theme-swatch" data-theme="blue" style="background:linear-gradient(135deg,#c3d9ed,#9bbfe0);">夜蓝</div>
+                    <div class="theme-swatch" data-theme="green" style="background:linear-gradient(135deg,#c9e8d4,#9bc7ad);">薄荷</div>
+                    <div class="theme-swatch" data-theme="dark" style="background:linear-gradient(135deg,#3a2f45,#221a2b);">暗夜</div>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="label">强调色</div>
+                <div class="desc">按钮 / 选中态的主色</div>
+                <div class="color-row" style="margin-top:6px;">
+                    <input type="color" id="themeAccentInput" value="#c6a8de">
+                    <button class="btn" id="applyThemeAccentBtn">应用</button>
+                </div>
+            </div>
+            <button class="btn btn-primary-mod" id="saveThemeBtn" style="padding:8px 20px; align-self:flex-end;">保存主题</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 字卡弹窗 ===== -->
+<div class="modal-overlay" id="cardModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📜 字卡 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;" id="modalCardCount">0 张</span></h2>
+            <button class="modal-close" id="closeCardModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="mod-group-tabs" id="modGroupTabs">
+                <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="modAllCount">0</span></span>
+            </div>
+            <div class="mod-search-row">
+                <input type="text" id="modSearchInput" placeholder="🔍 搜索字卡...">
+            </div>
+            <div class="mod-list" id="modCardList">
+                <span class="mod-empty">暂无字卡</span>
+            </div>
+            <div>
+                <textarea class="mod-textarea" id="modBatchInput" placeholder="一行一条字卡"></textarea>
+                <div class="mod-row" style="margin-top:4px;">
+                    <select id="modBatchGroupSelect"><option value="default">默认</option></select>
+                    <button class="btn btn-primary-mod" id="modBatchImportBtn">导入</button>
+                    <button class="btn btn-danger" id="modClearBatchBtn">清空</button>
+                </div>
+                <div class="mod-hint">💡 Ctrl+Enter 快速导入 · 同分组自动去重</div>
+            </div>
+            <div class="mod-row" style="margin-top:4px;">
+                <input type="text" id="modGroupInput" placeholder="新分组名">
+                <button class="btn" id="modAddGroupBtn">创建</button>
+                <button class="btn btn-danger" id="modDeleteGroupBtn">删除</button>
+            </div>
+            <hr class="mod-divider">
+            <div class="mod-actions">
+                <button class="btn" id="modSelectBtn">☑ 选择</button>
+                <button class="btn btn-danger" id="modDeleteSelectedBtn" style="display:none;">删除选中</button>
+                <span style="font-size:0.6rem; color:#7a5b8d; display:flex; align-items:center;" id="modSelectInfo">已选 0</span>
+            </div>
+            <div class="mod-row" style="margin-top:4px; display:none;" id="modMoveRow">
+                <select id="modMoveGroupSelect"><option value="">移动到...</option></select>
+                <button class="btn" id="modMoveBtn">移动</button>
+            </div>
+            <div class="mod-actions" style="margin-top:4px;">
+                <button class="btn btn-danger" id="modClearAllBtn">清空全部</button>
+                <button class="btn" id="modResetDefaultBtn">恢复默认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 表情包弹窗（分组 + 批量导入） ===== -->
+<div class="modal-overlay" id="emojiModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>😊 表情包 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;" id="emojiCount">0 个</span></h2>
+            <button class="modal-close" id="closeEmojiModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="mod-group-tabs" id="emojiGroupTabs">
+                <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="emojiAllCount">0</span></span>
+            </div>
+            <div class="mod-search-row">
+                <input type="text" id="emojiSearchInput" placeholder="🔍 搜索表情...">
+            </div>
+            <div class="mod-list" id="emojiList">
+                <span class="mod-empty">暂无表情</span>
+            </div>
+            <!-- 批量导入：换行分隔，一行一条 -->
+            <div>
+                <textarea class="mod-textarea" id="emojiBatchInput" placeholder="一行一条表情，换行分隔"></textarea>
+                <div class="mod-row" style="margin-top:4px;">
+                    <select id="emojiBatchGroupSelect"><option value="default">默认</option></select>
+                    <button class="btn btn-primary-mod" id="emojiBatchImportBtn">导入</button>
+                    <button class="btn btn-danger" id="emojiClearBatchBtn">清空</button>
+                </div>
+                <div class="mod-hint">💡 Ctrl+Enter 快速导入 · 同分组自动去重</div>
+            </div>
+            <!-- 单条添加 -->
+            <div class="mod-row" style="margin-top:4px;">
+                <input type="text" id="emojiInput" placeholder="输入新表情" style="flex:2;">
+                <select id="emojiGroupSelect" style="flex:1; min-width:80px;"><option value="default">默认</option></select>
+                <button class="btn btn-primary-mod" id="addEmojiBtn">添加</button>
+            </div>
+            <div class="mod-hint">💡 支持自定义表情 · 同分组自动去重</div>
+            <!-- 分组管理 -->
+            <div class="mod-row" style="margin-top:4px;">
+                <input type="text" id="emojiGroupInput" placeholder="新分组名">
+                <button class="btn" id="emojiAddGroupBtn">创建</button>
+                <button class="btn btn-danger" id="emojiDeleteGroupBtn">删除</button>
+            </div>
+            <hr class="mod-divider">
+            <div class="mod-actions">
+                <button class="btn" id="emojiSelectBtn">☑ 选择</button>
+                <button class="btn btn-danger" id="emojiDeleteSelectedBtn" style="display:none;">删除选中</button>
+                <span style="font-size:0.6rem; color:#7a5b8d; display:flex; align-items:center;" id="emojiSelectInfo">已选 0</span>
+            </div>
+            <div class="mod-row" style="margin-top:4px; display:none;" id="emojiMoveRow">
+                <select id="emojiMoveGroupSelect"><option value="">移动到...</option></select>
+                <button class="btn" id="emojiMoveBtn">移动</button>
+            </div>
+            <div class="mod-actions" style="margin-top:4px;">
+                <button class="btn btn-danger" id="clearEmojiBtn">清空全部</button>
+                <button class="btn" id="resetEmojiBtn">恢复默认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 拍一拍弹窗（新增分组管理 + 批量导入） ===== -->
+<div class="modal-overlay" id="patModal">
+    <div class="modal-content" style="max-width:420px;">
+        <div class="modal-header">
+            <h2>👋 拍一拍 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;" id="patCount">0 个</span></h2>
+            <button class="modal-close" id="closePatModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="mod-group-tabs" id="patGroupTabs">
+                <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="patAllCount">0</span></span>
+            </div>
+            <div class="mod-search-row">
+                <input type="text" id="patSearchInput" placeholder="🔍 搜索拍一拍...">
+            </div>
+            <div class="mod-list" id="patList">
+                <span class="mod-empty">暂无拍一拍</span>
+            </div>
+            <!-- 批量导入：换行分隔，一行一条 -->
+            <div>
+                <textarea class="mod-textarea" id="patBatchInput" placeholder="一行一条拍一拍，换行分隔"></textarea>
+                <div class="mod-row" style="margin-top:4px;">
+                    <select id="patBatchGroupSelect"><option value="default">默认</option></select>
+                    <button class="btn btn-primary-mod" id="patBatchImportBtn">导入</button>
+                    <button class="btn btn-danger" id="patClearBatchBtn">清空</button>
+                </div>
+                <div class="mod-hint">💡 Ctrl+Enter 快速导入 · 同分组自动去重</div>
+            </div>
+            <!-- 单条添加 -->
+            <div class="mod-row" style="margin-top:4px;">
+                <input type="text" id="patInput" placeholder="输入新拍一拍" style="flex:2;">
+                <select id="patGroupSelect" style="flex:1; min-width:80px;"><option value="default">默认</option></select>
+                <button class="btn btn-primary-mod" id="addPatBtn">添加</button>
+            </div>
+            <div class="mod-hint">💡 支持自定义拍一拍文案 · 同分组自动去重</div>
+            <!-- 分组管理 -->
+            <div class="mod-row" style="margin-top:4px;">
+                <input type="text" id="patGroupInput" placeholder="新分组名">
+                <button class="btn" id="patAddGroupBtn">创建</button>
+                <button class="btn btn-danger" id="patDeleteGroupBtn">删除</button>
+            </div>
+            <hr class="mod-divider">
+            <div class="mod-actions">
+                <button class="btn" id="patSelectBtn">☑ 选择</button>
+                <button class="btn btn-danger" id="patDeleteSelectedBtn" style="display:none;">删除选中</button>
+                <span style="font-size:0.6rem; color:#7a5b8d; display:flex; align-items:center;" id="patSelectInfo">已选 0</span>
+            </div>
+            <div class="mod-row" style="margin-top:4px; display:none;" id="patMoveRow">
+                <select id="patMoveGroupSelect"><option value="">移动到...</option></select>
+                <button class="btn" id="patMoveBtn">移动</button>
+            </div>
+            <div class="mod-actions" style="margin-top:4px;">
+                <button class="btn btn-danger" id="clearPatBtn">清空全部</button>
+                <button class="btn" id="resetPatBtn">恢复默认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 模拟通话弹窗 ===== -->
+<div class="modal-overlay" id="callModal">
+    <div class="modal-content" style="max-width:380px;">
+        <div class="modal-header">
+            <h2>📹 模拟通话</h2>
+            <button class="modal-close" id="closeCallModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="call-avatars">
+                <div class="call-avatar-box">
+                    <div class="avatar" id="callUserAvatar">🌸</div>
+                    <span class="name" id="callUserName">我</span>
+                    <span class="dot" id="callDreamerDot"></span>
+                </div>
+                <div style="color:#b697cc; font-size:1.4rem;">⟷</div>
+                <div class="call-avatar-box">
+                    <div class="avatar" id="callAngleAvatar">🌙</div>
+                    <span class="name" id="callAngleName">ta</span>
+                    <span class="dot" id="callAngleDot"></span>
+                </div>
+            </div>
+            <div class="call-status-text" id="callStatusText">💤 待机中</div>
+            <div class="call-controls">
+                <button class="btn-call" id="callBtn">📞 呼叫</button>
+                <button class="btn-hangup" id="hangupBtn" style="display:none;">📴 挂断</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 隐藏的导出下载锚点 -->
+<a id="dataExportAnchor" style="display:none;"></a>
+
+<script>
+    (function() {
+        "use strict";
+
+        // ===== 默认数据 =====
+        const DEFAULT_CARDS = [
+            "月光轻吻你的额",
+            "星辰在指尖流转",
+            "风带来远方的歌",
+            "琥珀色的记忆",
+            "玫瑰与雾气缠绕",
+            "雨滴敲打窗棂",
+            "羽毛落在肩头",
+            "银色的河流低语",
+            "你是我未完成的诗",
+            "梦境的碎片闪烁"
+        ];
+        const DEFAULT_EMOJIS = ['😊','🌹','🌙','✨','💕','🥺','😴','🌸','💫','🤍','🍀','🎀','🍃','🌙','🌌','🕊️'];
+        const DEFAULT_PATS = [
+            "拍了拍肩膀",
+            "揉了揉头发",
+            "戳了戳脸颊",
+            "轻轻抱了抱",
+            "牵起了手",
+            "靠了靠肩膀",
+            "捏了捏脸",
+            "拉了拉衣角"
+        ];
+
+        // ===== 字卡 / 表情 / 拍一拍 状态 =====
+        let groups = { default: [...DEFAULT_CARDS] };
+        let groupList = ['default'];
+        let cardLibrary = [...DEFAULT_CARDS];
+        let currentGroup = 'all';
+        let cardSearch = '';
+        let cardSelectMode = false;
+        let cardSelected = new Set();
+
+        let emojiGroups = { default: [...DEFAULT_EMOJIS] };
+        let emojiGroupList = ['default'];
+        let emojiCurrentGroup = 'all';
+        let emojiSearch = '';
+        let emojiSelectMode = false;
+        let emojiSelected = new Set();
+
+        let patGroups = { default: [...DEFAULT_PATS] };
+        let patGroupList = ['default'];
+        let patCurrentGroup = 'all';
+        let patSearch = '';
+        let patSelectMode = false;
+        let patSelected = new Set();
+
+        // ===== 昵称/头像 =====
+        let userName = '我';
+        let userAvatar = '🌸';
+        let angleName = 'ta';
+        let angleAvatar = '🌙';
+        let avatarShape = 'circle';
+        let userSize = 60, userLeft = 0, userTop = 0;
+        let angleSize = 60, angleLeft = 0, angleTop = 0;
+
+        // 聊天 / 外观 设置
+        let chatReplySpeed = 300;
+        let chatPickMode = 'random';
+        let chatShowTimestamp = true;
+        let chatShowAvatar = true;
+        let bubbleShape = 'round';
+        let bubbleUserColor = '#e8ddf2';
+        let bubbleAngleColor = '#f3eef8';
+        let bubbleRadius = 18;
+        let bgColor = '#fcfaff';
+        let bgImage = '';
+        let fontSize = 14;
+        let fontFamily = "'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif";
+        let themeAccent = '#c6a8de';
+        let seqCursor = 0; // 顺序抽取游标
+
+        // 通话
+        let callState = 'idle';
+        let callTimer = null;
+
+        // ===== DOM =====
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        const openSidePanelBtn = document.getElementById('openSidePanelBtn');
+        const openSettingsBtn = document.getElementById('openSettingsBtn');
+        const sidePanel = document.getElementById('sidePanel');
+        const sideOverlay = document.getElementById('sideOverlay');
+        const sideCloseBtn = document.getElementById('sideCloseBtn');
+
+        const arrowUpBtn = document.getElementById('arrowUpBtn');
+        const bottomSheet = document.getElementById('bottomSheet');
+        const bottomCallBtn = document.getElementById('bottomCallBtn');
+        const bottomEmojiBtn = document.getElementById('bottomEmojiBtn');
+        const bottomPatBtn = document.getElementById('bottomPatBtn');
+
+        const sideCardBtn = document.getElementById('sideCardBtn');
+        const sideEmojiBtn = document.getElementById('sideEmojiBtn');
+        const sidePatBtn = document.getElementById('sidePatBtn');
+
+        // 设置主弹窗
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const settingsMainView = document.getElementById('settingsMainView');
+        const appearanceView = document.getElementById('appearanceView');
+        const chatSettingsView = document.getElementById('chatSettingsView');
+        const dataMgmtView = document.getElementById('dataMgmtView');
+        const openAppearanceBtn = document.getElementById('openAppearanceBtn');
+        const openChatSettingsBtn = document.getElementById('openChatSettingsBtn');
+        const openDataMgmtBtn = document.getElementById('openDataMgmtBtn');
+        const backFromAppearance = document.getElementById('backFromAppearance');
+        const backFromChat = document.getElementById('backFromChat');
+        const backFromData = document.getElementById('backFromData');
+
+        // 外观设置子板块按钮
+        const openThemeBtn = document.getElementById('openThemeBtn');
+        const openBgFontBtn = document.getElementById('openBgFontBtn');
+        const openBubbleBtn = document.getElementById('openBubbleBtn');
+        const openAvatarBtn = document.getElementById('openAvatarBtn');
+        const openNicknameBtn = document.getElementById('openNicknameBtn');
+
+        // 子板块弹窗
+        const themeModal = document.getElementById('themeModal');
+        const closeThemeModal = document.getElementById('closeThemeModal');
+        const bgFontModal = document.getElementById('bgFontModal');
+        const closeBgFontModal = document.getElementById('closeBgFontModal');
+        const bubbleModal = document.getElementById('bubbleModal');
+        const closeBubbleModal = document.getElementById('closeBubbleModal');
+        const nicknameModal = document.getElementById('nicknameModal');
+        const closeNicknameModal = document.getElementById('closeNicknameModal');
+        const avatarModal = document.getElementById('avatarModal');
+        const closeAvatarModal = document.getElementById('closeAvatarModal');
+
+        // 昵称
+        const userNameInput = document.getElementById('userNameInput');
+        const angleNameInput = document.getElementById('angleNameInput');
+        const saveNicknameBtn = document.getElementById('saveNicknameBtn');
+
+        // 头像
+        const userAvatarInput = document.getElementById('userAvatarInput');
+        const angleAvatarInput = document.getElementById('angleAvatarInput');
+        const applyUserAvatarBtn = document.getElementById('applyUserAvatarBtn');
+        const applyAngleAvatarBtn = document.getElementById('applyAngleAvatarBtn');
+        const removeUserAvatarBtn = document.getElementById('removeUserAvatarBtn');
+        const removeAngleAvatarBtn = document.getElementById('removeAngleAvatarBtn');
+        const userSizeSlider = document.getElementById('userSizeSlider');
+        const userLeftSlider = document.getElementById('userLeftSlider');
+        const userTopSlider = document.getElementById('userTopSlider');
+        const angleSizeSlider = document.getElementById('angleSizeSlider');
+        const angleLeftSlider = document.getElementById('angleLeftSlider');
+        const angleTopSlider = document.getElementById('angleTopSlider');
+        const userSizeValue = document.getElementById('userSizeValue');
+        const userLeftValue = document.getElementById('userLeftValue');
+        const userTopValue = document.getElementById('userTopValue');
+        const angleSizeValue = document.getElementById('angleSizeValue');
+        const angleLeftValue = document.getElementById('angleLeftValue');
+        const angleTopValue = document.getElementById('angleTopValue');
+        const previewUserAvatar = document.getElementById('previewUserAvatar');
+        const previewAngleAvatar = document.getElementById('previewAngleAvatar');
+        const previewUserEmoji = document.getElementById('previewUserEmoji');
+        const previewAngleEmoji = document.getElementById('previewAngleEmoji');
+        const previewUserName = document.getElementById('previewUserName');
+        const previewAngleName = document.getElementById('previewAngleName');
+        const saveAvatarBtn = document.getElementById('saveAvatarBtn');
+        const shapeBtns = document.querySelectorAll('.shape-btn');
+
+        // 气泡
+        const bubbleShapeSelect = document.getElementById('bubbleShapeSelect');
+        const bubbleUserColorInput = document.getElementById('bubbleUserColor');
+        const bubbleAngleColorInput = document.getElementById('bubbleAngleColor');
+        const applyBubbleUserColor = document.getElementById('applyBubbleUserColor');
+        const applyBubbleAngleColor = document.getElementById('applyBubbleAngleColor');
+        const bubbleRadiusSlider = document.getElementById('bubbleRadiusSlider');
+        const bubbleRadiusValue = document.getElementById('bubbleRadiusValue');
+        const saveBubbleBtn = document.getElementById('saveBubbleBtn');
+
+        // 背景&字体
+        const bgColorInput = document.getElementById('bgColorInput');
+        const applyBgColorBtn = document.getElementById('applyBgColorBtn');
+        const bgImageInput = document.getElementById('bgImageInput');
+        const applyBgImageBtn = document.getElementById('applyBgImageBtn');
+        const clearBgImageBtn = document.getElementById('clearBgImageBtn');
+        const fontSizeSlider = document.getElementById('fontSizeSlider');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const fontFamilySelect = document.getElementById('fontFamilySelect');
+        const saveBgFontBtn = document.getElementById('saveBgFontBtn');
+
+        // 主题
+        const themeSwatches = document.getElementById('themeSwatches');
+        const themeAccentInput = document.getElementById('themeAccentInput');
+        const applyThemeAccentBtn = document.getElementById('applyThemeAccentBtn');
+        const saveThemeBtn = document.getElementById('saveThemeBtn');
+
+        // 聊天设置
+        const chatReplySpeedSelect = document.getElementById('chatReplySpeedSelect');
+        const chatPickModeSelect = document.getElementById('chatPickModeSelect');
+        const chatShowTimestampSelect = document.getElementById('chatShowTimestampSelect');
+        const chatShowAvatarSelect = document.getElementById('chatShowAvatarSelect');
+
+        // 数据管理
+        const dataExportBtn = document.getElementById('dataExportBtn');
+        const dataImportInput = document.getElementById('dataImportInput');
+        const dataImportBtn = document.getElementById('dataImportBtn');
+        const dataClearBtn = document.getElementById('dataClearBtn');
+        const dataExportAnchor = document.getElementById('dataExportAnchor');
+
+        // 字卡元素
+        const modalCardCount = document.getElementById('modalCardCount');
+        const modGroupTabs = document.getElementById('modGroupTabs');
+        const modSearchInput = document.getElementById('modSearchInput');
+        const modCardList = document.getElementById('modCardList');
+        const modBatchInput = document.getElementById('modBatchInput');
+        const modBatchGroupSelect = document.getElementById('modBatchGroupSelect');
+        const modBatchImportBtn = document.getElementById('modBatchImportBtn');
+        const modClearBatchBtn = document.getElementById('modClearBatchBtn');
+        const modGroupInput = document.getElementById('modGroupInput');
+        const modAddGroupBtn = document.getElementById('modAddGroupBtn');
+        const modDeleteGroupBtn = document.getElementById('modDeleteGroupBtn');
+        const modSelectBtn = document.getElementById('modSelectBtn');
+        const modDeleteSelectedBtn = document.getElementById('modDeleteSelectedBtn');
+        const modSelectInfo = document.getElementById('modSelectInfo');
+        const modMoveRow = document.getElementById('modMoveRow');
+        const modMoveGroupSelect = document.getElementById('modMoveGroupSelect');
+        const modMoveBtn = document.getElementById('modMoveBtn');
+        const modClearAllBtn = document.getElementById('modClearAllBtn');
+        const modResetDefaultBtn = document.getElementById('modResetDefaultBtn');
+
+        // 表情包元素
+        const emojiList = document.getElementById('emojiList');
+        const emojiSearchInput = document.getElementById('emojiSearchInput');
+        const emojiInput = document.getElementById('emojiInput');
+        const emojiGroupSelect = document.getElementById('emojiGroupSelect');
+        const addEmojiBtn = document.getElementById('addEmojiBtn');
+        const clearEmojiBtn = document.getElementById('clearEmojiBtn');
+        const resetEmojiBtn = document.getElementById('resetEmojiBtn');
+        const emojiGroupTabs = document.getElementById('emojiGroupTabs');
+        const emojiSelectBtn = document.getElementById('emojiSelectBtn');
+        const emojiDeleteSelectedBtn = document.getElementById('emojiDeleteSelectedBtn');
+        const emojiSelectInfo = document.getElementById('emojiSelectInfo');
+        const emojiMoveRow = document.getElementById('emojiMoveRow');
+        const emojiMoveGroupSelect = document.getElementById('emojiMoveGroupSelect');
+        const emojiMoveBtn = document.getElementById('emojiMoveBtn');
+        const emojiCount = document.getElementById('emojiCount');
+        const emojiAllCount = document.getElementById('emojiAllCount');
+        const emojiBatchInput = document.getElementById('emojiBatchInput');
+        const emojiBatchGroupSelect = document.getElementById('emojiBatchGroupSelect');
+        const emojiBatchImportBtn = document.getElementById('emojiBatchImportBtn');
+        const emojiClearBatchBtn = document.getElementById('emojiClearBatchBtn');
+        const emojiGroupInput = document.getElementById('emojiGroupInput');
+        const emojiAddGroupBtn = document.getElementById('emojiAddGroupBtn');
+        const emojiDeleteGroupBtn = document.getElementById('emojiDeleteGroupBtn');
+
+        // 拍一拍元素
+        const patList = document.getElementById('patList');
+        const patSearchInput = document.getElementById('patSearchInput');
+        const patInput = document.getElementById('patInput');
+        const patGroupSelect = document.getElementById('patGroupSelect');
+        const addPatBtn = document.getElementById('addPatBtn');
+        const clearPatBtn = document.getElementById('clearPatBtn');
+        const resetPatBtn = document.getElementById('resetPatBtn');
+        const patGroupTabs = document.getElementById('patGroupTabs');
+        const patSelectBtn = document.getElementById('patSelectBtn');
+        const patDeleteSelectedBtn = document.getElementById('patDeleteSelectedBtn');
+        const patSelectInfo = document.getElementById('patSelectInfo');
+        const patMoveRow = document.getElementById('patMoveRow');
+        const patMoveGroupSelect = document.getElementById('patMoveGroupSelect');
+        const patMoveBtn = document.getElementById('patMoveBtn');
+        const patCount = document.getElementById('patCount');
+        const patAllCount = document.getElementById('patAllCount');
+        const patBatchInput = document.getElementById('patBatchInput');
+        const patBatchGroupSelect = document.getElementById('patBatchGroupSelect');
+        const patBatchImportBtn = document.getElementById('patBatchImportBtn');
+        const patClearBatchBtn = document.getElementById('patClearBatchBtn');
+        const patGroupInput = document.getElementById('patGroupInput');
+        const patAddGroupBtn = document.getElementById('patAddGroupBtn');
+        const patDeleteGroupBtn = document.getElementById('patDeleteGroupBtn');
+
+        // 通话元素
+        const callModal = document.getElementById('callModal');
+        const closeCallModal = document.getElementById('closeCallModal');
+        const callBtn = document.getElementById('callBtn');
+        const hangupBtn = document.getElementById('hangupBtn');
+        const callStatusText = document.getElementById('callStatusText');
+        const callDreamerDot = document.getElementById('callDreamerDot');
+        const callAngleDot = document.getElementById('callAngleDot');
+        const callUserAvatar = document.getElementById('callUserAvatar');
+        const callAngleAvatar = document.getElementById('callAngleAvatar');
+        const callUserName = document.getElementById('callUserName');
+        const callAngleName = document.getElementById('callAngleName');
+
+        // ===== 工具 =====
+        function showToast(msg) { alert(msg); }
+
+        function isImageUrl(str) {
+            return str && (str.startsWith('http') || str.startsWith('data:image'));
+        }
+
+        function addChatMessage(text, type = 'system') {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+
+            if (chatShowAvatar) {
+                const avatarSpan = document.createElement('span');
+                avatarSpan.className = 'msg-avatar';
+                if (type === 'user') {
+                    avatarSpan.innerHTML = isImageUrl(userAvatar) ? `<img src="${userAvatar}">` : userAvatar;
+                } else {
+                    avatarSpan.innerHTML = isImageUrl(angleAvatar) ? `<img src="${angleAvatar}">` : angleAvatar;
+                }
+                msgDiv.appendChild(avatarSpan);
+            }
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'msg-content';
+            contentDiv.innerHTML = text.replace(/\n/g, '<br>');
+            if (chatShowTimestamp) {
+                const now = new Date();
+                const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                const small = document.createElement('small');
+                const sender = type === 'user' ? userName : angleName;
+                small.textContent = `${sender} · ${ts}`;
+                contentDiv.appendChild(small);
+            }
+            msgDiv.appendChild(contentDiv);
+
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function renderAvatar(container, avatar, shape, size, left, top) {
+            container.style.width = size + 'px';
+            container.style.height = size + 'px';
+            container.style.marginLeft = left + 'px';
+            container.style.marginTop = top + 'px';
+            container.className = `avatar-preview shape-${shape}`;
+            if (isImageUrl(avatar)) {
+                container.innerHTML = `<img src="${avatar}">`;
+            } else {
+                container.innerHTML = `<span style="font-size:${size*0.6}px;">${avatar}</span>`;
+            }
+        }
+
+        // ===== 弹窗控制 =====
+        function openModal(modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        // 子板块弹窗：保留设置弹窗在底层，子弹窗覆盖其上
+        function openSubModal(modal) {
+            openModal(modal);
+        }
+
+        // ===== 侧边栏控制 =====
+        function openSidePanel() {
+            sidePanel.classList.add('open');
+            sideOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidePanel() {
+            sidePanel.classList.remove('open');
+            sideOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ===== 底部上弹侧边栏 =====
+        let bottomSheetOpen = false;
+        function toggleBottomSheet() {
+            bottomSheetOpen = !bottomSheetOpen;
+            bottomSheet.classList.toggle('open', bottomSheetOpen);
+            arrowUpBtn.classList.toggle('active', bottomSheetOpen);
+        }
+        function closeBottomSheet() {
+            bottomSheetOpen = false;
+            bottomSheet.classList.remove('open');
+            arrowUpBtn.classList.remove('active');
+        }
+
+        // ===== 设置三大板块导航 =====
+        function showSettingsView(view) {
+            settingsMainView.style.display = 'none';
+            appearanceView.style.display = 'none';
+            chatSettingsView.style.display = 'none';
+            dataMgmtView.style.display = 'none';
+            if (view) view.style.display = 'flex';
+            else settingsMainView.style.display = 'flex';
+        }
+
+        // ===== 昵称/头像管理 =====
+        function loadProfile() {
+            const saved = localStorage.getItem('dream_profile');
+            if (saved) {
+                try {
+                    const p = JSON.parse(saved);
+                    userName = p.userName || '我';
+                    userAvatar = p.userAvatar || '🌸';
+                    angleName = p.angleName || 'ta';
+                    angleAvatar = p.angleAvatar || '🌙';
+                    avatarShape = p.avatarShape || 'circle';
+                    userSize = p.userSize || 60;
+                    userLeft = p.userLeft || 0;
+                    userTop = p.userTop || 0;
+                    angleSize = p.angleSize || 60;
+                    angleLeft = p.angleLeft || 0;
+                    angleTop = p.angleTop || 0;
+                } catch (e) {}
+            }
+            applyProfile();
+        }
+
+        function applyProfile() {
+            document.getElementById('angleNameDisplay').textContent = angleName;
+            const avatarEl = document.getElementById('angleAvatarDisplay');
+            if (isImageUrl(angleAvatar)) {
+                avatarEl.innerHTML = `<img src="${angleAvatar}">`;
+                avatarEl.style.background = 'none';
+            } else {
+                avatarEl.textContent = angleAvatar;
+                avatarEl.style.background = 'linear-gradient(135deg, #dcc3ed, #c6a8de)';
+            }
+            if (userNameInput) userNameInput.value = userName;
+            if (angleNameInput) angleNameInput.value = angleName;
+            if (userAvatarInput) userAvatarInput.value = userAvatar;
+            if (angleAvatarInput) angleAvatarInput.value = angleAvatar;
+
+            renderAvatar(previewUserAvatar, userAvatar, avatarShape, userSize, userLeft, userTop);
+            renderAvatar(previewAngleAvatar, angleAvatar, avatarShape, angleSize, angleLeft, angleTop);
+            previewUserName.textContent = userName;
+            previewAngleName.textContent = angleName;
+
+            if (userSizeSlider) userSizeSlider.value = userSize;
+            if (userLeftSlider) userLeftSlider.value = userLeft;
+            if (userTopSlider) userTopSlider.value = userTop;
+            if (angleSizeSlider) angleSizeSlider.value = angleSize;
+            if (angleLeftSlider) angleLeftSlider.value = angleLeft;
+            if (angleTopSlider) angleTopSlider.value = angleTop;
+            if (userSizeValue) userSizeValue.textContent = userSize + 'px';
+            if (userLeftValue) userLeftValue.textContent = userLeft + 'px';
+            if (userTopValue) userTopValue.textContent = userTop + 'px';
+            if (angleSizeValue) angleSizeValue.textContent = angleSize + 'px';
+            if (angleLeftValue) angleLeftValue.textContent = angleLeft + 'px';
+            if (angleTopValue) angleTopValue.textContent = angleTop + 'px';
+
+            if (callUserAvatar) callUserAvatar.textContent = userAvatar;
+            if (callAngleAvatar) callAngleAvatar.textContent = angleAvatar;
+            if (callUserName) callUserName.textContent = userName;
+            if (callAngleName) callAngleName.textContent = angleName;
+
+            shapeBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.shape === avatarShape);
+            });
+        }
+
+        function saveFullProfile() {
+            const data = {
+                userName, userAvatar, angleName, angleAvatar, avatarShape,
+                userSize, userLeft, userTop, angleSize, angleLeft, angleTop
+            };
+            localStorage.setItem('dream_profile', JSON.stringify(data));
+            applyProfile();
+            showToast('已保存');
+        }
+
+        // ===== 字卡渲染 =====
+        function renderCards() {
+            modGroupTabs.innerHTML = '';
+            let total = 0;
+            for (const g in groups) total += groups[g].length;
+
+            const allTab = document.createElement('span');
+            allTab.className = `mod-group-tab ${currentGroup === 'all' ? 'active' : ''}`;
+            allTab.dataset.group = 'all';
+            allTab.innerHTML = `全部 <span class="count">${total}</span>`;
+            allTab.addEventListener('click', () => switchGroup('all'));
+            modGroupTabs.appendChild(allTab);
+
+            for (const gName of groupList) {
+                if (gName === 'default') continue;
+                const tab = document.createElement('span');
+                tab.className = `mod-group-tab ${currentGroup === gName ? 'active' : ''}`;
+                tab.dataset.group = gName;
+                const count = groups[gName] ? groups[gName].length : 0;
+                tab.innerHTML = `${gName} <span class="count">${count}</span>`;
+                tab.addEventListener('click', () => switchGroup(gName));
+                modGroupTabs.appendChild(tab);
+            }
+
+            modBatchGroupSelect.innerHTML = '';
+            for (const g of groupList) {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g === 'default' ? '默认' : g;
+                modBatchGroupSelect.appendChild(opt);
+            }
+            modMoveGroupSelect.innerHTML = '<option value="">移动到...</option>';
+            for (const g of groupList) {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g === 'default' ? '默认' : g;
+                modMoveGroupSelect.appendChild(opt);
+            }
+
+            let display = [];
+            if (currentGroup === 'all') {
+                for (const g in groups) display = display.concat(groups[g]);
+            } else if (groups[currentGroup]) {
+                display = groups[currentGroup];
+            } else {
+                currentGroup = 'all';
+                for (const g in groups) display = display.concat(groups[g]);
+            }
+
+            const kw = cardSearch.trim().toLowerCase();
+            if (kw) display = display.filter(c => c.toLowerCase().includes(kw));
+
+            modCardList.innerHTML = '';
+            if (!display.length) {
+                const empty = document.createElement('span');
+                empty.className = 'mod-empty';
+                empty.textContent = kw ? '未找到匹配字卡' : (currentGroup === 'all' ? '暂无字卡' : `「${currentGroup}」为空`);
+                modCardList.appendChild(empty);
+            } else {
+                display.forEach(card => {
+                    const realIdx = cardLibrary.indexOf(card);
+                    let gName = '';
+                    for (const g in groups) {
+                        if (groups[g].includes(card)) { gName = g; break; }
+                    }
+                    const item = document.createElement('span');
+                    item.className = 'mod-item';
+                    if (cardSelectMode && cardSelected.has(realIdx)) item.classList.add('selected');
+                    const label = gName !== 'default' ? `<span class="group-label">${gName}</span>` : '';
+                    item.innerHTML = `${card} ${label} <span class="del" data-idx="${realIdx}">✕</span>`;
+                    if (cardSelectMode) {
+                        item.style.cursor = 'pointer';
+                        item.addEventListener('click', function(e) {
+                            if (e.target.classList.contains('del')) return;
+                            const idx = parseInt(this.querySelector('.del').dataset.idx);
+                            toggleCardSelect(idx);
+                        });
+                    }
+                    modCardList.appendChild(item);
+                });
+                modCardList.querySelectorAll('.del').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const idx = parseInt(this.dataset.idx);
+                        if (!isNaN(idx) && idx >= 0 && idx < cardLibrary.length) {
+                            const text = cardLibrary[idx];
+                            for (const g in groups) {
+                                const pos = groups[g].indexOf(text);
+                                if (pos !== -1) groups[g].splice(pos, 1);
+                            }
+                            cardLibrary.splice(idx, 1);
+                            cardSelected.clear();
+                            renderCards();
+                            showToast('已删除一张字卡');
+                        }
+                    });
+                });
+            }
+
+            modalCardCount.textContent = `${cardLibrary.length} 张`;
+            const allCount = document.getElementById('modAllCount');
+            if (allCount) allCount.textContent = total;
+            updateCardSelectUI();
+        }
+
+        function switchGroup(name) {
+            if (name !== 'all' && !groups[name]) name = 'all';
+            currentGroup = name;
+            cardSelected.clear();
+            renderCards();
+        }
+        function toggleCardSelect(idx) {
+            if (cardSelected.has(idx)) cardSelected.delete(idx);
+            else cardSelected.add(idx);
+            renderCards();
+        }
+        function updateCardSelectUI() {
+            const count = cardSelected.size;
+            modSelectInfo.textContent = `已选 ${count}`;
+            if (count > 0) {
+                modDeleteSelectedBtn.style.display = 'inline-flex';
+                modDeleteSelectedBtn.textContent = `删除选中(${count})`;
+                modMoveRow.style.display = 'flex';
+            } else {
+                modDeleteSelectedBtn.style.display = 'none';
+                modMoveRow.style.display = 'none';
+            }
+        }
+        function toggleCardSelectMode() {
+            cardSelectMode = !cardSelectMode;
+            if (!cardSelectMode) { cardSelected.clear(); modSelectBtn.textContent = '☑ 选择'; }
+            else { modSelectBtn.textContent = '✕ 取消'; }
+            renderCards();
+        }
+        function deleteCardSelected() {
+            if (!cardSelected.size) return;
+            if (!confirm(`删除选中的 ${cardSelected.size} 张字卡？`)) return;
+            const sorted = Array.from(cardSelected).sort((a, b) => b - a);
+            for (const idx of sorted) {
+                const text = cardLibrary[idx];
+                for (const g in groups) {
+                    const pos = groups[g].indexOf(text);
+                    if (pos !== -1) groups[g].splice(pos, 1);
+                }
+                cardLibrary.splice(idx, 1);
+            }
+            cardSelected.clear();
+            cardSelectMode = false;
+            modSelectBtn.textContent = '☑ 选择';
+            renderCards();
+            showToast(`已删除 ${sorted.length} 张字卡`);
+        }
+        function moveCardSelected() {
+            if (!cardSelected.size) { alert('请先选择字卡'); return; }
+            const target = modMoveGroupSelect.value;
+            if (!target || !groups[target]) { alert('请选择目标分组'); return; }
+            const count = cardSelected.size;
+            const cards = [];
+            const sorted = Array.from(cardSelected).sort((a, b) => b - a);
+            for (const idx of sorted) cards.push(cardLibrary[idx]);
+            for (const card of cards) {
+                for (const g in groups) {
+                    const pos = groups[g].indexOf(card);
+                    if (pos !== -1) { groups[g].splice(pos, 1); break; }
+                }
+                const pos = cardLibrary.indexOf(card);
+                if (pos !== -1) cardLibrary.splice(pos, 1);
+            }
+            groups[target] = groups[target].concat(cards);
+            const seen = new Set();
+            groups[target] = groups[target].filter(c => { if (seen.has(c)) return false; seen.add(c); return true; });
+            cardLibrary = [];
+            for (const g in groups) cardLibrary = cardLibrary.concat(groups[g]);
+            cardSelected.clear();
+            cardSelectMode = false;
+            modSelectBtn.textContent = '☑ 选择';
+            renderCards();
+            showToast(`移动 ${count} 张字卡到「${target === 'default' ? '默认' : target}」`);
+        }
+        function addCardGroup() {
+            const name = modGroupInput.value.trim();
+            if (!name) { alert('请输入分组名称'); return; }
+            if (name === 'all' || name === 'default') { alert('不能使用 "all" 或 "default"'); return; }
+            if (groups[name]) { alert(`「${name}」已存在`); return; }
+            groups[name] = [];
+            groupList.push(name);
+            modGroupInput.value = '';
+            renderCards();
+            showToast(`创建分组「${name}」`);
+        }
+        function deleteCardGroup() {
+            if (groupList.length <= 1) { alert('至少保留一个分组'); return; }
+            const name = prompt('输入要删除的分组名（字卡移至"默认"）：');
+            if (!name) return;
+            if (name === 'default') { alert('不能删除默认分组'); return; }
+            if (!groups[name]) { alert(`「${name}」不存在`); return; }
+            if (!confirm(`删除「${name}」？${groups[name].length} 张字卡移至"默认"`)) return;
+            if (groups[name].length) {
+                groups['default'] = groups['default'].concat(groups[name]);
+                const seen = new Set();
+                groups['default'] = groups['default'].filter(c => { if (seen.has(c)) return false; seen.add(c); return true; });
+                cardLibrary = [];
+                for (const g in groups) cardLibrary = cardLibrary.concat(groups[g]);
+            }
+            delete groups[name];
+            const idx = groupList.indexOf(name);
+            if (idx !== -1) groupList.splice(idx, 1);
+            if (currentGroup === name) currentGroup = 'all';
+            renderCards();
+            showToast(`已删除分组「${name}」`);
+        }
+        // 批量导入：换行符分隔，一行一条
+        function batchImportCards() {
+            const raw = modBatchInput.value;
+            if (!raw.trim()) { alert('请输入字卡内容'); return; }
+            const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+            if (!lines.length) { alert('没有有效内容'); return; }
+            const target = modBatchGroupSelect.value;
+            if (!groups[target]) { alert('目标分组不存在'); return; }
+            const existing = new Set(groups[target]);
+            const added = lines.filter(l => !existing.has(l));
+            if (!added.length) {
+                showToast('所有字卡已存在于该分组，无需重复添加');
+                modBatchInput.value = '';
+                return;
+            }
+            groups[target] = groups[target].concat(added);
+            cardLibrary = [];
+            for (const g in groups) cardLibrary = cardLibrary.concat(groups[g]);
+            modBatchInput.value = '';
+            renderCards();
+            showToast(`导入 ${added.length} 张字卡到「${target === 'default' ? '默认' : target}」`);
+        }
+        function clearAllCards() {
+            if (!cardLibrary.length) return;
+            if (!confirm('确定清空所有字卡吗？')) return;
+            for (const g in groups) groups[g] = [];
+            cardLibrary = [];
+            currentGroup = 'all';
+            cardSelected.clear();
+            renderCards();
+            showToast('字卡已清空');
+        }
+        function resetDefaultCards() {
+            if (cardLibrary.length && !confirm('覆盖当前字卡？')) return;
+            groups = { default: [...DEFAULT_CARDS] };
+            groupList = ['default'];
+            cardLibrary = [...DEFAULT_CARDS];
+            currentGroup = 'all';
+            cardSelected.clear();
+            cardSelectMode = false;
+            modSelectBtn.textContent = '☑ 选择';
+            renderCards();
+            showToast('已恢复默认字卡');
+        }
+
+        // ===== 表情包渲染（带分组 + 批量导入） =====
+        function renderEmojis() {
+            emojiGroupTabs.innerHTML = '';
+            let total = 0;
+            for (const g in emojiGroups) total += emojiGroups[g].length;
+
+            const allTab = document.createElement('span');
+            allTab.className = `mod-group-tab ${emojiCurrentGroup === 'all' ? 'active' : ''}`;
+            allTab.dataset.group = 'all';
+            allTab.innerHTML = `全部 <span class="count">${total}</span>`;
+            allTab.addEventListener('click', () => switchEmojiGroup('all'));
+            emojiGroupTabs.appendChild(allTab);
+
+            for (const gName of emojiGroupList) {
+                if (gName === 'default') continue;
+                const tab = document.createElement('span');
+                tab.className = `mod-group-tab ${emojiCurrentGroup === gName ? 'active' : ''}`;
+                tab.dataset.group = gName;
+                const count = emojiGroups[gName] ? emojiGroups[gName].length : 0;
+                tab.innerHTML = `${gName} <span class="count">${count}</span>`;
+                tab.addEventListener('click', () => switchEmojiGroup(gName));
+                emojiGroupTabs.appendChild(tab);
+            }
+
+            // 单条添加分组下拉
+            emojiGroupSelect.innerHTML = '';
+            for (const g of emojiGroupList) {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g === 'default' ? '默认' : g;
+                emojiGroupSelect.appendChild(opt);
+            }
+            // 批量导入分组下拉
+            emojiBatchGroupSelect.innerHTML = '';
+            for (const g of emojiGroupList) {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g === 'default' ? '默认' : g;
+                emojiBatchGroupSelect.appendChild(opt);
+            }
+            emojiMoveGroupSelect.innerHTML = '<option value="">移动到...</option>';
+            for (const g of emojiGroupList) {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g === 'default' ? '默认' : g;
+                emojiMoveGroupSelect.appendChild(opt);
+            }
+
+            let display = [];
+            if (emojiCurrentGroup === 'all') {
+                for (const g in emojiGroups) display = display.concat(emojiGroups[g]);
+            } else if (emojiGroups[emojiCurrentGroup]) {
+                display = emojiGroups[emojiCurrentGroup];
+            } else {
+                emojiCurrentGroup = 'all';
+                for (const g in emojiGroups) display = display.concat(emojiGroups[g]);
+            }
+
+            const kw = emojiSearch.trim().toLowerCase();
+            if (kw) display = display.filter(e => e.toLowerCase().includes(kw));
+
+            emojiList.innerHTML = '';
+            if (!display.length) {
+                const empty = document.createElement('span');
+                empty.className = 'mod-empty';
+                empty.textContent = kw ? '未找到匹配表情' : (emojiCurrentGroup === 'all' ? '暂无表情' : `「${emojiCurrentGroup}」为空`);
+                emojiList.appendChild(empty);
+            } else {
+                const allEmojis = [];
+                for (const g in emojiGroups) allEmojis.push(...emojiGroups[g]);
+
+                display.forEach(e => {
+                    const realIdx = allEmojis.indexOf(e);
+                    let gName = '';
+                    for (const g in emojiGroups) {
+                        if (emojiGroups[g].includes(e)) { gName = g; break; }
+                    }
+                    const item = document.createElement('span');
+                    item.className = 'mod-item';
+                    if (emojiSelectMode && emojiSelected.has(realIdx)) item.classList.add('selected');
+                    const label = gName !== 'default' ? `<span class="group-label">${gName}</span>` : '';
+                    item.innerHTML = `${e} ${label} <span class="del" data-emoji="${e}">✕</span>`;
+                    if (emojiSelectMode) {
+                        item.style.cursor = 'pointer';
+                        item.addEventListener('click', function(ev) {
+                            if (ev.target.classList.contains('del')) return;
+                            const emoji = this.querySelector('.del').dataset.emoji;
+                            const idx = allEmojis.indexOf(emoji);
+                            toggleEmojiSelect(idx);
+                        });
+                    }
+                    emojiList.appendChild(item);
+                });
+                emojiList.querySelectorAll('.del').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const emoji = this.dataset.emoji;
+                        for (const g in emojiGroups) {
+                            const pos = emojiGroups[g].indexOf(emoji);
+                            if (pos !== -1) emojiGroups[g].splice(pos, 1);
+                        }
+                        emojiSelected.clear();
+                        renderEmojis();
+                        showToast('已删除');
+                    });
+                });
+            }
+
+            const allEmojisCount = Object.values(emojiGroups).reduce((a, b) => a + b.length, 0);
+            emojiCount.textContent = `${allEmojisCount} 个`;
+            emojiAllCount.textContent = total;
+            updateEmojiSelectUI();
+        }
+        function switchEmojiGroup(name) {
+            if (name !== 'all' && !emojiGroups[name]) name = 'all';
+            emojiCurrentGroup = name;
+            emojiSelected.clear();
+            renderEmojis();
+        }
+        function toggleEmojiSelect(idx) {
+            if (emojiSelected.has(idx)) emojiSelected.delete(idx);
+            else emojiSelected.add(idx);
+            renderEmojis();
+        }
+        function updateEmojiSelectUI() {
+            const count = emojiSelected.size;
+            emojiSelectInfo.textContent = `已选 ${count}`;
+            if (count > 0) {
+                emojiDeleteSelectedBtn.style.display = 'inline-flex';
+                emojiDeleteSelectedBtn.textContent = `删除选中(${count})`;
+                emojiMoveRow.style.display = 'flex';
+            } else {
+                emojiDeleteSelectedBtn.style.display = 'none';
+                emojiMoveRow.style.display = 'none';
+            }
+        }
+        function toggleEmojiSelectMode() {
+            emojiSelectMode = !emojiSelectMode;
+            if (!emojiSelectMode) { emojiSelected.clear(); emojiSelectBtn.textContent = '☑ 选择'; }
+            else { emojiSelectBtn.textContent = '✕ 取消'; }
+            renderEmojis();
+        }
+        function deleteEmojiSelected() {
+            if (!emojiSelected.size) return;
+            if (!confirm(`删除选中的 ${emojiSelected.size} 个表情？`)) return;
+            const allEmojis = [];
+            for (const g in emojiGroups) allEmojis.push(...emojiGroups[g]);
+            const sorted = Array.from(emojiSelected).sort((a, b) => b - a);
+            for (const idx of sorted) {
+                const e = allEmojis[idx];
+                for (const g in emojiGroups) {
+                    const pos = emojiGroups[g].indexOf(e);
+                    if (pos !== -1) emojiGroups[g].splice(pos, 1);
+                }
+            }
+            emojiSelected.clear();
+            emojiSelectMode = false;
+            emojiSelectBtn.textContent = '☑ 选择';
+            renderEmojis();
+            showToast(`已删除 ${sorted.length} 个表情`);
+        }
+        function moveEmojiSelected() {
+            if (!emojiSelected.size) { alert('请先选择表情'); return; }
+            const target = emojiMoveGroupSelect.value;
+            if (!target || !emojiGroups[target]) { alert('请选择目标分组'); return; }
+            const allEmojis = [];
+            for (const g in emojiGroups) allEmojis.push(...emojiGroups[g]);
+            const count = emojiSelected.size;
+            const items = [];
+            const sorted = Array.from(emojiSelected).sort((a, b) => b - a);
+            for (const idx of sorted) items.push(allEmojis[idx]);
+            for (const e of items) {
+                for (const g in emojiGroups) {
+                    const pos = emojiGroups[g].indexOf(e);
+                    if (pos !== -1) { emojiGroups[g].splice(pos, 1); break; }
+                }
+            }
+            emojiGroups[target] = emojiGroups[target].concat(items);
+            const seen = new Set();
+            emojiGroups[target] = emojiGroups[target].filter(e => { if (seen.has(e)) return false; seen.add(e); return true; });
+            emojiSelected.clear();
+            emojiSelectMode = false;
+            emojiSelectBtn.textContent = '☑ 选择';
+            renderEmojis();
+            showToast(`移动 ${count} 个表情到「${target === 'default' ? '默认' : target}」`);
+        }
+        function addEmoji() {
+            const val = emojiInput.value.trim();
+            if (!val) { alert('请输入表情'); return; }
+            const target = emojiGroupSelect.value;
+            if (!emojiGroups[target]) { alert('目标分组不存在'); return; }
+            if (emojiGroups[target].includes(val)) { showToast('已存在'); return; }
+            emojiGroups[target].push(val);
+            emojiInput.value = '';
+            renderEmojis();
+            showToast('已添加');
+        }
+        // 表情批量导入：换行符分隔，一行一条
+        function batchImportEmojis() {
+            const raw = emojiBatchInput.value;
+            if (!raw.trim()) { alert('请输入表情内容'); return; }
+            const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+            if (!lines.length) { alert('没有有效内容'); return; }
+            const target = emojiBatchGroupSelect.value;
+            if (!emojiGroups[target]) { alert('目标分组不存在'); return; }
+            const existing = new Set(emojiGroups[target]);
+            const added = lines.filter(l => !existing.has(l));
+            if (!added.length) {
+                showToast('所有表情已存在于该分组，无需重复添加');
+                emojiBatchInput.value = '';
+                return;
+            }
+            emojiGroups[target] = emojiGroups[target].concat(added);
+            emojiBatchInput.value = '';
+            renderEmojis();
+            showToast(`导入 ${added.length} 个表情到「${target === 'default' ? '默认' : target}」`);
+        }
+        function addEmojiGroup() {
+            const name = emojiGroupInput.value.trim();
+            if (!name) { alert('请输入分组名称'); return; }
+            if (name === 'all' || name === 'default') { alert('不能使用 "all" 或 "default"'); return; }
+            if (emojiGroups[name]) { alert(`「${name}」已存在`); return; }
+            emojiGroups[name] = [];
+            emojiGroupList.push(name);
+            emojiGroupInput.value = '';
+            renderEmojis();
+            showToast(`创建分组「${name}」`);
+        }
+        function deleteEmojiGroup() {
+            if (emojiGroupList.length <= 1) { alert('至少保留一个分组'); return; }
+            const name = prompt('输入要删除的分组名（表情移至"默认"）：');
+            if (!name) return;
+            if (name === 'default') { alert('不能删除默认分组'); return; }
+            if (!emojiGroups[name]) { alert(`「${name}」不存在`); return; }
+            if (!confirm(`删除「${name}」？${emojiGroups[name].length} 个表情移至"默认"`)) return;
+            if (emojiGroups[name].length) {
+                emojiGroups['default'] = emojiGroups['default'].concat(emojiGroups[name]);
+                const seen = new Set();
+                emojiGroups['default'] = emojiGroups['default'].filter(e => { if (seen.has(e)) return false; seen.add(e); return true; });
+            }
+            delete emojiGroups[name];
+            const idx = emojiGroupList.indexOf(name);
+            if (idx !== -1) emojiGroupList.splice(idx, 1);
+            if (emojiCurrentGroup === name) emojiCurrentGroup = 'all';
+            renderEmojis();
+            showToast(`已删除分组「${name}」`);
+        }
+        function clearEmojis() {
+            const total = Object.values(emojiGroups).reduce((a, b) => a + b.length, 0);
+            if (!total) return;
+            if (!confirm('清空所有表情？')) return;
+            for (const g in emojiGroups) emojiGroups[g] = [];
+            emojiSelected.clear();
+            renderEmojis();
+            showToast('已清空');
+        }
+        function resetEmojis() {
+            if (Object.values(emojiGroups).reduce((a, b) => a + b.length, 0) && !confirm('恢复默认表情？')) return;
+            emojiGroups = { default: [...DEFAULT_EMOJIS] };
+            emojiGroupList = ['default'];
+            emojiCurrentGroup = 'all';
+            emojiSelected.clear();
+            emojiSelectMode = false;
+            emojiSelectBtn.textContent = '☑ 选择';
+            renderEmojis();
+            showToast('已恢复默认');
+        }
+
+        // ===== 拍一拍渲染（带分组 + 批量导入） =====
+        function renderPats() {
+            patGroupTabs.innerHTML = '';
+            let total = 0;
+            for (const g in patGroups) total += patGroups[g].length;
+
+            const allTab = document.createElement('span');
+            allTab.className = `mod-group-tab ${patCurrentGroup === 'all' ? 'active' : ''}`;
+            allTab.dataset.group = 'all';
+            allTab.innerHTML = `全部 <span class="count">${total}</span>`;
+            allTab.addEventListener('click', () => switchPatGroup('all'));
+            patGroupTabs.appendChild(allTab);
+
+            for (const gName of patGroupList) {
+                if (gName === 'default') continue;
+                const tab = document.createElement('span');
+                tab.className = `mod-group-tab ${patCurrentGroup === gName ? 'active' : ''}`;
+                tab.dataset.group = gName;
+                const count = patGroups[gName] ? patGroups[gName].length : 0;
+                tab.innerHTML = `${gName} <span class="count">${count}</span>`;
+                tab.addEventListener('click', () => switchPatGroup(gName));
+                patGroupTabs.appendChild(tab);
+            }
+
+            patGroupSelect.innerHTML = '';
+            for (const g of patGroupList) {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g === 'default' ? '默认' : g;
+                patGroupSelect.appendChild(opt);
+            }
+            patBatchGroupSelect.innerHTML = '';
+            for (const g of patGroupList) {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g === 'default' ? '默认' : g;
+                patBatchGroupSelect.appendChild(opt);
+            }
+            patMoveGroupSelect.innerHTML = '<option value="">移动到...</option>';
+            for (const g of patGroupList) {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g === 'default' ? '默认' : g;
+                patMoveGroupSelect.appendChild(opt);
+            }
+
+            let display = [];
+            if (patCurrentGroup === 'all') {
+                for (const g in patGroups) display = display.concat(patGroups[g]);
+            } else if (patGroups[patCurrentGroup]) {
+                display = patGroups[patCurrentGroup];
+            } else {
+                patCurrentGroup = 'all';
+                for (const g in patGroups) display = display.concat(patGroups[g]);
+            }
+
+            const kw = patSearch.trim().toLowerCase();
+            if (kw) display = display.filter(p => p.toLowerCase().includes(kw));
+
+            patList.innerHTML = '';
+            if (!display.length) {
+                const empty = document.createElement('span');
+                empty.className = 'mod-empty';
+                empty.textContent = kw ? '未找到匹配拍一拍' : (patCurrentGroup === 'all' ? '暂无拍一拍' : `「${patCurrentGroup}」为空`);
+                patList.appendChild(empty);
+            } else {
+                const allPats = [];
+                for (const g in patGroups) allPats.push(...patGroups[g]);
+
+                display.forEach(p => {
+                    const realIdx = allPats.indexOf(p);
+                    let gName = '';
+                    for (const g in patGroups) {
+                        if (patGroups[g].includes(p)) { gName = g; break; }
+                    }
+                    const item = document.createElement('span');
+                    item.className = 'mod-item';
+                    if (patSelectMode && patSelected.has(realIdx)) item.classList.add('selected');
+                    const label = gName !== 'default' ? `<span class="group-label">${gName}</span>` : '';
+                    item.innerHTML = `${p} ${label} <span class="del" data-pat="${p}">✕</span>`;
+                    if (patSelectMode) {
+                        item.style.cursor = 'pointer';
+                        item.addEventListener('click', function(e) {
+                            if (e.target.classList.contains('del')) return;
+                            const pat = this.querySelector('.del').dataset.pat;
+                            const idx = allPats.indexOf(pat);
+                            togglePatSelect(idx);
+                        });
+                    }
+                    patList.appendChild(item);
+                });
+                patList.querySelectorAll('.del').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const pat = this.dataset.pat;
+                        for (const g in patGroups) {
+                            const pos = patGroups[g].indexOf(pat);
+                            if (pos !== -1) patGroups[g].splice(pos, 1);
+                        }
+                        patSelected.clear();
+                        renderPats();
+                        showToast('已删除');
+                    });
+                });
+            }
+
+            const allPatsCount = Object.values(patGroups).reduce((a, b) => a + b.length, 0);
+            patCount.textContent = `${allPatsCount} 个`;
+            patAllCount.textContent = total;
+            updatePatSelectUI();
+        }
+        function switchPatGroup(name) {
+            if (name !== 'all' && !patGroups[name]) name = 'all';
+            patCurrentGroup = name;
+            patSelected.clear();
+            renderPats();
+        }
+        function togglePatSelect(idx) {
+            if (patSelected.has(idx)) patSelected.delete(idx);
+            else patSelected.add(idx);
+            renderPats();
+        }
+        function updatePatSelectUI() {
+            const count = patSelected.size;
+            patSelectInfo.textContent = `已选 ${count}`;
+            if (count > 0) {
+                patDeleteSelectedBtn.style.display = 'inline-flex';
+                patDeleteSelectedBtn.textContent = `删除选中(${count})`;
+                patMoveRow.style.display = 'flex';
+            } else {
+                patDeleteSelectedBtn.style.display = 'none';
+                patMoveRow.style.display = 'none';
+            }
+        }
+        function togglePatSelectMode() {
+            patSelectMode = !patSelectMode;
+            if (!patSelectMode) { patSelected.clear(); patSelectBtn.textContent = '☑ 选择'; }
+            else { patSelectBtn.textContent = '✕ 取消'; }
+            renderPats();
+        }
+        function deletePatSelected() {
+            if (!patSelected.size) return;
+            if (!confirm(`删除选中的 ${patSelected.size} 个拍一拍？`)) return;
+            const allPats = [];
+            for (const g in patGroups) allPats.push(...patGroups[g]);
+            const sorted = Array.from(patSelected).sort((a, b) => b - a);
+            for (const idx of sorted) {
+                const p = allPats[idx];
+                for (const g in patGroups) {
+                    const pos = patGroups[g].indexOf(p);
+                    if (pos !== -1) patGroups[g].splice(pos, 1);
+                }
+            }
+            patSelected.clear();
+            patSelectMode = false;
+            patSelectBtn.textContent = '☑ 选择';
+            renderPats();
+            showToast(`已删除 ${sorted.length} 个拍一拍`);
+        }
+        function movePatSelected() {
+            if (!patSelected.size) { alert('请先选择拍一拍'); return; }
+            const target = patMoveGroupSelect.value;
+            if (!target || !patGroups[target]) { alert('请选择目标分组'); return; }
+            const allPats = [];
+            for (const g in patGroups) allPats.push(...patGroups[g]);
+            const count = patSelected.size;
+            const items = [];
+            const sorted = Array.from(patSelected).sort((a, b) => b - a);
+            for (const idx of sorted) items.push(allPats[idx]);
+            for (const p of items) {
+                for (const g in patGroups) {
+                    const pos = patGroups[g].indexOf(p);
+                    if (pos !== -1) { patGroups[g].splice(pos, 1); break; }
+                }
+            }
+            patGroups[target] = patGroups[target].concat(items);
+            const seen = new Set();
+            patGroups[target] = patGroups[target].filter(p => { if (seen.has(p)) return false; seen.add(p); return true; });
+            patSelected.clear();
+            patSelectMode = false;
+            patSelectBtn.textContent = '☑ 选择';
+            renderPats();
+            showToast(`移动 ${count} 个拍一拍到「${target === 'default' ? '默认' : target}」`);
+        }
+        function addPat() {
+            const val = patInput.value.trim();
+            if (!val) { alert('请输入拍一拍内容'); return; }
+            const target = patGroupSelect.value;
+            if (!patGroups[target]) { alert('目标分组不存在'); return; }
+            if (patGroups[target].includes(val)) { showToast('已存在'); return; }
+            patGroups[target].push(val);
+            patInput.value = '';
+            renderPats();
+            showToast('已添加');
+        }
+        // 拍一拍批量导入：换行符分隔，一行一条
+        function batchImportPats() {
+            const raw = patBatchInput.value;
+            if (!raw.trim()) { alert('请输入拍一拍内容'); return; }
+            const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+            if (!lines.length) { alert('没有有效内容'); return; }
+            const target = patBatchGroupSelect.value;
+            if (!patGroups[target]) { alert('目标分组不存在'); return; }
+            const existing = new Set(patGroups[target]);
+            const added = lines.filter(l => !existing.has(l));
+            if (!added.length) {
+                showToast('所有拍一拍已存在于该分组，无需重复添加');
+                patBatchInput.value = '';
+                return;
+            }
+            patGroups[target] = patGroups[target].concat(added);
+            patBatchInput.value = '';
+            renderPats();
+            showToast(`导入 ${added.length} 个拍一拍到「${target === 'default' ? '默认' : target}」`);
+        }
+        function addPatGroup() {
+            const name = patGroupInput.value.trim();
+            if (!name) { alert('请输入分组名称'); return; }
+            if (name === 'all' || name === 'default') { alert('不能使用 "all" 或 "default"'); return; }
+            if (patGroups[name]) { alert(`「${name}」已存在`); return; }
+            patGroups[name] = [];
+            patGroupList.push(name);
+            patGroupInput.value = '';
+            renderPats();
+            showToast(`创建分组「${name}」`);
+        }
+        function deletePatGroup() {
+            if (patGroupList.length <= 1) { alert('至少保留一个分组'); return; }
+            const name = prompt('输入要删除的分组名（拍一拍移至"默认"）：');
+            if (!name) return;
+            if (name === 'default') { alert('不能删除默认分组'); return; }
+            if (!patGroups[name]) { alert(`「${name}」不存在`); return; }
+            if (!confirm(`删除「${name}」？${patGroups[name].length} 个拍一拍移至"默认"`)) return;
+            if (patGroups[name].length) {
+                patGroups['default'] = patGroups['default'].concat(patGroups[name]);
+                const seen = new Set();
+                patGroups['default'] = patGroups['default'].filter(p => { if (seen.has(p)) return false; seen.add(p); return true; });
+            }
+            delete patGroups[name];
+            const idx = patGroupList.indexOf(name);
+            if (idx !== -1) patGroupList.splice(idx, 1);
+            if (patCurrentGroup === name) patCurrentGroup = 'all';
+            renderPats();
+            showToast(`已删除分组「${name}」`);
+        }
+        function clearPats() {
+            const total = Object.values(patGroups).reduce((a, b) => a + b.length, 0);
+            if (!total) return;
+            if (!confirm('清空所有拍一拍？')) return;
+            for (const g in patGroups) patGroups[g] = [];
+            patSelected.clear();
+            renderPats();
+            showToast('已清空');
+        }
+        function resetPats() {
+            if (Object.values(patGroups).reduce((a, b) => a + b.length, 0) && !confirm('恢复默认拍一拍？')) return;
+            patGroups = { default: [...DEFAULT_PATS] };
+            patGroupList = ['default'];
+            patCurrentGroup = 'all';
+            patSelected.clear();
+            patSelectMode = false;
+            patSelectBtn.textContent = '☑ 选择';
+            renderPats();
+            showToast('已恢复默认');
+        }
+
+        // ===== 通话 =====
+        function updateCallUI(state, msg) {
+            const map = {
+                idle: { btn: '📞 呼叫', showHangup: false, dot: 'off', text: '💤 待机中' },
+                calling: { btn: '📞 呼叫中', showHangup: true, dot: 'calling', text: '📞 正在呼叫...' },
+                connected: { btn: '📞 通话中', showHangup: true, dot: 'on', text: '💬 通话中...' }
+            };
+            const s = map[state] || map.idle;
+            callBtn.textContent = s.btn;
+            callBtn.className = `btn-call${state === 'calling' ? ' ringing' : ''}`;
+            hangupBtn.style.display = s.showHangup ? 'inline-flex' : 'none';
+            callDreamerDot.className = `dot ${s.dot}`;
+            callAngleDot.className = `dot ${s.dot}`;
+            callStatusText.textContent = msg || s.text;
+            callState = state;
+        }
+        function startCall() {
+            if (callState === 'calling' || callState === 'connected') return;
+            updateCallUI('calling');
+            addChatMessage(`📞 ${userName}拨通了${angleName}的视频...`, 'system');
+            if (callTimer) clearTimeout(callTimer);
+            callTimer = setTimeout(() => {
+                if (callState === 'calling') {
+                    updateCallUI('connected');
+                    addChatMessage(`💬 ${angleName}接听了视频通话！`, 'system');
+                    callTimer = setTimeout(() => {
+                        if (callState === 'connected') {
+                            addChatMessage(`🌙 ${angleName}：我一直在看着你……`, 'system');
+                        }
+                    }, 3000);
+                }
+            }, 2000);
+        }
+        function hangupCall() {
+            if (callTimer) { clearTimeout(callTimer); callTimer = null; }
+            const was = callState === 'connected';
+            updateCallUI('idle');
+            addChatMessage(was ? '📴 视频通话已挂断' : '📴 已取消呼叫', 'system');
+        }
+
+        // ===== 回应抽取 =====
+        function replyWithRandomCard() {
+            if (!cardLibrary.length) {
+                addChatMessage(`${angleName}沉默不语…… 字卡空空如也。`, 'system');
+                return;
+            }
+            let picked;
+            if (chatPickMode === 'sequence') {
+                picked = cardLibrary[seqCursor % cardLibrary.length];
+                seqCursor++;
+            } else if (chatPickMode === 'norepeat') {
+                // 不重复抽取：本轮抽完才重置
+                if (!replyWithRandomCard._pool || !replyWithRandomCard._pool.length) {
+                    replyWithRandomCard._pool = [...cardLibrary];
+                }
+                const i = Math.floor(Math.random() * replyWithRandomCard._pool.length);
+                picked = replyWithRandomCard._pool.splice(i, 1)[0];
+            } else {
+                const idx = Math.floor(Math.random() * cardLibrary.length);
+                picked = cardLibrary[idx];
+            }
+            addChatMessage(`✦ ${picked}`, 'system');
+        }
+
+        function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            addChatMessage(text, 'user');
+            userInput.value = '';
+            userInput.focus();
+            setTimeout(replyWithRandomCard, chatReplySpeed);
+        }
+
+        // ===== 外观设置：气泡 / 背景&字体 / 主题 应用 =====
+        function applyBubbleStyle() {
+            const style = document.getElementById('appDynamicStyle') || (() => {
+                const s = document.createElement('style');
+                s.id = 'appDynamicStyle';
+                document.head.appendChild(s);
+                return s;
+            })();
+            const radius = bubbleRadius;
+            const userR = bubbleShape === 'square' ? '0' : (bubbleShape === 'sharp' ? '4px' : radius + 'px');
+            const css = `
+                .message.user { background:${bubbleUserColor}; border-bottom-right-radius:${bubbleShape === 'sharp' ? '0' : '4px'}; border-radius:${bubbleShape === 'square' ? '0' : userR}; }
+                .message.system { background:${bubbleAngleColor}; border-bottom-left-radius:${bubbleShape === 'sharp' ? '0' : '4px'}; border-radius:${bubbleShape === 'square' ? '0' : userR}; }
+                .chat-box { background:${bgImage ? 'transparent' : bgColor}; ${bgImage ? `background-image:url('${bgImage}'); background-size:cover; background-position:center;` : ''} }
+                .message { font-size:${fontSize}px; font-family:${fontFamily}; }
+                .btn-send, .arrow-up-btn.active, .mod-group-tab.active, .shape-btn.active, .theme-swatch.active, .settings-section-card .arrow, .modal-header h2 {  }
+            `;
+            style.textContent = css;
+            // 强调色应用
+            document.documentElement.style.setProperty('--accent', themeAccent);
+        }
+
+        function loadAppearance() {
+            const saved = localStorage.getItem('dream_appearance');
+            if (saved) {
+                try {
+                    const a = JSON.parse(saved);
+                    bubbleShape = a.bubbleShape || bubbleShape;
+                    bubbleUserColor = a.bubbleUserColor || bubbleUserColor;
+                    bubbleAngleColor = a.bubbleAngleColor || bubbleAngleColor;
+                    bubbleRadius = a.bubbleRadius || bubbleRadius;
+                    bgColor = a.bgColor || bgColor;
+                    bgImage = a.bgImage || '';
+                    fontSize = a.fontSize || fontSize;
+                    fontFamily = a.fontFamily || fontFamily;
+                    themeAccent = a.themeAccent || themeAccent;
+                    chatReplySpeed = a.chatReplySpeed != null ? a.chatReplySpeed : chatReplySpeed;
+                    chatPickMode = a.chatPickMode || chatPickMode;
+                    chatShowTimestamp = a.chatShowTimestamp != null ? a.chatShowTimestamp : chatShowTimestamp;
+                    chatShowAvatar = a.chatShowAvatar != null ? a.chatShowAvatar : chatShowAvatar;
+                } catch (e) {}
+            }
+            // 同步表单
+            bubbleShapeSelect.value = bubbleShape;
+            bubbleUserColorInput.value = bubbleUserColor;
+            bubbleAngleColorInput.value = bubbleAngleColor;
+            bubbleRadiusSlider.value = bubbleRadius;
+            bubbleRadiusValue.textContent = bubbleRadius + 'px';
+            bgColorInput.value = bgColor;
+            bgImageInput.value = bgImage;
+            fontSizeSlider.value = fontSize;
+            fontSizeValue.textContent = fontSize + 'px';
+            fontFamilySelect.value = fontFamily;
+            themeAccentInput.value = themeAccent;
+            chatReplySpeedSelect.value = String(chatReplySpeed);
+            chatPickModeSelect.value = chatPickMode;
+            chatShowTimestampSelect.value = chatShowTimestamp ? '1' : '0';
+            chatShowAvatarSelect.value = chatShowAvatar ? '1' : '0';
+            // 主题色块选中
+            themeSwatches.querySelectorAll('.theme-swatch').forEach(sw => {
+                sw.classList.toggle('active', sw.dataset.theme === (loadAppearance._theme || 'lavender'));
+            });
+            applyBubbleStyle();
+        }
+        function saveAppearance() {
+            const data = {
+                bubbleShape, bubbleUserColor, bubbleAngleColor, bubbleRadius,
+                bgColor, bgImage, fontSize, fontFamily, themeAccent,
+                chatReplySpeed, chatPickMode, chatShowTimestamp, chatShowAvatar,
+                theme: loadAppearance._theme || 'lavender'
+            };
+            localStorage.setItem('dream_appearance', JSON.stringify(data));
+            applyBubbleStyle();
+        }
+
+        // ===== 数据管理：导出 / 导入 / 清空 =====
+        function exportData() {
+            const payload = {
+                profile: JSON.parse(localStorage.getItem('dream_profile') || '{}'),
+                appearance: JSON.parse(localStorage.getItem('dream_appearance') || '{}'),
+                cards: { groups, groupList, cardLibrary },
+                emojis: { groups: emojiGroups, groupList: emojiGroupList },
+                pats: { groups: patGroups, groupList: patGroupList },
+                exportedAt: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            dataExportAnchor.href = url;
+            dataExportAnchor.download = `lingstar-backup-${Date.now()}.json`;
+            dataExportAnchor.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            showToast('已导出数据');
+        }
+        function importData() {
+            const raw = dataImportInput.value.trim();
+            if (!raw) { alert('请粘贴 JSON 数据'); return; }
+            let payload;
+            try { payload = JSON.parse(raw); }
+            catch (e) { alert('JSON 解析失败：' + e.message); return; }
+            if (!confirm('导入将覆盖当前所有数据，确定？')) return;
+            try {
+                if (payload.profile) localStorage.setItem('dream_profile', JSON.stringify(payload.profile));
+                if (payload.appearance) localStorage.setItem('dream_appearance', JSON.stringify(payload.appearance));
+                if (payload.cards) {
+                    groups = payload.cards.groups || { default: [...DEFAULT_CARDS] };
+                    groupList = payload.cards.groupList || ['default'];
+                    cardLibrary = payload.cards.cardLibrary || (() => { let a = []; for (const g in groups) a = a.concat(groups[g]); return a; })();
+                }
+                if (payload.emojis) {
+                    emojiGroups = payload.emojis.groups || { default: [...DEFAULT_EMOJIS] };
+                    emojiGroupList = payload.emojis.groupList || ['default'];
+                }
+                if (payload.pats) {
+                    patGroups = payload.pats.groups || { default: [...DEFAULT_PATS] };
+                    patGroupList = payload.pats.groupList || ['default'];
+                }
+                loadProfile();
+                loadAppearance();
+                renderCards(); renderEmojis(); renderPats();
+                dataImportInput.value = '';
+                showToast('数据导入成功');
+            } catch (e) {
+                alert('导入失败：' + e.message);
+            }
+        }
+        function clearAllData() {
+            if (!confirm('确定清空所有本地数据？此操作不可恢复！')) return;
+            localStorage.removeItem('dream_profile');
+            localStorage.removeItem('dream_appearance');
+            groups = { default: [...DEFAULT_CARDS] };
+            groupList = ['default'];
+            cardLibrary = [...DEFAULT_CARDS];
+            currentGroup = 'all';
+            cardSelected.clear();
+            cardSelectMode = false;
+
+            emojiGroups = { default: [...DEFAULT_EMOJIS] };
+            emojiGroupList = ['default'];
+            emojiCurrentGroup = 'all';
+            emojiSelected.clear();
+            emojiSelectMode = false;
+
+            patGroups = { default: [...DEFAULT_PATS] };
+            patGroupList = ['default'];
+            patCurrentGroup = 'all';
+            patSelected.clear();
+            patSelectMode = false;
+
+            // 重置外观/聊天设置为默认
+            userName = '我'; userAvatar = '🌸'; angleName = 'ta'; angleAvatar = '🌙';
+            avatarShape = 'circle'; userSize = 60; userLeft = 0; userTop = 0;
+            angleSize = 60; angleLeft = 0; angleTop = 0;
+            chatReplySpeed = 300; chatPickMode = 'random';
+            chatShowTimestamp = true; chatShowAvatar = true;
+            bubbleShape = 'round'; bubbleUserColor = '#e8ddf2'; bubbleAngleColor = '#f3eef8';
+            bubbleRadius = 18; bgColor = '#fcfaff'; bgImage = '';
+            fontSize = 14; fontFamily = "'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif";
+            themeAccent = '#c6a8de';
+
+            loadProfile();
+            loadAppearance();
+            renderCards(); renderEmojis(); renderPats();
+            showToast('已清空所有数据并恢复默认');
+        }
+
+        // ===== 初始化 =====
+        function init() {
+            loadProfile();
+            loadAppearance();
+
+            renderCards();
+            renderEmojis();
+            renderPats();
+
+            addChatMessage(`✦ 递出你的话语…… 字卡已备好。`, 'system');
+            userInput.focus();
+
+            // 右侧侧边栏
+            openSidePanelBtn.addEventListener('click', openSidePanel);
+            sideCloseBtn.addEventListener('click', closeSidePanel);
+            sideOverlay.addEventListener('click', closeSidePanel);
+
+            // 底部上弹侧边栏
+            arrowUpBtn.addEventListener('click', toggleBottomSheet);
+
+            // 底部按钮
+            bottomCallBtn.addEventListener('click', () => { closeBottomSheet(); openModal(callModal); });
+            bottomEmojiBtn.addEventListener('click', () => { closeBottomSheet(); openModal(emojiModal); });
+            bottomPatBtn.addEventListener('click', () => { closeBottomSheet(); openModal(patModal); });
+
+            // 侧边栏按钮
+            sideCardBtn.addEventListener('click', () => { closeSidePanel(); openModal(cardModal); });
+            sideEmojiBtn.addEventListener('click', () => { closeSidePanel(); openModal(emojiModal); });
+            sidePatBtn.addEventListener('click', () => { closeSidePanel(); openModal(patModal); });
+
+            // 设置主弹窗
+            openSettingsBtn.addEventListener('click', () => { showSettingsView(null); openModal(settingsModal); });
+            closeSettingsBtn.addEventListener('click', () => closeModal(settingsModal));
+            settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeModal(settingsModal); });
+
+            // 设置三大板块导航
+            openAppearanceBtn.addEventListener('click', () => showSettingsView(appearanceView));
+            openChatSettingsBtn.addEventListener('click', () => showSettingsView(chatSettingsView));
+            openDataMgmtBtn.addEventListener('click', () => showSettingsView(dataMgmtView));
+            backFromAppearance.addEventListener('click', () => showSettingsView(null));
+            backFromChat.addEventListener('click', () => showSettingsView(null));
+            backFromData.addEventListener('click', () => showSettingsView(null));
+
+            // 外观设置五个子板块（以弹窗形式显示）
+            openThemeBtn.addEventListener('click', () => openSubModal(themeModal));
+            openBgFontBtn.addEventListener('click', () => openSubModal(bgFontModal));
+            openBubbleBtn.addEventListener('click', () => openSubModal(bubbleModal));
+            openAvatarBtn.addEventListener('click', () => openSubModal(avatarModal));
+            openNicknameBtn.addEventListener('click', () => openSubModal(nicknameModal));
+
+            // 子板块关闭
+            closeThemeModal.addEventListener('click', () => closeModal(themeModal));
+            themeModal.addEventListener('click', (e) => { if (e.target === themeModal) closeModal(themeModal); });
+            closeBgFontModal.addEventListener('click', () => closeModal(bgFontModal));
+            bgFontModal.addEventListener('click', (e) => { if (e.target === bgFontModal) closeModal(bgFontModal); });
+            closeBubbleModal.addEventListener('click', () => closeModal(bubbleModal));
+            bubbleModal.addEventListener('click', (e) => { if (e.target === bubbleModal) closeModal(bubbleModal); });
+
+            // 昵称弹窗
+            closeNicknameModal.addEventListener('click', () => closeModal(nicknameModal));
+            nicknameModal.addEventListener('click', (e) => { if (e.target === nicknameModal) closeModal(nicknameModal); });
+            saveNicknameBtn.addEventListener('click', () => {
+                userName = userNameInput.value.trim() || '我';
+                angleName = angleNameInput.value.trim() || 'ta';
+                saveFullProfile();
+                closeModal(nicknameModal);
+            });
+
+            // 头像弹窗
+            closeAvatarModal.addEventListener('click', () => closeModal(avatarModal));
+            avatarModal.addEventListener('click', (e) => { if (e.target === avatarModal) closeModal(avatarModal); });
+            shapeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    avatarShape = this.dataset.shape;
+                    shapeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    applyProfile();
+                });
+            });
+            applyUserAvatarBtn.addEventListener('click', () => {
+                userAvatar = userAvatarInput.value.trim() || '🌸';
+                applyProfile();
+            });
+            applyAngleAvatarBtn.addEventListener('click', () => {
+                angleAvatar = angleAvatarInput.value.trim() || '🌙';
+                applyProfile();
+            });
+            removeUserAvatarBtn.addEventListener('click', () => {
+                userAvatar = '🌸'; userAvatarInput.value = '🌸'; applyProfile();
+            });
+            removeAngleAvatarBtn.addEventListener('click', () => {
+                angleAvatar = '🌙'; angleAvatarInput.value = '🌙'; applyProfile();
+            });
+            [userSizeSlider, userLeftSlider, userTopSlider, angleSizeSlider, angleLeftSlider, angleTopSlider].forEach(
+                slider => {
+                    slider.addEventListener('input', function() {
+                        const id = this.id;
+                        const val = parseInt(this.value);
+                        const labelMap = {
+                            userSizeSlider: 'userSizeValue', userLeftSlider: 'userLeftValue', userTopSlider: 'userTopValue',
+                            angleSizeSlider: 'angleSizeValue', angleLeftSlider: 'angleLeftValue', angleTopSlider: 'angleTopValue'
+                        };
+                        const valueEl = document.getElementById(labelMap[id]);
+                        if (valueEl) valueEl.textContent = val + 'px';
+                        if (id === 'userSizeSlider') userSize = val;
+                        else if (id === 'userLeftSlider') userLeft = val;
+                        else if (id === 'userTopSlider') userTop = val;
+                        else if (id === 'angleSizeSlider') angleSize = val;
+                        else if (id === 'angleLeftSlider') angleLeft = val;
+                        else if (id === 'angleTopSlider') angleTop = val;
+                        applyProfile();
+                    });
+                });
+            saveAvatarBtn.addEventListener('click', () => { saveFullProfile(); closeModal(avatarModal); });
+
+            // 气泡
+            bubbleShapeSelect.addEventListener('change', function() { bubbleShape = this.value; applyBubbleStyle(); });
+            applyBubbleUserColor.addEventListener('click', () => { bubbleUserColor = bubbleUserColorInput.value; applyBubbleStyle(); });
+            applyBubbleAngleColor.addEventListener('click', () => { bubbleAngleColor = bubbleAngleColorInput.value; applyBubbleStyle(); });
+            bubbleRadiusSlider.addEventListener('input', function() {
+                bubbleRadius = parseInt(this.value);
+                bubbleRadiusValue.textContent = bubbleRadius + 'px';
+                applyBubbleStyle();
+            });
+            saveBubbleBtn.addEventListener('click', () => { saveAppearance(); closeModal(bubbleModal); showToast('气泡设置已保存'); });
+
+            // 背景&字体
+            applyBgColorBtn.addEventListener('click', () => { bgColor = bgColorInput.value; applyBubbleStyle(); });
+            applyBgImageBtn.addEventListener('click', () => { bgImage = bgImageInput.value.trim(); applyBubbleStyle(); });
+            clearBgImageBtn.addEventListener('click', () => { bgImage = ''; bgImageInput.value = ''; applyBubbleStyle(); });
+            fontSizeSlider.addEventListener('input', function() {
+                fontSize = parseInt(this.value);
+                fontSizeValue.textContent = fontSize + 'px';
+                applyBubbleStyle();
+            });
+            fontFamilySelect.addEventListener('change', function() { fontFamily = this.value; applyBubbleStyle(); });
+            saveBgFontBtn.addEventListener('click', () => { saveAppearance(); closeModal(bgFontModal); showToast('背景&字体已保存'); });
+
+            // 主题
+            themeSwatches.querySelectorAll('.theme-swatch').forEach(sw => {
+                sw.addEventListener('click', function() {
+                    themeSwatches.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
+                    this.classList.add('active');
+                    loadAppearance._theme = this.dataset.theme;
+                    // 预设主题色映射
+                    const map = {
+                        lavender: '#c6a8de', pink: '#e89bb5', blue: '#9bbfe0', green: '#9bc7ad', dark: '#6a5a7a'
+                    };
+                    themeAccent = map[this.dataset.theme] || themeAccent;
+                    themeAccentInput.value = themeAccent;
+                    applyBubbleStyle();
+                });
+            });
+            applyThemeAccentBtn.addEventListener('click', () => { themeAccent = themeAccentInput.value; applyBubbleStyle(); });
+            saveThemeBtn.addEventListener('click', () => { saveAppearance(); closeModal(themeModal); showToast('主题已保存'); });
+
+            // 聊天设置
+            chatReplySpeedSelect.addEventListener('change', function() { chatReplySpeed = parseInt(this.value); saveAppearance(); });
+            chatPickModeSelect.addEventListener('change', function() { chatPickMode = this.value; seqCursor = 0; replyWithRandomCard._pool = null; saveAppearance(); });
+            chatShowTimestampSelect.addEventListener('change', function() { chatShowTimestamp = this.value === '1'; saveAppearance(); });
+            chatShowAvatarSelect.addEventListener('change', function() { chatShowAvatar = this.value === '1'; saveAppearance(); });
+
+            // 数据管理
+            dataExportBtn.addEventListener('click', exportData);
+            dataImportBtn.addEventListener('click', importData);
+            dataClearBtn.addEventListener('click', clearAllData);
+
+            // 字卡
+            closeCardModal.addEventListener('click', () => closeModal(cardModal));
+            cardModal.addEventListener('click', (e) => { if (e.target === cardModal) closeModal(cardModal); });
+            modAddGroupBtn.addEventListener('click', addCardGroup);
+            modGroupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addCardGroup(); });
+            modDeleteGroupBtn.addEventListener('click', deleteCardGroup);
+            modBatchImportBtn.addEventListener('click', batchImportCards);
+            modClearBatchBtn.addEventListener('click', () => { modBatchInput.value = ''; });
+            modBatchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); batchImportCards(); }
+            });
+            modSelectBtn.addEventListener('click', toggleCardSelectMode);
+            modDeleteSelectedBtn.addEventListener('click', deleteCardSelected);
+            modMoveBtn.addEventListener('click', moveCardSelected);
+            modClearAllBtn.addEventListener('click', clearAllCards);
+            modResetDefaultBtn.addEventListener('click', resetDefaultCards);
+            modSearchInput.addEventListener('input', function() { cardSearch = this.value; renderCards(); });
+
+            // 表情包
+            closeEmojiModal.addEventListener('click', () => closeModal(emojiModal));
+            emojiModal.addEventListener('click', (e) => { if (e.target === emojiModal) closeModal(emojiModal); });
+            emojiSearchInput.addEventListener('input', function() { emojiSearch = this.value; renderEmojis(); });
+            addEmojiBtn.addEventListener('click', addEmoji);
+            emojiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addEmoji(); });
+            clearEmojiBtn.addEventListener('click', clearEmojis);
+            resetEmojiBtn.addEventListener('click', resetEmojis);
+            emojiSelectBtn.addEventListener('click', toggleEmojiSelectMode);
+            emojiDeleteSelectedBtn.addEventListener('click', deleteEmojiSelected);
+            emojiMoveBtn.addEventListener('click', moveEmojiSelected);
+            emojiBatchImportBtn.addEventListener('click', batchImportEmojis);
+            emojiClearBatchBtn.addEventListener('click', () => { emojiBatchInput.value = ''; });
+            emojiBatchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); batchImportEmojis(); }
+            });
+            emojiAddGroupBtn.addEventListener('click', addEmojiGroup);
+            emojiGroupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addEmojiGroup(); });
+            emojiDeleteGroupBtn.addEventListener('click', deleteEmojiGroup);
+
+            // 拍一拍
+            closePatModal.addEventListener('click', () => closeModal(patModal));
+            patModal.addEventListener('click', (e) => { if (e.target === patModal) closeModal(patModal); });
+            patSearchInput.addEventListener('input', function() { patSearch = this.value; renderPats(); });
+            addPatBtn.addEventListener('click', addPat);
+            patInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addPat(); });
+            clearPatBtn.addEventListener('click', clearPats);
+            resetPatBtn.addEventListener('click', resetPats);
+            patSelectBtn.addEventListener('click', togglePatSelectMode);
+            patDeleteSelectedBtn.addEventListener('click', deletePatSelected);
+            patMoveBtn.addEventListener('click', movePatSelected);
+            patBatchImportBtn.addEventListener('click', batchImportPats);
+            patClearBatchBtn.addEventListener('click', () => { patBatchInput.value = ''; });
+            patBatchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); batchImportPats(); }
+            });
+            patAddGroupBtn.addEventListener('click', addPatGroup);
+            patGroupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addPatGroup(); });
+            patDeleteGroupBtn.addEventListener('click', deletePatGroup);
+
+            // 通话
+            closeCallModal.addEventListener('click', () => closeModal(callModal));
+            callModal.addEventListener('click', (e) => { if (e.target === callModal) closeModal(callModal); });
+            callBtn.addEventListener('click', startCall);
+            hangupBtn.addEventListener('click', hangupCall);
+
+            // 发送
+            sendBtn.addEventListener('click', handleSend);
+            userInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+            });
+
+            document.getElementById('profileClick').addEventListener('click', () => {
+                showSettingsView(null);
+                openModal(settingsModal);
+            });
+            chatBox.addEventListener('click', () => userInput.focus());
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (sidePanel.classList.contains('open')) closeSidePanel();
+                    if (bottomSheetOpen) closeBottomSheet();
+                    if (cardModal.classList.contains('active')) closeModal(cardModal);
+                    if (settingsModal.classList.contains('active') && !isAnySubModalOpen()) closeModal(settingsModal);
+                    if (themeModal.classList.contains('active')) closeModal(themeModal);
+                    if (bgFontModal.classList.contains('active')) closeModal(bgFontModal);
+                    if (bubbleModal.classList.contains('active')) closeModal(bubbleModal);
+                    if (nicknameModal.classList.contains('active')) closeModal(nicknameModal);
+                    if (avatarModal.classList.contains('active')) closeModal(avatarModal);
+                    if (callModal.classList.contains('active')) closeModal(callModal);
+                    if (emojiModal.classList.contains('active')) closeModal(emojiModal);
+                    if (patModal.classList.contains('active')) closeModal(patModal);
+                }
+            });
+        }
+
+        function isAnySubModalOpen() {
+            return [nicknameModal, avatarModal, bubbleModal, bgFontModal, themeModal].some(m => m.classList.contains('active'));
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
