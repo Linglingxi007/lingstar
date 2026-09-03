@@ -5,6 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>梦语 · 传讯</title>
     <style>
+        /* ===== 主题 CSS 变量（默认：梦紫） ===== */
+        :root {
+            /* 强调色 */
+            --accent: var(--accent);
+            --accent-2: var(--accent-2);
+            --accent-deep: var(--accent-deep);
+            --accent-soft: var(--accent-soft);
+            /* 背景 */
+            --bg-page: var(--bg-page);
+            --bg-card: var(--bg-card);
+            --bg-chat: var(--bg-chat);
+            --bg-input: var(--bg-input);
+            --bg-input-focus: var(--bg-input-focus);
+            /* 文字 */
+            --text-primary: var(--text-primary);
+            --text-secondary: var(--text-secondary);
+            --text-muted: var(--text-muted);
+            --text-hint: var(--text-hint);
+            --text-inverse: var(--bg-card);
+            /* 气泡 */
+            --bubble-user: var(--bubble-user);
+            --bubble-angle: var(--bubble-angle);
+            /* 边框/阴影 */
+            --border-subtle: rgba(200, 175, 220, 0.06);
+            --border-faint: rgba(200, 175, 220, 0.1);
+            --border-hover: rgba(200, 170, 220, 0.2);
+            --shadow-card: rgba(80, 50, 110, 0.10);
+            /* 功能色 */
+            --success: var(--success);
+            --danger: var(--danger);
+            --warn: var(--warn);
+            --avatar-bg-gradient: linear-gradient(135deg, var(--accent-2), var(--accent));
+        }
+
+
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +48,7 @@
         }
 
         body {
-            background: #e8e0ee;
+            background: var(--bg-page);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -27,7 +62,7 @@
             height: 94vh;
             max-height: 820px;
             min-height: 600px;
-            background: #ffffff;
+            background: var(--bg-card);
             border-radius: 36px;
             box-shadow: 0 20px 60px rgba(80, 50, 110, 0.10);
             display: flex;
@@ -43,7 +78,7 @@
             padding: 12px 18px 8px 18px;
             flex-shrink: 0;
             gap: 8px;
-            background: #ffffff;
+            background: var(--bg-card);
             border-bottom: 1px solid rgba(220, 200, 240, 0.06);
         }
         .angle-profile {
@@ -65,7 +100,7 @@
             box-shadow: 0 2px 6px rgba(180, 150, 210, 0.15);
             flex-shrink: 0;
             transition: 0.2s;
-            background: linear-gradient(135deg, #dcc3ed, #c6a8de);
+            background: linear-gradient(135deg, var(--accent-2), var(--accent));
             object-fit: cover;
             overflow: hidden;
         }
@@ -80,12 +115,12 @@
         .angle-name {
             font-size: 0.9rem;
             font-weight: 500;
-            color: #2d1a39;
+            color: var(--text-primary);
             letter-spacing: 0.3px;
         }
         .angle-status {
             font-size: 0.55rem;
-            color: #7a5b8c;
+            color: var(--text-muted);
             opacity: 0.4;
             margin-left: 2px;
         }
@@ -102,7 +137,7 @@
             border-radius: 50%;
             font-size: 1rem;
             cursor: pointer;
-            color: #5a3d6b;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -123,11 +158,11 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            background: #fcfaff;
+            background: var(--bg-chat);
             min-height: 0;
         }
         .chat-box::-webkit-scrollbar { width: 3px; }
-        .chat-box::-webkit-scrollbar-thumb { background: #d6c8e0; border-radius: 12px; }
+        .chat-box::-webkit-scrollbar-thumb { background: var(--border-faint); border-radius: 12px; }
 
         .message {
             max-width: 82%;
@@ -157,15 +192,15 @@
         .message .msg-content { flex: 1; }
         .message.user {
             align-self: flex-end;
-            background: #e8ddf2;
-            color: #1f1129;
+            background: var(--bubble-user);
+            color: var(--text-primary);
             border-bottom-right-radius: 4px;
             flex-direction: row-reverse;
         }
         .message.system {
             align-self: flex-start;
-            background: #f3eef8;
-            color: #2c1b36;
+            background: var(--bubble-angle);
+            color: var(--text-primary);
             border-bottom-left-radius: 4px;
             border: 1px solid rgba(220, 200, 240, 0.10);
         }
@@ -190,25 +225,25 @@
             padding: 10px 16px 14px 16px;
             flex-shrink: 0;
             border-top: 1px solid rgba(220, 200, 240, 0.06);
-            background: #ffffff;
+            background: var(--bg-card);
         }
         .arrow-up-btn {
-            background: #f5f0fa;
+            background: var(--bg-input);
             border: none;
             width: 40px;
             height: 40px;
             border-radius: 50%;
             font-size: 1.2rem;
             cursor: pointer;
-            color: #5a3d6b;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: 0.15s;
             flex-shrink: 0;
         }
-        .arrow-up-btn:hover { background: #ede6f5; }
-        .arrow-up-btn.active { background: #c6a8de; color: white; }
+        .arrow-up-btn:hover { background: var(--bg-input-focus); }
+        .arrow-up-btn.active { background: var(--accent); color: white; }
 
         .input-area {
             display: flex;
@@ -221,19 +256,19 @@
             padding: 11px 16px;
             border: none;
             border-radius: 30px;
-            background: #f5f0fa;
+            background: var(--bg-input);
             font-size: 0.88rem;
             outline: none;
             transition: 0.2s;
-            color: #2d1a39;
+            color: var(--text-primary);
         }
         .input-area input:focus {
-            background: #ede6f5;
-            box-shadow: 0 0 0 2px #c6a8de;
+            background: var(--bg-input-focus);
+            box-shadow: 0 0 0 2px var(--accent);
         }
-        .input-area input::placeholder { color: #a585b8; font-weight: 300; }
+        .input-area input::placeholder { color: var(--accent); font-weight: 300; }
         .btn-send {
-            background: #c6a8de;
+            background: var(--accent);
             border: none;
             padding: 11px 18px;
             border-radius: 30px;
@@ -244,7 +279,7 @@
             font-size: 0.82rem;
             white-space: nowrap;
         }
-        .btn-send:hover { background: #b697cc; }
+        .btn-send:hover { background: var(--accent); }
         .btn-send:active { transform: scale(0.95); }
 
         /* ===== 底部上弹侧边栏 ===== */
@@ -291,7 +326,7 @@
         .sheet-item:hover { background: rgba(245, 240, 250, 0.5); }
         .sheet-item:active { transform: scale(0.94); }
         .sheet-item .icon { font-size: 1.6rem; line-height: 1.2; }
-        .sheet-item .label { font-size: 0.6rem; color: #5a3d6b; opacity: 0.6; font-weight: 400; letter-spacing: 0.3px; }
+        .sheet-item .label { font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6; font-weight: 400; letter-spacing: 0.3px; }
 
         /* ===== 右侧侧边栏 ===== */
         .side-overlay {
@@ -333,17 +368,17 @@
             border-bottom: 1px solid rgba(200, 175, 220, 0.06);
             flex-shrink: 0;
         }
-        .side-header h2 { font-weight: 400; font-size: 1rem; color: #3f2a4f; letter-spacing: 0.5px; }
+        .side-header h2 { font-weight: 400; font-size: 1rem; color: var(--text-primary); letter-spacing: 0.5px; }
         .side-close {
             background: none;
             border: none;
             font-size: 1.4rem;
             cursor: pointer;
-            color: #7a5b8c;
+            color: var(--text-muted);
             padding: 0 4px;
             transition: 0.2s;
         }
-        .side-close:hover { color: #3f2a4f; transform: rotate(90deg); }
+        .side-close:hover { color: var(--text-primary); transform: rotate(90deg); }
         .side-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -366,7 +401,7 @@
         .side-grid-item:hover { background: rgba(245, 240, 250, 0.5); transform: translateY(-2px); }
         .side-grid-item:active { transform: scale(0.94); }
         .side-grid-item .icon { font-size: 1.8rem; }
-        .side-grid-item .label { font-size: 0.7rem; color: #5a3d6b; opacity: 0.6; font-weight: 400; letter-spacing: 0.3px; }
+        .side-grid-item .label { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; font-weight: 400; letter-spacing: 0.3px; }
 
         /* ===== 弹窗 (通用) ===== */
         .modal-overlay {
@@ -387,7 +422,7 @@
         .modal-overlay.sub-modal { z-index: 3000; }
 
         .modal-content {
-            background: #ffffff;
+            background: var(--bg-card);
             border-radius: 28px;
             max-width: 480px;
             width: 100%;
@@ -412,17 +447,17 @@
             border-bottom: 1px solid rgba(200, 175, 220, 0.06);
             flex-shrink: 0;
         }
-        .modal-header h2 { font-weight: 500; font-size: 1rem; color: #3f2a4f; letter-spacing: 0.3px; }
+        .modal-header h2 { font-weight: 500; font-size: 1rem; color: var(--text-primary); letter-spacing: 0.3px; }
         .modal-close {
             background: none;
             border: none;
             font-size: 1.3rem;
             cursor: pointer;
-            color: #7a5b8c;
+            color: var(--text-muted);
             padding: 0 4px;
             transition: 0.2s;
         }
-        .modal-close:hover { color: #3f2a4f; transform: rotate(90deg); }
+        .modal-close:hover { color: var(--text-primary); transform: rotate(90deg); }
         .modal-body {
             flex: 1;
             overflow-y: auto;
@@ -432,7 +467,7 @@
             gap: 10px;
         }
         .modal-body::-webkit-scrollbar { width: 3px; }
-        .modal-body::-webkit-scrollbar-thumb { background: #d6c8e0; border-radius: 12px; }
+        .modal-body::-webkit-scrollbar-thumb { background: var(--border-faint); border-radius: 12px; }
 
         /* ===== 字卡/表情/拍一拍 通用模块样式 ===== */
         .mod-group-tabs {
@@ -449,10 +484,10 @@
             background: rgba(240, 228, 248, 0.2);
             border: 1px solid transparent;
             transition: 0.15s;
-            color: #5a3d6b;
+            color: var(--text-secondary);
         }
         .mod-group-tab:hover { background: rgba(220, 200, 240, 0.2); }
-        .mod-group-tab.active { background: #c6a8de; color: white; border-color: #b088cc; }
+        .mod-group-tab.active { background: var(--accent); color: white; border-color: var(--accent-deep); }
         .mod-group-tab .count { font-size: 0.55rem; opacity: 0.7; margin-left: 2px; }
 
         .mod-search-row { display: flex; gap: 6px; margin-bottom: 4px; }
@@ -461,13 +496,13 @@
             padding: 5px 14px;
             border-radius: 30px;
             border: 1px solid rgba(200, 170, 220, 0.10);
-            background: #f8f4fc;
+            background: var(--bg-input);
             outline: none;
             font-size: 0.75rem;
-            color: #2d1a39;
+            color: var(--text-primary);
             transition: 0.15s;
         }
-        .mod-search-row input:focus { border-color: #b088cc; box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
+        .mod-search-row input:focus { border-color: var(--accent-deep); box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
 
         .mod-list {
             display: flex;
@@ -478,13 +513,13 @@
             padding: 4px 0;
         }
         .mod-list::-webkit-scrollbar { width: 3px; }
-        .mod-list::-webkit-scrollbar-thumb { background: #d6c8e0; border-radius: 12px; }
+        .mod-list::-webkit-scrollbar-thumb { background: var(--border-faint); border-radius: 12px; }
         .mod-item {
             background: rgba(255, 240, 255, 0.3);
             padding: 4px 12px;
             border-radius: 30px;
             font-size: 0.75rem;
-            border: 1px solid #d6bce8;
+            border: 1px solid var(--accent-2);
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -492,16 +527,16 @@
             cursor: pointer;
         }
         .mod-item .del { cursor: pointer; opacity: 0.2; font-size: 0.6rem; }
-        .mod-item .del:hover { opacity: 1; color: #d9534f; }
+        .mod-item .del:hover { opacity: 1; color: var(--danger); }
         .mod-item .group-label {
             font-size: 0.5rem;
             background: rgba(180, 150, 210, 0.08);
             padding: 0 5px;
             border-radius: 20px;
-            color: #6a4a7a;
+            color: var(--text-secondary);
         }
-        .mod-item.selected { background: #c6a8de; border-color: #9f79c2; }
-        .mod-empty { color: #816b93; font-size: 0.7rem; opacity: 0.4; padding: 4px 0; }
+        .mod-item.selected { background: var(--accent); border-color: var(--accent-deep); }
+        .mod-empty { color: var(--text-hint); font-size: 0.7rem; opacity: 0.4; padding: 4px 0; }
 
         .mod-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         .mod-row input,
@@ -511,48 +546,48 @@
             padding: 5px 12px;
             border-radius: 30px;
             border: 1px solid rgba(200, 170, 220, 0.10);
-            background: #f8f4fc;
+            background: var(--bg-input);
             outline: none;
             font-size: 0.75rem;
-            color: #2d1a39;
+            color: var(--text-primary);
             transition: 0.15s;
         }
         .mod-row input:focus,
-        .mod-row select:focus { border-color: #b088cc; box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
+        .mod-row select:focus { border-color: var(--accent-deep); box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
         .mod-row .btn {
             padding: 5px 14px;
             font-size: 0.7rem;
             border-radius: 30px;
-            background: #efe3f7;
+            background: var(--accent-soft);
             border: none;
             cursor: pointer;
             transition: 0.15s;
-            color: #3d284b;
+            color: var(--text-primary);
             font-weight: 500;
             white-space: nowrap;
         }
-        .mod-row .btn:hover { background: #e0ceec; }
-        .mod-row .btn-danger { background: #f0e0e8; color: #6d3b4a; }
-        .mod-row .btn-danger:hover { background: #e8d0d8; }
-        .mod-row .btn-primary-mod { background: #c6a8de; color: white; }
-        .mod-row .btn-primary-mod:hover { background: #b697cc; }
+        .mod-row .btn:hover { background: var(--accent-soft); }
+        .mod-row .btn-danger { background: var(--bg-input); color: var(--danger); }
+        .mod-row .btn-danger:hover { background: var(--bg-input); }
+        .mod-row .btn-primary-mod { background: var(--accent); color: white; }
+        .mod-row .btn-primary-mod:hover { background: var(--accent); }
 
         .mod-textarea {
             width: 100%;
             padding: 6px 12px;
             border-radius: 14px;
             border: 1px solid rgba(200, 170, 220, 0.10);
-            background: #f8f4fc;
+            background: var(--bg-input);
             outline: none;
             font-size: 0.75rem;
             resize: vertical;
             min-height: 40px;
             font-family: inherit;
-            color: #2d1a39;
+            color: var(--text-primary);
             transition: 0.15s;
         }
-        .mod-textarea:focus { border-color: #b088cc; box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
-        .mod-hint { font-size: 0.58rem; color: #816b93; opacity: 0.4; margin-top: 2px; }
+        .mod-textarea:focus { border-color: var(--accent-deep); box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
+        .mod-hint { font-size: 0.58rem; color: var(--text-hint); opacity: 0.4; margin-top: 2px; }
         .mod-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
         .mod-actions .btn { padding: 4px 12px; font-size: 0.66rem; border-radius: 30px; }
         .mod-divider { border: none; border-top: 1px solid rgba(200, 175, 220, 0.06); margin: 4px 0; }
@@ -593,11 +628,11 @@
             height: 12px;
             border-radius: 50%;
             border: 2px solid white;
-            background: #ccc;
+            background: var(--text-hint);
         }
-        .call-avatar-box .avatar .dot.on { background: #4caf50; }
-        .call-avatar-box .avatar .dot.calling { background: #ff9800; animation: pulse 1s infinite; }
-        .call-avatar-box .name { font-size: 0.6rem; color: #7a5b8c; }
+        .call-avatar-box .avatar .dot.on { background: var(--success); }
+        .call-avatar-box .avatar .dot.calling { background: var(--warn); animation: pulse 1s infinite; }
+        .call-avatar-box .name { font-size: 0.6rem; color: var(--text-muted); }
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.4; transform: scale(0.85); }
@@ -608,21 +643,21 @@
             font-size: 0.78rem;
             border-radius: 30px;
             border: none;
-            background: #4caf50;
+            background: var(--success);
             color: white;
             cursor: pointer;
         }
-        .call-controls .btn-call.ringing { background: #ff9800; }
+        .call-controls .btn-call.ringing { background: var(--warn); }
         .call-controls .btn-hangup {
             padding: 6px 22px;
             font-size: 0.78rem;
             border-radius: 30px;
             border: none;
-            background: #e53935;
+            background: var(--danger);
             color: white;
             cursor: pointer;
         }
-        .call-status-text { font-size: 0.65rem; color: #7a5b8c; opacity: 0.4; text-align: center; }
+        .call-status-text { font-size: 0.65rem; color: var(--text-muted); opacity: 0.4; text-align: center; }
 
         /* ===== 设置三大板块 ===== */
         .settings-sections { display: flex; flex-direction: column; gap: 10px; }
@@ -648,9 +683,9 @@
             text-align: center;
             flex-shrink: 0;
         }
-        .settings-section-card .title { font-size: 0.88rem; font-weight: 500; color: #3f2a4f; }
-        .settings-section-card .desc { font-size: 0.66rem; color: #816b93; opacity: 0.55; margin-top: 2px; }
-        .settings-section-card .arrow { margin-left: auto; color: #b697cc; font-size: 1rem; opacity: 0.5; }
+        .settings-section-card .title { font-size: 0.88rem; font-weight: 500; color: var(--text-primary); }
+        .settings-section-card .desc { font-size: 0.66rem; color: var(--text-hint); opacity: 0.55; margin-top: 2px; }
+        .settings-section-card .arrow { margin-left: auto; color: var(--accent); font-size: 1rem; opacity: 0.5; }
 
         .settings-sub-view { display: flex; flex-direction: column; gap: 10px; }
         .settings-back {
@@ -658,7 +693,7 @@
             align-items: center;
             gap: 4px;
             font-size: 0.72rem;
-            color: #7a5b8c;
+            color: var(--text-muted);
             cursor: pointer;
             align-self: flex-start;
             padding: 4px 10px;
@@ -691,7 +726,7 @@
         .appearance-btn:hover { background: rgba(245, 240, 250, 0.6); transform: translateY(-2px); }
         .appearance-btn:active { transform: scale(0.94); }
         .appearance-btn .icon { font-size: 1.6rem; }
-        .appearance-btn .label { font-size: 0.7rem; color: #5a3d6b; opacity: 0.6; }
+        .appearance-btn .label { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; }
 
         /* ===== 头像设置弹窗 ===== */
         .avatar-preview-area {
@@ -705,7 +740,7 @@
             margin-bottom: 8px;
         }
         .avatar-preview-box { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .avatar-preview-box .label { font-size: 0.6rem; color: #7a5b8c; opacity: 0.5; }
+        .avatar-preview-box .label { font-size: 0.6rem; color: var(--text-muted); opacity: 0.5; }
         .avatar-preview {
             width: 60px;
             height: 60px;
@@ -731,11 +766,11 @@
             background: none;
             cursor: pointer;
             font-size: 0.7rem;
-            color: #5a3d6b;
+            color: var(--text-secondary);
             transition: 0.15s;
         }
         .shape-btn:hover { background: rgba(200, 170, 220, 0.1); }
-        .shape-btn.active { background: #c6a8de; color: white; border-color: #b088cc; }
+        .shape-btn.active { background: var(--accent); color: white; border-color: var(--accent-deep); }
         .avatar-upload-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .avatar-upload-row input[type="text"] {
             flex: 1;
@@ -743,12 +778,12 @@
             padding: 5px 12px;
             border-radius: 20px;
             border: 1px solid rgba(200, 170, 220, 0.1);
-            background: #f8f4fc;
+            background: var(--bg-input);
             outline: none;
             font-size: 0.75rem;
-            color: #2d1a39;
+            color: var(--text-primary);
         }
-        .avatar-upload-row input[type="text"]:focus { border-color: #b088cc; box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
+        .avatar-upload-row input[type="text"]:focus { border-color: var(--accent-deep); box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
         .avatar-upload-row .btn {
             padding: 4px 14px;
             font-size: 0.7rem;
@@ -756,16 +791,16 @@
             border: none;
             cursor: pointer;
             transition: 0.15s;
-            background: #efe3f7;
-            color: #3d284b;
+            background: var(--accent-soft);
+            color: var(--text-primary);
         }
-        .avatar-upload-row .btn:hover { background: #e0ceec; }
-        .avatar-upload-row .btn-danger { background: #f0e0e8; color: #6d3b4a; }
-        .avatar-upload-row .btn-danger:hover { background: #e8d0d8; }
+        .avatar-upload-row .btn:hover { background: var(--accent-soft); }
+        .avatar-upload-row .btn-danger { background: var(--bg-input); color: var(--danger); }
+        .avatar-upload-row .btn-danger:hover { background: var(--bg-input); }
         .avatar-slider-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-        .avatar-slider-row .label { font-size: 0.7rem; color: #7a5b8c; min-width: 36px; }
-        .avatar-slider-row input[type="range"] { flex: 1; accent-color: #c6a8de; height: 4px; }
-        .avatar-slider-row .value { font-size: 0.7rem; color: #5a3d6b; min-width: 32px; text-align: right; }
+        .avatar-slider-row .label { font-size: 0.7rem; color: var(--text-muted); min-width: 36px; }
+        .avatar-slider-row input[type="range"] { flex: 1; accent-color: var(--accent); height: 4px; }
+        .avatar-slider-row .value { font-size: 0.7rem; color: var(--text-secondary); min-width: 32px; text-align: right; }
 
         /* ===== 通用设置项 ===== */
         .settings-item {
@@ -774,8 +809,8 @@
             padding: 14px 16px;
             border: 1px solid rgba(220, 200, 240, 0.06);
         }
-        .settings-item .label { font-size: 0.8rem; font-weight: 500; color: #5a3d6b; margin-bottom: 4px; }
-        .settings-item .desc { font-size: 0.68rem; color: #816b93; opacity: 0.5; }
+        .settings-item .label { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 4px; }
+        .settings-item .desc { font-size: 0.68rem; color: var(--text-hint); opacity: 0.5; }
         .settings-item select,
         .settings-item input[type="text"],
         .settings-item input[type="number"] {
@@ -783,10 +818,10 @@
             padding: 5px 12px;
             border-radius: 20px;
             border: 1px solid rgba(200, 170, 220, 0.1);
-            background: #f8f4fc;
+            background: var(--bg-input);
             outline: none;
             font-size: 0.75rem;
-            color: #2d1a39;
+            color: var(--text-primary);
             width: 100%;
         }
 
@@ -805,7 +840,7 @@
             color: rgba(255,255,255,0.85);
         }
         .theme-swatch:hover { transform: translateY(-2px); }
-        .theme-swatch.active { border-color: #5a3d6b; box-shadow: 0 0 0 2px rgba(90,61,107,0.15); }
+        .theme-swatch.active { border-color: var(--text-secondary); box-shadow: 0 0 0 2px rgba(90,61,107,0.15); }
 
         .color-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         .color-row input[type="color"] {
@@ -813,9 +848,9 @@
         }
         .color-row .btn {
             padding: 5px 14px; font-size: 0.7rem; border-radius: 20px; border: none; cursor: pointer;
-            background: #efe3f7; color: #3d284b; transition: 0.15s;
+            background: var(--accent-soft); color: var(--text-primary); transition: 0.15s;
         }
-        .color-row .btn:hover { background: #e0ceec; }
+        .color-row .btn:hover { background: var(--accent-soft); }
 
         /* 数据管理 */
         .data-actions { display: flex; flex-direction: column; gap: 8px; }
@@ -823,16 +858,16 @@
             padding: 8px 14px; font-size: 0.75rem; border-radius: 20px; border: none; cursor: pointer; transition: 0.15s;
             text-align: left; display: flex; align-items: center; gap: 8px;
         }
-        .data-actions .btn-export { background: #efe3f7; color: #3d284b; }
-        .data-actions .btn-export:hover { background: #e0ceec; }
-        .data-actions .btn-import { background: #e3f0e8; color: #2d4b35; }
-        .data-actions .btn-import:hover { background: #d0e0d8; }
-        .data-actions .btn-danger { background: #f0e0e8; color: #6d3b4a; }
-        .data-actions .btn-danger:hover { background: #e8d0d8; }
+        .data-actions .btn-export { background: var(--accent-soft); color: var(--text-primary); }
+        .data-actions .btn-export:hover { background: var(--accent-soft); }
+        .data-actions .btn-import { background: var(--accent-soft); color: #2d4b35; }
+        .data-actions .btn-import:hover { background: var(--bg-input); }
+        .data-actions .btn-danger { background: var(--bg-input); color: var(--danger); }
+        .data-actions .btn-danger:hover { background: var(--bg-input); }
         .data-actions textarea {
             width: 100%; min-height: 70px; padding: 8px 12px; border-radius: 14px;
-            border: 1px solid rgba(200, 170, 220, 0.1); background: #f8f4fc; outline: none;
-            font-size: 0.7rem; color: #2d1a39; resize: vertical; font-family: inherit;
+            border: 1px solid rgba(200, 170, 220, 0.1); background: var(--bg-input); outline: none;
+            font-size: 0.7rem; color: var(--text-primary); resize: vertical; font-family: inherit;
         }
 
         /* ===== 响应式 ===== */
@@ -863,6 +898,310 @@
             .side-panel { padding: 14px 12px 20px; }
             .mod-list { max-height: 60px; }
         }
+    
+        /* ===== 聊天设置 5标签页 ===== */
+        .chat-settings-tabs {
+            display: flex;
+            gap: 2px;
+            padding: 4px;
+            background: var(--bg-input);
+            border-radius: 30px;
+            margin-bottom: 10px;
+        }
+        .chat-tab {
+            flex: 1;
+            text-align: center;
+            padding: 6px 2px;
+            font-size: 0.66rem;
+            border-radius: 26px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: 0.15s;
+            white-space: nowrap;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-tab.active {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            font-weight: 500;
+        }
+        .chat-tab-panel { display: flex; flex-direction: column; gap: 8px; }
+        .chat-section-title {
+            font-size: 0.66rem;
+            color: var(--text-hint);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 6px;
+            padding: 4px 2px;
+            font-weight: 500;
+        }
+
+        .chat-switch-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--bg-input);
+            border-radius: 14px;
+        }
+        .chat-switch-row.inner-row {
+            background: transparent;
+            padding: 4px 12px 4px 36px;
+            gap: 14px;
+        }
+        .switch-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 10px;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .switch-info { flex: 1; min-width: 0; }
+        .switch-label { font-size: 0.82rem; color: var(--text-primary); font-weight: 500; }
+        .switch-desc { font-size: 0.66rem; color: var(--text-muted); opacity: 0.7; margin-top: 1px; }
+
+        /* Switch toggle */
+        .chat-switch {
+            position: relative;
+            width: 42px; height: 24px;
+            flex-shrink: 0;
+        }
+        .chat-switch input { opacity: 0; width: 0; height: 0; }
+        .chat-switch span {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #d0c4dc;
+            border-radius: 30px;
+            transition: 0.2s;
+        }
+        .chat-switch span::before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .chat-switch input:checked + span { background: var(--accent); }
+        .chat-switch input:checked + span::before { transform: translateX(18px); }
+
+        /* Style picker */
+        .chat-style-picker {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 2px;
+            gap: 2px;
+        }
+        .style-option {
+            padding: 4px 10px;
+            border-radius: 18px;
+            font-size: 0.66rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .style-option.active { background: var(--accent); color: white; }
+
+        /* Timestamp options */
+        .chat-timestamp-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .ts-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: var(--bg-input);
+            border-radius: 14px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.15s;
+        }
+        .ts-option.active {
+            border-color: var(--accent);
+            background: rgba(198, 168, 222, 0.15);
+        }
+        .ts-icon { font-size: 1.2rem; }
+        .ts-label { font-size: 0.82rem; color: var(--text-primary); font-weight: 500; }
+
+        /* Slider rows */
+        .chat-slider-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 2px;
+        }
+        .chat-slider-row .slider-label {
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            min-width: 56px;
+        }
+        .chat-slider-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent);
+            height: 4px;
+        }
+        .chat-slider-row .slider-value {
+            font-size: 0.72rem;
+            color: var(--text-primary);
+            min-width: 44px;
+            text-align: right;
+            font-weight: 500;
+        }
+        .chat-slider-row select {
+            padding: 3px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border-faint);
+            background: var(--bg-card);
+            font-size: 0.7rem;
+            color: var(--text-primary);
+        }
+
+        /* ===== 主题外观 ===== */
+        .theme-section {
+            background: var(--bg-input);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .theme-section-title {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .theme-section-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .theme-section-row .theme-section-title { margin-bottom: 0; }
+        .theme-section-desc {
+            font-size: 0.66rem;
+            color: var(--text-hint);
+            margin-bottom: 8px;
+        }
+
+        .theme-custom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .color-edit-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 6px 10px;
+        }
+        .color-label {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+        .color-input {
+            width: 32px; height: 24px;
+            padding: 0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: none;
+        }
+
+        .theme-quick-swatches {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+        .quick-swatch {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            border: 3px solid transparent;
+            transition: 0.15s;
+            min-width: 40px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quick-swatch:hover { transform: translateY(-2px); }
+        .quick-swatch.active {
+            border-color: var(--text-primary);
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.12);
+        }
+        .quick-swatch.custom {
+            background: repeating-linear-gradient(45deg, #fff 0 6px, #e8e0ee 6px 12px);
+        }
+        .quick-swatch.custom::before {
+            content: '╲╱';
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        .theme-presets { display: flex; flex-direction: column; gap: 6px; }
+        .theme-presets-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 20px;
+            color: var(--text-hint);
+            font-size: 0.72rem;
+        }
+        .preset-icon { font-size: 1.6rem; opacity: 0.5; }
+        .theme-preset-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.15s;
+        }
+        .theme-preset-item:hover { border-color: var(--accent); }
+        .preset-mini-swatch {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .preset-name {
+            flex: 1;
+            font-size: 0.76rem;
+            color: var(--text-primary);
+        }
+        .preset-del {
+            padding: 3px 8px;
+            font-size: 0.62rem;
+            border-radius: 12px;
+            background: #f0e0e8;
+            color: #6d3b4a;
+            border: none;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -1019,40 +1358,281 @@
             <!-- 聊天设置视图 -->
             <div class="settings-sub-view" id="chatSettingsView" style="display:none;">
                 <div class="settings-back" id="backFromChat">← 返回</div>
-                <div class="settings-item">
-                    <div class="label">回应速度</div>
-                    <div class="desc">ta 回复前的等待时长（毫秒）</div>
-                    <select id="chatReplySpeedSelect">
-                        <option value="0">即时</option>
-                        <option value="300" selected>较快 (300ms)</option>
-                        <option value="800">舒适 (800ms)</option>
-                        <option value="1500">缓慢 (1500ms)</option>
-                    </select>
+                <!-- 标签页 -->
+                <div class="chat-settings-tabs" id="chatSettingsTabs">
+                    <span class="chat-tab active" data-tab="func">☰ 功能</span>
+                    <span class="chat-tab" data-tab="rhythm">☲ 节奏</span>
+                    <span class="chat-tab" data-tab="sound">♪ 音效</span>
+                    <span class="chat-tab" data-tab="display">◉ 显示</span>
+                    <span class="chat-tab" data-tab="letter">✉ 信封</span>
                 </div>
-                <div class="settings-item">
-                    <div class="label">字卡抽取方式</div>
-                    <div class="desc">控制 ta 从字卡中抽取回应的方式</div>
+
+                <!-- 功能 tab -->
+                <div class="chat-tab-panel" data-tab="func" style="display:flex;">
+                    <div class="chat-section-title">消息交互</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">↩</span>
+                        <div class="switch-info">
+                            <div class="switch-label">引用回复</div>
+                            <div class="switch-desc">长按消息可引用回复</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatQuoteEnabled" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✓✓</span>
+                        <div class="switch-info">
+                            <div class="switch-label">已读回执</div>
+                            <div class="switch-desc">ta 是否看到了消息</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatReadReceipt" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row inner-row">
+                        <span></span><span class="switch-label" style="font-size:0.7rem;color:var(--text-muted);">样式</span>
+                        <div class="chat-style-picker" id="chatReceiptStyle">
+                            <span class="style-option active" data-val="graphic">✓ 图形</span>
+                            <span class="style-option" data-val="text">文字</span>
+                        </div>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✗✓</span>
+                        <div class="switch-info">
+                            <div class="switch-label">已读不回</div>
+                            <div class="switch-desc">已读后不强制回复</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatReadNoReply" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">⌨</span>
+                        <div class="switch-info">
+                            <div class="switch-label">正在输入</div>
+                            <div class="switch-desc">ta 打字时显示状态</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatTypingEnabled" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">↵</span>
+                        <div class="switch-info">
+                            <div class="switch-label">回车键发送</div>
+                            <div class="switch-desc">Enter 直接发送，Shift+Enter 换行</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatEnterSend"><span></span></label>
+                    </div>
+
+                    <div class="chat-section-title">时间戳</div>
+                    <div class="chat-timestamp-options" id="chatTimestampOptions">
+                        <div class="ts-option active" data-val="HH:MM">
+                            <span class="ts-icon">⏱</span>
+                            <span class="ts-label">14:05</span>
+                        </div>
+                        <div class="ts-option" data-val="HH:MM:SS">
+                            <span class="ts-icon">⏱</span>
+                            <span class="ts-label">14:05:30</span>
+                        </div>
+                        <div class="ts-option" data-val="H:MM PM">
+                            <span class="ts-icon">⏱</span>
+                            <span class="ts-label">2:05 PM</span>
+                        </div>
+                        <div class="ts-option" data-val="H:MM:SS PM">
+                            <span class="ts-icon">⏱</span>
+                            <span class="ts-label">2:05:30 PM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 节奏 tab -->
+                <div class="chat-tab-panel" data-tab="rhythm">
+                    <div class="chat-section-title">回复速度</div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最短等待</div>
+                        <input type="range" id="chatMinWaitSlider" min="1000" max="60000" step="1000" value="1000">
+                        <span class="slider-value" id="chatMinWaitVal">1s</span>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最长等待</div>
+                        <input type="range" id="chatMaxWaitSlider" min="5000" max="180000" step="1000" value="30000">
+                        <span class="slider-value" id="chatMaxWaitVal">30s</span>
+                    </div>
+
+                    <div class="chat-section-title">主动发送</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✈</span>
+                        <div class="switch-info">
+                            <div class="switch-label">主动发消息给我</div>
+                            <div class="switch-desc">ta 会在空闲时主动问候</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatActiveMsg" checked><span></span></label>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">间隔</div>
+                        <input type="range" id="chatActiveIntervalSlider" min="1" max="30" step="1" value="3">
+                        <span class="slider-value" id="chatActiveIntervalVal">3分钟</span>
+                    </div>
+
+                    <div class="chat-section-title">拼字卡</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✦</span>
+                        <div class="switch-info">
+                            <div class="switch-label">拼字卡</div>
+                            <div class="switch-desc">开启后，系统会随机将字卡拼接合并发送</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatMergeCards"><span></span></label>
+                    </div>
+
+                    <div class="chat-section-title">字卡抽取方式</div>
                     <select id="chatPickModeSelect">
                         <option value="random" selected>随机抽取</option>
                         <option value="sequence">顺序抽取</option>
                         <option value="norepeat">不重复抽取</option>
                     </select>
                 </div>
-                <div class="settings-item">
-                    <div class="label">显示时间戳</div>
-                    <div class="desc">在每条消息下方显示发送时间</div>
-                    <select id="chatShowTimestampSelect">
-                        <option value="1" selected>显示</option>
-                        <option value="0">隐藏</option>
-                    </select>
+
+                <!-- 音效 tab -->
+                <div class="chat-tab-panel" data-tab="sound">
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">♪</span>
+                        <div class="switch-info">
+                            <div class="switch-label">消息提示音</div>
+                            <div class="switch-desc">收到新消息时播放提示音</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatSoundMsg"><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">📞</span>
+                        <div class="switch-info">
+                            <div class="switch-label">通话提示音</div>
+                            <div class="switch-desc">发起或接通模拟通话时播放</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatSoundCall"><span></span></label>
+                    </div>
+                    <div class="chat-section-title">音量</div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">音量</div>
+                        <input type="range" id="chatVolumeSlider" min="0" max="100" value="70">
+                        <span class="slider-value" id="chatVolumeVal">70%</span>
+                    </div>
                 </div>
-                <div class="settings-item">
-                    <div class="label">显示头像</div>
-                    <div class="desc">在每条消息前显示头像</div>
-                    <select id="chatShowAvatarSelect">
-                        <option value="1" selected>显示</option>
-                        <option value="0">隐藏</option>
-                    </select>
+
+                <!-- 显示 tab -->
+                <div class="chat-tab-panel" data-tab="display">
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">👤</span>
+                        <div class="switch-info">
+                            <div class="switch-label">显示头像</div>
+                            <div class="switch-desc">在每条消息前显示头像</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatShowAvatar" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">⌚</span>
+                        <div class="switch-info">
+                            <div class="switch-label">显示时间戳</div>
+                            <div class="switch-desc">在每条消息下方显示发送时间</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatShowTimestamp" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✎</span>
+                        <div class="switch-info">
+                            <div class="switch-label">显示昵称</div>
+                            <div class="switch-desc">消息时间戳中显示昵称</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatShowNickname" checked><span></span></label>
+                    </div>
+                </div>
+
+                <!-- 信封投递 tab -->
+                <div class="chat-tab-panel" data-tab="letter">
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✉</span>
+                        <div class="switch-info">
+                            <div class="switch-label">主动给我写信</div>
+                            <div class="switch-desc">开启后，梦角会随机主动写信</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatLetterEnabled" checked><span></span></label>
+                    </div>
+                    <div class="chat-section-title">时空来信间隔</div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最少</div>
+                        <input type="range" id="chatLetterMinSlider" min="1" max="48" step="1" value="4">
+                        <span class="slider-value" id="chatLetterMinVal">4小时</span>
+                        <select id="chatLetterMinUnit">
+                            <option value="hour" selected>小时</option>
+                            <option value="day">天</option>
+                        </select>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最多</div>
+                        <input type="range" id="chatLetterMaxSlider" min="1" max="168" step="1" value="72">
+                        <span class="slider-value" id="chatLetterMaxVal">3天</span>
+                        <select id="chatLetterMaxUnit">
+                            <option value="hour">小时</option>
+                            <option value="day" selected>天</option>
+                        </select>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">⟲</span>
+                        <div class="switch-info">
+                            <div class="switch-label">采用自定义的回信规律</div>
+                            <div class="switch-desc">按下方配置的回信间隔与句数</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatCustomReplyRule"><span></span></label>
+                    </div>
+                    <div class="chat-section-title">回信间隔</div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最少</div>
+                        <input type="range" id="chatReplyMinSlider" min="1" max="30" step="1" value="10">
+                        <span class="slider-value" id="chatReplyMinVal">10分钟</span>
+                        <select id="chatReplyMinUnit">
+                            <option value="min" selected>分钟</option>
+                            <option value="hour">小时</option>
+                        </select>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最多</div>
+                        <input type="range" id="chatReplyMaxSlider" min="1" max="12" step="1" value="2">
+                        <span class="slider-value" id="chatReplyMaxVal">2小时</span>
+                        <select id="chatReplyMaxUnit">
+                            <option value="min">分钟</option>
+                            <option value="hour" selected>小时</option>
+                        </select>
+                    </div>
+                    <div class="chat-section-title">回信句数</div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最少</div>
+                        <input type="range" id="chatReplyMinSent" min="1" max="20" step="1" value="5">
+                        <span class="slider-value" id="chatReplyMinSentVal">5句</span>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最多</div>
+                        <input type="range" id="chatReplyMaxSent" min="5" max="30" step="1" value="20">
+                        <span class="slider-value" id="chatReplyMaxSentVal">20句</span>
+                    </div>
+                    <div class="chat-section-title">消息节奏</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">😊</span>
+                        <div class="switch-info">
+                            <div class="switch-label">表情混入消息</div>
+                            <div class="switch-desc">开启后表情与文字同条发送</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatEmojiMix"><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">乀(ˉεˉ乀)</span>
+                        <div class="switch-info">
+                            <div class="switch-label">颜文字混入消息</div>
+                            <div class="switch-desc">开启后颜文字与文字同条发送</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatKaomojiMix"><span></span></label>
+                    </div>
+                    <div class="chat-section-title">通话功能</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">📹</span>
+                        <div class="switch-info">
+                            <div class="switch-label">模拟视频通话</div>
+                            <div class="switch-desc">关闭后隐藏主界面通话按键</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatCallEnabled" checked><span></span></label>
+                    </div>
                 </div>
             </div>
 
@@ -1304,32 +1884,84 @@
 
 <!-- ===== 主题外观弹窗 ===== -->
 <div class="modal-overlay sub-modal" id="themeModal">
-    <div class="modal-content" style="max-width:440px;">
+    <div class="modal-content" style="max-width:500px;">
         <div class="modal-header">
-            <h2>🎨 主题外观</h2>
+            <h2>🎨 主题配色</h2>
             <button class="modal-close" id="closeThemeModal">✕</button>
         </div>
         <div class="modal-body">
-            <div class="settings-item">
-                <div class="label">预设主题</div>
-                <div class="desc">点选一种预设主题色调</div>
-                <div class="theme-swatches" id="themeSwatches" style="margin-top:8px;">
-                    <div class="theme-swatch active" data-theme="lavender" style="background:linear-gradient(135deg,#dcc3ed,#c6a8de);">梦紫</div>
-                    <div class="theme-swatch" data-theme="pink" style="background:linear-gradient(135deg,#f7c8d8,#e89bb5);">樱粉</div>
-                    <div class="theme-swatch" data-theme="blue" style="background:linear-gradient(135deg,#c3d9ed,#9bbfe0);">夜蓝</div>
-                    <div class="theme-swatch" data-theme="green" style="background:linear-gradient(135deg,#c9e8d4,#9bc7ad);">薄荷</div>
-                    <div class="theme-swatch" data-theme="dark" style="background:linear-gradient(135deg,#3a2f45,#221a2b);">暗夜</div>
+            <!-- 自定义编辑器 -->
+            <div class="theme-section">
+                <div class="theme-section-title">🎚️ 自定义编辑器</div>
+                <div class="theme-custom-grid">
+                    <div class="color-edit-row">
+                        <span class="color-label">强调色</span>
+                        <input type="color" id="themeAccentInput" value="#c6a8de" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">强调色2</span>
+                        <input type="color" id="themeAccent2Input" value="#dcc3ed" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">气泡（我）</span>
+                        <input type="color" id="themeBubbleUserInput" value="#e8ddf2" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">气泡（ta）</span>
+                        <input type="color" id="themeBubbleAngleInput" value="#f3eef8" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">聊天背景</span>
+                        <input type="color" id="themeBgChatInput" value="#fcfaff" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">页面背景</span>
+                        <input type="color" id="themeBgPageInput" value="#e8e0ee" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">主文字</span>
+                        <input type="color" id="themeTextPrimaryInput" value="#2d1a39" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">次文字</span>
+                        <input type="color" id="themeTextSecondaryInput" value="#5a3d6b" class="color-input">
+                    </div>
                 </div>
             </div>
-            <div class="settings-item">
-                <div class="label">强调色</div>
-                <div class="desc">按钮 / 选中态的主色</div>
-                <div class="color-row" style="margin-top:6px;">
-                    <input type="color" id="themeAccentInput" value="#c6a8de">
-                    <button class="btn" id="applyThemeAccentBtn">应用</button>
+
+            <!-- 快捷换肤 -->
+            <div class="theme-section">
+                <div class="theme-section-title">📌 快捷换肤</div>
+                <div class="theme-quick-swatches" id="themeQuickSwatches">
+                    <div class="quick-swatch active" data-quick="brown" style="background:#c9a77c;" title="琥珀棕"></div>
+                    <div class="quick-swatch" data-quick="blue" style="background:#9bbfe0;" title="夜蓝"></div>
+                    <div class="quick-swatch" data-quick="purple" style="background:#c2a8e0;" title="梦幻紫"></div>
+                    <div class="quick-swatch" data-quick="green" style="background:#9bc7ad;" title="薄荷绿"></div>
+                    <div class="quick-swatch" data-quick="pink" style="background:#e89bb5;" title="樱粉"></div>
+                    <div class="quick-swatch custom" data-quick="custom" title="自定义">
+                        <span class="custom-slash">╲</span><span class="custom-slash-slash">╱</span>
+                    </div>
+                    <div class="quick-swatch gradient" data-quick="gradient" style="background:linear-gradient(135deg,#dcc3ed,#c6a8de,#9bbfe0);" title="渐变紫"></div>
+                    <div class="quick-swatch" data-quick="coral" style="background:#e89b8d;" title="珊瑚红"></div>
+                    <div class="quick-swatch" data-quick="forest" style="background:#6d8a6d;" title="深林绿"></div>
+                    <div class="quick-swatch" data-quick="royal" style="background:#8b9bc0;" title="皇家蓝"></div>
                 </div>
             </div>
-            <button class="btn btn-primary-mod" id="saveThemeBtn" style="padding:8px 20px; align-self:flex-end;">保存主题</button>
+
+            <!-- 主题方案 -->
+            <div class="theme-section">
+                <div class="theme-section-row">
+                    <div class="theme-section-title">📁 主题方案</div>
+                    <button class="btn btn-primary-mod" id="themeSavePresetBtn" style="padding:6px 14px; font-size:0.72rem;">➕ 保存当前</button>
+                </div>
+                <div class="theme-section-desc">保存当前所有外观设置，方便快速切换</div>
+                <div class="theme-presets" id="themePresets">
+                    <div class="theme-presets-empty" id="themePresetsEmpty">
+                        <span class="preset-icon">✎</span>
+                        <span>暂无保存的方案，点击"保存当前"试试~</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1726,19 +2358,259 @@
         const fontFamilySelect = document.getElementById('fontFamilySelect');
         const saveBgFontBtn = document.getElementById('saveBgFontBtn');
 
-        // 主题
-        const themeSwatches = document.getElementById('themeSwatches');
-        const themeAccentInput = document.getElementById('themeAccentInput');
-        const applyThemeAccentBtn = document.getElementById('applyThemeAccentBtn');
-        const saveThemeBtn = document.getElementById('saveThemeBtn');
+        
+        // ===== 主题外观 =====
+        // 预设主题（每组是完整 CSS 变量集）
+        const THEME_PRESETS = {
+            lavender: { accent:'#c6a8de', accent2:'#dcc3ed', accent_deep:'#9f79c2', accent_soft:'#efe3f7',
+                bg_page:'#e8e0ee', bubble_user:'#e8ddf2', bubble_angle:'#f3eef8',
+                bg_chat:'#fcfaff', bg_input:'#f5f0fa', text_primary:'#2d1a39', text_secondary:'#5a3d6b' },
+            brown: { accent:'#c9a77c', accent2:'#d9bb94', accent_deep:'#a08060', accent_soft:'#efe6da',
+                bg_page:'#ede4d8', bubble_user:'#f0e5d5', bubble_angle:'#f5efe6',
+                bg_chat:'#fbf8f2', bg_input:'#f2ebdf', text_primary:'#3d3020', text_secondary:'#6b5a42' },
+            blue: { accent:'#9bbfe0', accent2:'#b5d1eb', accent_deep:'#7aa2c9', accent_soft:'#e3eef7',
+                bg_page:'#dde8f0', bubble_user:'#d9e6f2', bubble_angle:'#eaf2f8',
+                bg_chat:'#f2f7fb', bg_input:'#e8eff5', text_primary:'#1f2d3d', text_secondary:'#4a5f73' },
+            purple: { accent:'#c2a8e0', accent2:'#d4bce9', accent_deep:'#a489c8', accent_soft:'#f0e8f7',
+                bg_page:'#e6ddf0', bubble_user:'#e3d6ee', bubble_angle:'#f2ebf8',
+                bg_chat:'#faf6fd', bg_input:'#efe6f7', text_primary:'#2a1f3d', text_secondary:'#574273' },
+            green: { accent:'#9bc7ad', accent2:'#b8d8c6', accent_deep:'#7aa88e', accent_soft:'#e4f0e8',
+                bg_page:'#dde8e0', bubble_user:'#d3e2d7', bubble_angle:'#eaf2ec',
+                bg_chat:'#f2f7f4', bg_input:'#e6eeea', text_primary:'#1f3027', text_secondary:'#485f4f' },
+            pink: { accent:'#e89bb5', accent2:'#f0b6c8', accent_deep:'#cc7a98', accent_soft:'#fbe6ee',
+                bg_page:'#f0e2e8', bubble_user:'#eed0dd', bubble_angle:'#f8eaf0',
+                bg_chat:'#fdf5f8', bg_input:'#f5eaf0', text_primary:'#3d1f2c', text_secondary:'#6b4254' },
+            gradient: { accent:'#c6a8de', accent2:'#9bbfe0', accent_deep:'#a489c8', accent_soft:'#efe3f7',
+                bg_page:'#e8e0ee', bubble_user:'#e0e8f0', bubble_angle:'#f0e8f7',
+                bg_chat:'#faf6fd', bg_input:'#f0ebf7', text_primary:'#2d1a39', text_secondary:'#5a3d6b' },
+            coral: { accent:'#e89b8d', accent2:'#f0b0a4', accent_deep:'#cc796b', accent_soft:'#fbe8e3',
+                bg_page:'#f0e2dc', bubble_user:'#e8d0c7', bubble_angle:'#f8ece6',
+                bg_chat:'#fdf5f2', bg_input:'#f5e8e3', text_primary:'#3d2520', text_secondary:'#6b453e' },
+            forest: { accent:'#6d8a6d', accent2:'#88a588', accent_deep:'#526d52', accent_soft:'#dde5dd',
+                bg_page:'#d5dcd5', bubble_user:'#c8d2c8', bubble_angle:'#e4ebe4',
+                bg_chat:'#f0f3f0', bg_input:'#dde4dd', text_primary:'#1f2a1f', text_secondary:'#445844' },
+            royal: { accent:'#8b9bc0', accent2:'#a4b1cf', accent_deep:'#6e7fa5', accent_soft:'#e3e7f0',
+                bg_page:'#dfe3ec', bubble_user:'#d8dee8', bubble_angle:'#eaeef5',
+                bg_chat:'#f3f5fa', bg_input:'#e7eaf2', text_primary:'#242b3d', text_secondary:'#4b5570' },
+        };
 
-        // 聊天设置
-        const chatReplySpeedSelect = document.getElementById('chatReplySpeedSelect');
-        const chatPickModeSelect = document.getElementById('chatPickModeSelect');
-        const chatShowTimestampSelect = document.getElementById('chatShowTimestampSelect');
-        const chatShowAvatarSelect = document.getElementById('chatShowAvatarSelect');
+        let currentTheme = 'lavender';
+        let savedThemePresets = [];
 
-        // 数据管理
+        function applyThemeVariables(vars) {
+            const root = document.documentElement;
+            if (vars.accent) root.style.setProperty('--accent', vars.accent);
+            if (vars.accent2) root.style.setProperty('--accent-2', vars.accent2);
+            if (vars.accent_deep) root.style.setProperty('--accent-deep', vars.accent_deep);
+            if (vars.accent_soft) root.style.setProperty('--accent-soft', vars.accent_soft);
+            if (vars.bg_page) root.style.setProperty('--bg-page', vars.bg_page);
+            if (vars.bubble_user) root.style.setProperty('--bubble-user', vars.bubble_user);
+            if (vars.bubble_angle) root.style.setProperty('--bubble-angle', vars.bubble_angle);
+            if (vars.bg_chat) root.style.setProperty('--bg-chat', vars.bg_chat);
+            if (vars.bg_input) root.style.setProperty('--bg-input', vars.bg_input);
+            if (vars.text_primary) root.style.setProperty('--text-primary', vars.text_primary);
+            if (vars.text_secondary) root.style.setProperty('--text-secondary', vars.text_secondary);
+            // 更新动态头像渐变
+            if (vars.accent && vars.accent2) {
+                root.style.setProperty('--avatar-bg-gradient', 'linear-gradient(135deg, ' + vars.accent2 + ', ' + vars.accent + ')');
+                // 更新顶栏头像
+                const av = document.getElementById('angleAvatarDisplay');
+                if (av && !isImageUrl(angleAvatar)) {
+                    av.style.background = 'var(--avatar-bg-gradient)';
+                }
+            }
+            // 同步到颜色输入
+            if (vars.accent && document.getElementById('themeAccentInput')) document.getElementById('themeAccentInput').value = vars.accent;
+            if (vars.accent2 && document.getElementById('themeAccent2Input')) document.getElementById('themeAccent2Input').value = vars.accent2;
+            if (vars.bubble_user && document.getElementById('themeBubbleUserInput')) document.getElementById('themeBubbleUserInput').value = vars.bubble_user;
+            if (vars.bubble_angle && document.getElementById('themeBubbleAngleInput')) document.getElementById('themeBubbleAngleInput').value = vars.bubble_angle;
+            if (vars.bg_chat && document.getElementById('themeBgChatInput')) document.getElementById('themeBgChatInput').value = vars.bg_chat;
+            if (vars.bg_page && document.getElementById('themeBgPageInput')) document.getElementById('themeBgPageInput').value = vars.bg_page;
+            if (vars.text_primary && document.getElementById('themeTextPrimaryInput')) document.getElementById('themeTextPrimaryInput').value = vars.text_primary;
+            if (vars.text_secondary && document.getElementById('themeTextSecondaryInput')) document.getElementById('themeTextSecondaryInput').value = vars.text_secondary;
+        }
+
+        function applyQuickTheme(name) {
+            currentTheme = name;
+            const vars = THEME_PRESETS[name];
+            if (vars) {
+                applyThemeVariables(vars);
+                // 更新选中态
+                document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(el => {
+                    el.classList.toggle('active', el.dataset.quick === name);
+                });
+                showToast('已切换主题');
+                saveCurrentThemeToStorage();
+            }
+        }
+
+        function getCurrentThemeVars() {
+            const root = getComputedStyle(document.documentElement);
+            return {
+                accent: root.getPropertyValue('--accent').trim() || '#c6a8de',
+                accent2: root.getPropertyValue('--accent-2').trim() || '#dcc3ed',
+                accent_deep: root.getPropertyValue('--accent-deep').trim() || '#9f79c2',
+                accent_soft: root.getPropertyValue('--accent-soft').trim() || '#efe3f7',
+                bg_page: root.getPropertyValue('--bg-page').trim() || '#e8e0ee',
+                bubble_user: root.getPropertyValue('--bubble-user').trim() || '#e8ddf2',
+                bubble_angle: root.getPropertyValue('--bubble-angle').trim() || '#f3eef8',
+                bg_chat: root.getPropertyValue('--bg-chat').trim() || '#fcfaff',
+                bg_input: root.getPropertyValue('--bg-input').trim() || '#f5f0fa',
+                text_primary: root.getPropertyValue('--text-primary').trim() || '#2d1a39',
+                text_secondary: root.getPropertyValue('--text-secondary').trim() || '#5a3d6b',
+            };
+        }
+
+        function saveCurrentThemeToStorage() {
+            localStorage.setItem('lingstar_current_theme', currentTheme);
+            localStorage.setItem('lingstar_theme_vars', JSON.stringify(getCurrentThemeVars()));
+        }
+
+        function loadThemeFromStorage() {
+            const saved = localStorage.getItem('lingstar_theme_vars');
+            const savedName = localStorage.getItem('lingstar_current_theme');
+            if (saved) {
+                try {
+                    const vars = JSON.parse(saved);
+                    applyThemeVariables(vars);
+                } catch (e) { applyThemeVariables(THEME_PRESETS.lavender); }
+            } else {
+                applyThemeVariables(THEME_PRESETS.lavender);
+            }
+            if (savedName && document.querySelectorAll('#themeQuickSwatches')) {
+                document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(el => {
+                    el.classList.toggle('active', el.dataset.quick === savedName);
+                });
+            }
+        }
+
+        function loadSavedPresets() {
+            try { savedThemePresets = JSON.parse(localStorage.getItem('lingstar_theme_presets') || '[]'); }
+            catch (e) { savedThemePresets = []; }
+        }
+
+        function saveThemePreset() {
+            const name = prompt('给这个主题起个名字：', savedThemePresets.length ? `方案${savedThemePresets.length+1}` : '我喜欢的梦紫');
+            if (!name) return;
+            const preset = { name: name, vars: getCurrentThemeVars(), savedAt: Date.now() };
+            savedThemePresets.push(preset);
+            localStorage.setItem('lingstar_theme_presets', JSON.stringify(savedThemePresets));
+            renderThemePresets();
+            showToast('主题方案已保存');
+        }
+
+        function renderThemePresets() {
+            const container = document.getElementById('themePresets');
+            const empty = document.getElementById('themePresetsEmpty');
+            if (!savedThemePresets.length) {
+                if (empty) empty.style.display = 'flex';
+                // Keep empty in container
+                return;
+            }
+            if (empty) empty.style.display = 'none';
+            container.innerHTML = '';
+            savedThemePresets.forEach((p, idx) => {
+                const item = document.createElement('div');
+                item.className = 'theme-preset-item';
+                item.innerHTML = `
+                    <div class="preset-mini-swatch" style="background:${p.vars.accent}"></div>
+                    <span class="preset-name">${p.name}</span>
+                    <button class="preset-del" data-idx="${idx}">删除</button>
+                `;
+                item.addEventListener('click', () => {
+                    applyThemeVariables(p.vars);
+                    showToast('已应用「' + p.name + '」');
+                    // quick swatches: clear highlight since custom
+                    document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(el => el.classList.remove('active'));
+                    saveCurrentThemeToStorage();
+                });
+                item.querySelector('.preset-del').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!confirm('删除「' + p.name + '」？')) return;
+                    savedThemePresets.splice(idx, 1);
+                    localStorage.setItem('lingstar_theme_presets', JSON.stringify(savedThemePresets));
+                    renderThemePresets();
+                });
+                container.appendChild(item);
+            });
+        }
+
+        // ===== 聊天设置（新 5-tab 结构）=====
+        const chatSettingsTabs = document.getElementById('chatSettingsTabs');
+        document.querySelectorAll('#chatSettingsTabs .chat-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const name = tab.dataset.tab;
+                document.querySelectorAll('#chatSettingsTabs .chat-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.chat-tab-panel').forEach(panel => {
+                    panel.style.display = panel.dataset.tab === name ? 'flex' : 'none';
+                });
+            });
+        });
+
+        // Timestamp option picker
+        document.querySelectorAll('#chatTimestampOptions .ts-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('#chatTimestampOptions .ts-option').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+            });
+        });
+        // Read receipt style picker
+        document.querySelectorAll('#chatReceiptStyle .style-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('#chatReceiptStyle .style-option').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+            });
+        });
+
+        // Chat setting sliders - label formatting
+        function bindSlider(id, valId, format) {
+            const el = document.getElementById(id);
+            const val = document.getElementById(valId);
+            if (!el || !val) return;
+            const update = () => { val.textContent = format(parseInt(el.value)); };
+            update();
+            el.addEventListener('input', update);
+            el.addEventListener('change', update);
+        }
+        bindSlider('chatMinWaitSlider', 'chatMinWaitVal', v => (v >= 60000 ? (v/60000).toFixed(1)+'分钟' : (v/1000).toFixed(0)+'s'));
+        bindSlider('chatMaxWaitSlider', 'chatMaxWaitVal', v => (v >= 60000 ? (v/60000).toFixed(1)+'分钟' : (v/1000).toFixed(0)+'s'));
+        bindSlider('chatActiveIntervalSlider', 'chatActiveIntervalVal', v => v + '分钟');
+        bindSlider('chatLetterMinSlider', 'chatLetterMinVal', v => {
+            const unit = document.getElementById('chatLetterMinUnit');
+            const u = unit ? unit.value : 'hour';
+            return v + (u === 'hour' ? '小时' : '天');
+        });
+        bindSlider('chatLetterMaxSlider', 'chatLetterMaxVal', v => {
+            const unit = document.getElementById('chatLetterMaxUnit');
+            const u = unit ? unit.value : 'day';
+            return v + (u === 'hour' ? '小时' : '天');
+        });
+        bindSlider('chatReplyMinSlider', 'chatReplyMinVal', v => {
+            const unit = document.getElementById('chatReplyMinUnit');
+            const u = unit ? unit.value : 'min';
+            return v + (u === 'min' ? '分钟' : '小时');
+        });
+        bindSlider('chatReplyMaxSlider', 'chatReplyMaxVal', v => {
+            const unit = document.getElementById('chatReplyMaxUnit');
+            const u = unit ? unit.value : 'hour';
+            return v + (u === 'min' ? '分钟' : '小时');
+        });
+        bindSlider('chatReplyMinSent', 'chatReplyMinSentVal', v => v + '句');
+        bindSlider('chatReplyMaxSent', 'chatReplyMaxSentVal', v => v + '句');
+        bindSlider('chatVolumeSlider', 'chatVolumeVal', v => v + '%');
+
+        // Sync chat settings toggles with show/hide logic
+        const chatEnterSendToggle = document.getElementById('chatEnterSend');
+        if (chatEnterSendToggle) {
+            chatEnterSendToggle.addEventListener('change', () => {
+                // Enter send toggled → affects userInput handler
+                window._chatEnterSend = chatEnterSendToggle.checked;
+            });
+        }
+
+        // ===== 数据管理 =====
+// 数据管理
         const dataExportBtn = document.getElementById('dataExportBtn');
         const dataImportInput = document.getElementById('dataImportInput');
         const dataImportBtn = document.getElementById('dataImportBtn');
@@ -2921,23 +3793,13 @@
             fontSizeSlider.value = fontSize;
             fontSizeValue.textContent = fontSize + 'px';
             fontFamilySelect.value = fontFamily;
-            themeAccentInput.value = themeAccent;
-            chatReplySpeedSelect.value = String(chatReplySpeed);
-            chatPickModeSelect.value = chatPickMode;
-            chatShowTimestampSelect.value = chatShowTimestamp ? '1' : '0';
-            chatShowAvatarSelect.value = chatShowAvatar ? '1' : '0';
-            // 主题色块选中
-            themeSwatches.querySelectorAll('.theme-swatch').forEach(sw => {
-                sw.classList.toggle('active', sw.dataset.theme === (loadAppearance._theme || 'lavender'));
-            });
             applyBubbleStyle();
         }
         function saveAppearance() {
             const data = {
                 bubbleShape, bubbleUserColor, bubbleAngleColor, bubbleRadius,
                 bgColor, bgImage, fontSize, fontFamily, themeAccent,
-                chatReplySpeed, chatPickMode, chatShowTimestamp, chatShowAvatar,
-                theme: loadAppearance._theme || 'lavender'
+                chatReplySpeed, chatPickMode, chatShowTimestamp, chatShowAvatar
             };
             localStorage.setItem('dream_appearance', JSON.stringify(data));
             applyBubbleStyle();
@@ -3086,6 +3948,74 @@
             // 子板块关闭
             closeThemeModal.addEventListener('click', () => closeModal(themeModal));
             themeModal.addEventListener('click', (e) => { if (e.target === themeModal) closeModal(themeModal); });
+
+            // ==== 主题外观 事件绑定 ====
+            // 快捷换肤
+            document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(el => {
+                el.addEventListener('click', () => {
+                    const q = el.dataset.quick;
+                    if (q === 'custom') {
+                        // 自定义：只更新选中态，用下面的颜色输入编辑
+                        document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(x => x.classList.remove('active'));
+                        el.classList.add('active');
+                        currentTheme = 'custom';
+                        showToast('进入自定义配色');
+                        return;
+                    }
+                    applyQuickTheme(q);
+                });
+            });
+
+            // 自定义编辑器 - 颜色输入实时应用
+            const propMap = {
+                'themeAccentInput':'--accent','themeAccent2Input':'--accent-2','themeBubbleUserInput':'--bubble-user',
+                'themeBubbleAngleInput':'--bubble-angle','themeBgChatInput':'--bg-chat','themeBgPageInput':'--bg-page',
+                'themeTextPrimaryInput':'--text-primary','themeTextSecondaryInput':'--text-secondary',
+            };
+            Object.keys(propMap).forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('input', () => {
+                    document.documentElement.style.setProperty(propMap[id], el.value);
+                    // accent 联动：accent-deep 自动加深
+                    if (id === 'themeAccentInput') {
+                        document.documentElement.style.setProperty('--accent-deep', shade(el.value, -15));
+                        // 更新顶栏头像渐变
+                        const a2 = document.getElementById('themeAccent2Input');
+                        const grad = a2 ? 'linear-gradient(135deg, ' + a2.value + ', ' + el.value + ')' : 'linear-gradient(135deg, #dcc3ed, ' + el.value + ')';
+                        document.documentElement.style.setProperty('--avatar-bg-gradient', grad);
+                        const av = document.getElementById('angleAvatarDisplay');
+                        if (av && !isImageUrl(angleAvatar)) av.style.background = grad;
+                    }
+                    // 清除/更新快捷换肤选中态
+                    let matched = false;
+                    const curAccent = document.getElementById('themeAccentInput')?.value || '';
+                    const curAccent2 = document.getElementById('themeAccent2Input')?.value || '';
+                    for (const tn in THEME_PRESETS) {
+                        if (THEME_PRESETS[tn].accent === curAccent && THEME_PRESETS[tn].accent2 === curAccent2) {
+                            document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(x => x.classList.remove('active'));
+                            const sw = document.querySelector(`#themeQuickSwatches .quick-swatch[data-quick="${tn}"]`);
+                            if (sw) sw.classList.add('active');
+                            matched = true; currentTheme = tn; break;
+                        }
+                    }
+                    if (!matched) {
+                        document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(x => x.classList.remove('active'));
+                        document.querySelector('#themeQuickSwatches .quick-swatch[data-quick="custom"]')?.classList.add('active');
+                        currentTheme = 'custom';
+                    }
+                    saveCurrentThemeToStorage();
+                });
+            });
+
+            // 保存主题方案
+            const themeSavePresetBtn = document.getElementById('themeSavePresetBtn');
+            if (themeSavePresetBtn) themeSavePresetBtn.addEventListener('click', saveThemePreset);
+
+            // ==== 初始化主题 ====
+            loadThemeFromStorage();
+            loadSavedPresets();
+            renderThemePresets();
             closeBgFontModal.addEventListener('click', () => closeModal(bgFontModal));
             bgFontModal.addEventListener('click', (e) => { if (e.target === bgFontModal) closeModal(bgFontModal); });
             closeBubbleModal.addEventListener('click', () => closeModal(bubbleModal));
@@ -3221,31 +4151,8 @@
             fontFamilySelect.addEventListener('change', function() { fontFamily = this.value; applyBubbleStyle(); });
             saveBgFontBtn.addEventListener('click', () => { saveAppearance(); closeModal(bgFontModal); showToast('背景&字体已保存'); });
 
-            // 主题
-            themeSwatches.querySelectorAll('.theme-swatch').forEach(sw => {
-                sw.addEventListener('click', function() {
-                    themeSwatches.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
-                    this.classList.add('active');
-                    loadAppearance._theme = this.dataset.theme;
-                    // 预设主题色映射
-                    const map = {
-                        lavender: '#c6a8de', pink: '#e89bb5', blue: '#9bbfe0', green: '#9bc7ad', dark: '#6a5a7a'
-                    };
-                    themeAccent = map[this.dataset.theme] || themeAccent;
-                    themeAccentInput.value = themeAccent;
-                    applyBubbleStyle();
-                });
-            });
-            applyThemeAccentBtn.addEventListener('click', () => { themeAccent = themeAccentInput.value; applyBubbleStyle(); });
-            saveThemeBtn.addEventListener('click', () => { saveAppearance(); closeModal(themeModal); showToast('主题已保存'); });
-
-            // 聊天设置
-            chatReplySpeedSelect.addEventListener('change', function() { chatReplySpeed = parseInt(this.value); saveAppearance(); });
-            chatPickModeSelect.addEventListener('change', function() { chatPickMode = this.value; seqCursor = 0; replyWithRandomCard._pool = null; saveAppearance(); });
-            chatShowTimestampSelect.addEventListener('change', function() { chatShowTimestamp = this.value === '1'; saveAppearance(); });
-            chatShowAvatarSelect.addEventListener('change', function() { chatShowAvatar = this.value === '1'; saveAppearance(); });
-
-            // 数据管理
+                
+// 数据管理
             dataExportBtn.addEventListener('click', exportData);
             dataImportBtn.addEventListener('click', importData);
             dataClearBtn.addEventListener('click', clearAllData);
@@ -3314,11 +4221,25 @@
             callBtn.addEventListener('click', startCall);
             hangupBtn.addEventListener('click', hangupCall);
 
-            // 发送
+            // 发送 - Enter 始终发送，Shift+Enter 换行（回车键发送开关预留）
             sendBtn.addEventListener('click', handleSend);
             userInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
             });
+
+            // 模拟视频通话开关 → 隐藏通话按钮
+            const chatCallEnabled = document.getElementById('chatCallEnabled');
+            if (chatCallEnabled) {
+                chatCallEnabled.addEventListener('change', () => {
+                    const show = chatCallEnabled.checked;
+                    if (bottomCallBtn) bottomCallBtn.style.display = show ? '' : 'none';
+                    if (sideCardBtn && sideCardBtn.id) {} // side grid stays
+                    // Also hide in side panel
+                    const sideCall = document.querySelector('#sidePanel .side-grid-item'); // there's no specific call btn in side
+                });
+                // Initial state
+                chatCallEnabled.dispatchEvent(new Event('change'));
+            }
 
             document.getElementById('profileClick').addEventListener('click', () => {
                 showSettingsView(null);
@@ -3346,6 +4267,19 @@
 
         function isAnySubModalOpen() {
             return [nicknameModal, avatarModal, bubbleModal, bgFontModal, themeModal].some(m => m.classList.contains('active'));
+        }
+
+
+        // 颜色加深/减淡工具（用于 accent_deep 自动计算）
+        function shade(hex, percent) {
+            const num = parseInt(hex.replace('#',''), 16);
+            let r = (num >> 16) + Math.round(2.55 * percent);
+            let g = ((num >> 8) & 0x00FF) + Math.round(2.55 * percent);
+            let b = (num & 0x0000FF) + Math.round(2.55 * percent);
+            r = Math.max(0, Math.min(255, r));
+            g = Math.max(0, Math.min(255, g));
+            b = Math.max(0, Math.min(255, b));
+            return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6,'0');
         }
 
         init();
