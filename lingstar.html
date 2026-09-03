@@ -233,6 +233,47 @@
         }
         .message.pat-notice .msg-avatar { display: none; }
         .message.pat-notice small { display: none; }
+
+        /* ===== 正在输入指示器 ===== */
+        .typing-indicator {
+            position: absolute;
+            bottom: 56px;
+            left: 16px;
+            z-index: 10;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: color-mix(in srgb, var(--bubble-angle) calc(var(--opacity-bubble-angle) * 100%), transparent);
+            border: 1px solid rgba(220, 200, 240, 0.15);
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            font-size: 0.72rem;
+            color: var(--text-muted, #999);
+            animation: typingFadeIn 0.2s ease;
+        }
+        .typing-indicator.show { display: flex; }
+        .typing-indicator .typing-dots {
+            display: inline-flex;
+            gap: 3px;
+        }
+        .typing-indicator .typing-dots span {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--text-muted, #aaa);
+            animation: typingBounce 1.2s infinite ease-in-out;
+        }
+        .typing-indicator .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+        .typing-indicator .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+        @keyframes typingFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .message small {
             display: block;
             font-size: 0.5rem;
@@ -1372,6 +1413,12 @@
                 <small>ta会从字卡中抽取回应</small>
             </div>
         </div>
+    </div>
+
+    <!-- 正在输入指示器 -->
+    <div class="typing-indicator" id="typingIndicator">
+        <span class="typing-dots"><span></span><span></span><span></span></span>
+        <span id="typingText">ta 正在输入…</span>
     </div>
 
     <!-- ===== 底部输入区 ===== -->
@@ -2551,6 +2598,8 @@
         let patLastUserTime = 0;        // 上次我拍时间
         let patLastAngleTime = 0;       // 上次ta拍时间
         let autoSendTimer = null;       // 主动发送定时器
+        let chatTypingEnabled = true;   // 正在输入指示器开关
+        let typingTimer = null;         // 正在输入计时器
         let chatPickMode = 'random';
         let chatShowTimestamp = true;
         let chatShowAvatar = true;
@@ -3021,6 +3070,13 @@
         const patAngleReplyChanceSliderEl = document.getElementById('patAngleReplyChanceSlider');
         if (patAngleReplyChanceSliderEl) patAngleReplyChanceSliderEl.addEventListener('change', () => {
             patAngleReplyChance = parseInt(patAngleReplyChanceSliderEl.value);
+            saveAppearance();
+        });
+        // 正在输入开关
+        const chatTypingEnabledEl = document.getElementById('chatTypingEnabled');
+        if (chatTypingEnabledEl) chatTypingEnabledEl.addEventListener('change', () => {
+            chatTypingEnabled = chatTypingEnabledEl.checked;
+            if (!chatTypingEnabled) hideTyping();
             saveAppearance();
         });
         bindSlider('chatLetterMinSlider', 'chatLetterMinVal', v => {
@@ -4156,6 +4212,7 @@
 
         // ===== 回应抽取 =====
         function replyWithRandomCard() {
+            hideTyping();
             if (!cardLibrary.length) {
                 addChatMessage(`${angleName}沉默不语…… 字卡空空如也。`, 'system');
                 return;
@@ -4178,6 +4235,22 @@
             addChatMessage(`✦ ${picked}`, 'system');
         }
 
+        // ===== 正在输入指示器 =====
+        function showTyping() {
+            if (!chatTypingEnabled) return;
+            const el = document.getElementById('typingIndicator');
+            const txt = document.getElementById('typingText');
+            if (el) {
+                if (txt) txt.textContent = `${angleName} 正在输入…`;
+                el.classList.add('show');
+            }
+        }
+        function hideTyping() {
+            const el = document.getElementById('typingIndicator');
+            if (el) el.classList.remove('show');
+            if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
+        }
+
         function handleSend() {
             const text = userInput.value.trim();
             if (!text) return;
@@ -4188,7 +4261,9 @@
             const minD = Math.min(replyDelayMin, replyDelayMax);
             const maxD = Math.max(replyDelayMin, replyDelayMax);
             const delay = minD + Math.random() * (maxD - minD);
-            setTimeout(replyWithRandomCard, delay);
+            // 显示正在输入指示器
+            showTyping();
+            setTimeout(() => { replyWithRandomCard(); }, delay);
         }
 
         // ===== 拍一拍触发 =====
@@ -4263,7 +4338,10 @@
             if (!autoSendEnabled || !cardLibrary.length) return;
             const intervalMs = autoSendInterval * 60 * 1000;
             autoSendTimer = setTimeout(() => {
-                replyWithRandomCard();
+                // 主动发送前显示正在输入
+                showTyping();
+                const shortDelay = 1500 + Math.random() * 2000;
+                setTimeout(() => { replyWithRandomCard(); }, shortDelay);
                 restartAutoSendTimer(); // 递归重启
             }, intervalMs);
         }
@@ -4638,6 +4716,7 @@
                     patUserInterval = a.patUserInterval != null ? a.patUserInterval : patUserInterval;
                     patAngleInterval = a.patAngleInterval != null ? a.patAngleInterval : patAngleInterval;
                     patAngleReplyChance = a.patAngleReplyChance != null ? a.patAngleReplyChance : patAngleReplyChance;
+                    chatTypingEnabled = a.chatTypingEnabled != null ? a.chatTypingEnabled : chatTypingEnabled;
                     chatPickMode = a.chatPickMode || chatPickMode;
                     chatShowTimestamp = a.chatShowTimestamp != null ? a.chatShowTimestamp : chatShowTimestamp;
                     chatShowAvatar = a.chatShowAvatar != null ? a.chatShowAvatar : chatShowAvatar;
@@ -4704,6 +4783,8 @@
             if (asmEl) asmEl.checked = autoSendEnabled;
             const pdeEl = document.getElementById('patDblClickEnabled');
             if (pdeEl) pdeEl.checked = patDblClickEnabled;
+            const cteEl = document.getElementById('chatTypingEnabled');
+            if (cteEl) cteEl.checked = chatTypingEnabled;
             syncSlider('patUserIntervalSlider', patUserInterval, 'patUserIntervalVal', v => (v/1000).toFixed(1)+'s');
             syncSlider('patAngleIntervalSlider', patAngleInterval, 'patAngleIntervalVal', v => (v >= 60000 ? (v/60000).toFixed(1)+'分钟' : (v/1000).toFixed(1)+'s'));
             syncSlider('patAngleReplyChanceSlider', patAngleReplyChance, 'patAngleReplyChanceVal', v => v + '%');
@@ -4718,6 +4799,7 @@
                 chatReplySpeed, replyDelayMin, replyDelayMax,
                 autoSendEnabled, autoSendInterval,
                 patDblClickEnabled, patUserInterval, patAngleInterval, patAngleReplyChance,
+                chatTypingEnabled,
                 chatPickMode, chatShowTimestamp, chatShowAvatar,
                 bubbleCustomCSS, customFontName, customFontFamily,
                 userCallsAngle, angleCallsUser
@@ -4808,6 +4890,7 @@
             autoSendEnabled = true; autoSendInterval = 5;
             patDblClickEnabled = true; patUserInterval = 500;
             patAngleInterval = 5000; patAngleReplyChance = 30;
+            chatTypingEnabled = true;
             chatShowTimestamp = true; chatShowAvatar = true;
             bubbleShape = 'round'; bubbleUserColor = '#e8ddf2'; bubbleAngleColor = '#f3eef8';
             bubbleRadius = 18; bgColor = '#fcfaff'; bgImage = '';
