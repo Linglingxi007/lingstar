@@ -160,6 +160,7 @@
             background: #e8ddf2;
             color: #1f1129;
             border-bottom-right-radius: 4px;
+            flex-direction: row-reverse;
         }
         .message.system {
             align-self: flex-start;
@@ -1147,9 +1148,12 @@
                 <div style="font-size:0.75rem; font-weight:500; color:#5a3d6b; margin-bottom:4px;">🌸 我的头像</div>
                 <div class="avatar-upload-row">
                     <input type="text" id="userAvatarInput" placeholder="图片URL或Emoji" value="🌸">
+                    <button class="btn" id="userAvatarUploadBtn" type="button">📁 上传</button>
+                    <input type="file" id="userAvatarFile" accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/svg+xml,image/*" style="position:absolute;width:0;height:0;opacity:0;overflow:hidden;pointer-events:none;">
                     <button class="btn" id="applyUserAvatarBtn">应用</button>
                     <button class="btn btn-danger" id="removeUserAvatarBtn">移除</button>
                 </div>
+                <div class="mod-hint">💡 支持 URL 或本地上传（JPG / PNG / GIF / WEBP 等）</div>
                 <div class="avatar-slider-row">
                     <span class="label">大小</span>
                     <input type="range" id="userSizeSlider" min="40" max="120" value="60">
@@ -1172,9 +1176,12 @@
                 <div style="font-size:0.75rem; font-weight:500; color:#5a3d6b; margin-bottom:4px;">🌙 梦角的头像</div>
                 <div class="avatar-upload-row">
                     <input type="text" id="angleAvatarInput" placeholder="图片URL或Emoji" value="🌙">
+                    <button class="btn" id="angleAvatarUploadBtn" type="button">📁 上传</button>
+                    <input type="file" id="angleAvatarFile" accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/svg+xml,image/*" style="position:absolute;width:0;height:0;opacity:0;overflow:hidden;pointer-events:none;">
                     <button class="btn" id="applyAngleAvatarBtn">应用</button>
                     <button class="btn btn-danger" id="removeAngleAvatarBtn">移除</button>
                 </div>
+                <div class="mod-hint">💡 支持 URL 或本地上传（JPG / PNG / GIF / WEBP 等）</div>
                 <div class="avatar-slider-row">
                     <span class="label">大小</span>
                     <input type="range" id="angleSizeSlider" min="40" max="120" value="60">
@@ -1192,7 +1199,10 @@
                 </div>
             </div>
 
-            <button class="btn btn-primary-mod" id="saveAvatarBtn" style="padding:8px 20px; margin-top:6px; align-self:flex-end;">保存头像设置</button>
+            <div style="display:flex; gap:8px; margin-top:6px; justify-content:flex-end;">
+                <button class="btn" id="restoreDefaultAvatarBtn" style="padding:8px 20px;">恢复默认</button>
+                <button class="btn btn-primary-mod" id="saveAvatarBtn" style="padding:8px 20px;">保存头像设置</button>
+            </div>
         </div>
     </div>
 </div>
@@ -1665,10 +1675,15 @@
         // 头像
         const userAvatarInput = document.getElementById('userAvatarInput');
         const angleAvatarInput = document.getElementById('angleAvatarInput');
+        const userAvatarFile = document.getElementById('userAvatarFile');
+        const angleAvatarFile = document.getElementById('angleAvatarFile');
+        const userAvatarUploadBtn = document.getElementById('userAvatarUploadBtn');
+        const angleAvatarUploadBtn = document.getElementById('angleAvatarUploadBtn');
         const applyUserAvatarBtn = document.getElementById('applyUserAvatarBtn');
         const applyAngleAvatarBtn = document.getElementById('applyAngleAvatarBtn');
         const removeUserAvatarBtn = document.getElementById('removeUserAvatarBtn');
         const removeAngleAvatarBtn = document.getElementById('removeAngleAvatarBtn');
+        const restoreDefaultAvatarBtn = document.getElementById('restoreDefaultAvatarBtn');
         const userSizeSlider = document.getElementById('userSizeSlider');
         const userLeftSlider = document.getElementById('userLeftSlider');
         const userTopSlider = document.getElementById('userTopSlider');
@@ -3110,6 +3125,56 @@
             });
             removeAngleAvatarBtn.addEventListener('click', () => {
                 angleAvatar = '🌙'; angleAvatarInput.value = '🌙'; applyProfile();
+            });
+            // 点击上传按钮 → 在用户手势中触发隐藏 file input 的文件选择对话框
+            userAvatarUploadBtn.addEventListener('click', () => { userAvatarFile.click(); });
+            angleAvatarUploadBtn.addEventListener('click', () => { angleAvatarFile.click(); });
+            // 文件上传：梦女头像（JPG/PNG/GIF/WEBP 等）
+            userAvatarFile.addEventListener('change', function() {
+                const file = this.files && this.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) { showToast('请选择图片文件'); this.value = ''; return; }
+                if (file.size > 4 * 1024 * 1024) { showToast('图片过大（>4MB），可能无法保存，建议压缩'); }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userAvatar = e.target.result;
+                    userAvatarInput.value = userAvatar;
+                    applyProfile();
+                    showToast('梦女头像上传成功');
+                };
+                reader.onerror = function() { showToast('读取失败，请重试'); };
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+            // 文件上传：梦角头像
+            angleAvatarFile.addEventListener('change', function() {
+                const file = this.files && this.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) { showToast('请选择图片文件'); this.value = ''; return; }
+                if (file.size > 4 * 1024 * 1024) { showToast('图片过大（>4MB），可能无法保存，建议压缩'); }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    angleAvatar = e.target.result;
+                    angleAvatarInput.value = angleAvatar;
+                    applyProfile();
+                    showToast('梦角头像上传成功');
+                };
+                reader.onerror = function() { showToast('读取失败，请重试'); };
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+            // 头像设置：恢复默认
+            restoreDefaultAvatarBtn.addEventListener('click', () => {
+                if (!confirm('恢复头像设置为默认？将重置头像、形状与位置参数。')) return;
+                userAvatar = '🌸'; angleAvatar = '🌙';
+                avatarShape = 'circle';
+                userSize = 60; userLeft = 0; userTop = 0;
+                angleSize = 60; angleLeft = 0; angleTop = 0;
+                userAvatarInput.value = userAvatar;
+                angleAvatarInput.value = angleAvatar;
+                shapeBtns.forEach(b => b.classList.toggle('active', b.dataset.shape === avatarShape));
+                applyProfile();
+                showToast('已恢复默认头像设置');
             });
             [userSizeSlider, userLeftSlider, userTopSlider, angleSizeSlider, angleLeftSlider, angleTopSlider].forEach(
                 slider => {
