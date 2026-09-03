@@ -604,71 +604,125 @@
         .lib-item .lib-jump:hover { filter: brightness(1.08); }
         .lib-empty { text-align: center; padding: 30px 0; font-size: 0.75rem; color: var(--text-muted); opacity: 0.5; }
 
-        /* ===== 日历 ===== */
+        /* ===== 日历（美化版）===== */
         .cal-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 6px; margin-bottom: 10px;
-            background: linear-gradient(135deg, rgba(181,138,255,0.15), rgba(228,156,255,0.15));
-            border-radius: 14px;
+            padding: 14px 12px; margin-bottom: 16px;
+            background: linear-gradient(135deg, #f5ecff 0%, #ffeaf3 100%);
+            border: 1px solid rgba(200,170,220,0.12);
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(180,130,220,0.08);
         }
         .cal-header .cal-title {
-            font-size: 1rem; font-weight: 700; color: var(--accent-deep);
+            font-size: 1.15rem; font-weight: 800;
+            background: linear-gradient(135deg, #9b6dd9, #e27eb4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
         }
-        .cal-header .cal-nav { display: flex; gap: 4px; }
+        .cal-header .cal-nav { display: flex; gap: 6px; }
         .cal-header .cal-nav button {
-            width: 32px; height: 32px; border-radius: 10px; border: none;
-            background: #fff; color: var(--accent-deep); cursor: pointer; font-size: 0.9rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            width: 34px; height: 34px; border-radius: 12px; border: none;
+            background: #fff;
+            color: var(--accent-deep); cursor: pointer; font-size: 0.95rem;
+            box-shadow: 0 2px 6px rgba(180,130,220,0.1);
+            transition: 0.15s;
         }
-        .cal-header .cal-nav button:hover { background: var(--accent, #c79eff); color: #fff; }
+        .cal-header .cal-nav button:hover {
+            background: linear-gradient(135deg, #c69eff, #ffb3d4);
+            color: #fff;
+            transform: translateY(-1px);
+        }
         .cal-header .cal-jump-btn {
-            padding: 6px 12px; border-radius: 10px; border: none;
-            background: linear-gradient(135deg, #b58aff, #e49cff);
-            color: #fff; font-size: 0.72rem; cursor: pointer;
+            padding: 8px 14px; border-radius: 12px; border: none;
+            background: linear-gradient(135deg, #9b6dd9 0%, #e27eb4 100%);
+            color: #fff; font-size: 0.78rem; cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(210,130,200,0.22);
+            transition: 0.15s;
+        }
+        .cal-header .cal-jump-btn:hover {
+            filter: brightness(1.05);
+            transform: translateY(-1px);
         }
         .cal-weekdays {
             display: grid; grid-template-columns: repeat(6, 1fr);
-            gap: 4px; margin-bottom: 6px;
+            gap: 6px; margin-bottom: 8px;
         }
         .cal-weekdays div {
-            text-align: center; font-size: 0.65rem; color: var(--text-muted);
-            padding: 4px 0; font-weight: 600;
+            text-align: center; font-size: 0.72rem; color: var(--accent-deep);
+            padding: 6px 0; font-weight: 700;
+            background: rgba(180,130,220,0.06);
+            border-radius: 10px;
         }
         .cal-grid {
             display: grid; grid-template-columns: repeat(6, 1fr);
-            gap: 4px;
+            gap: 6px;
+            padding: 8px;
+            background: rgba(250,245,255,0.5);
+            border-radius: 18px;
+            border: 1px solid rgba(200,170,220,0.1);
         }
         .cal-cell {
             aspect-ratio: 1 / 1;
-            border-radius: 10px;
+            border-radius: 14px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 0.78rem; color: var(--text-secondary);
+            font-size: 0.85rem; color: var(--text-secondary);
             cursor: pointer;
-            background: rgba(245, 240, 250, 0.3);
-            border: 1px solid transparent;
+            background: #fff;
+            border: 1px solid rgba(220,200,240,0.18);
+            box-shadow: 0 1px 3px rgba(180,130,220,0.05);
             position: relative;
-            transition: 0.15s;
+            transition: 0.2s;
         }
-        .cal-cell.empty { background: transparent; cursor: default; border-color: transparent; }
-        .cal-cell:not(.empty):hover { border-color: var(--accent); background: rgba(199,158,255,0.08); }
-        .cal-cell.today {
-            background: linear-gradient(135deg, rgba(181,138,255,0.25), rgba(228,156,255,0.25));
-            color: var(--accent-deep); font-weight: 700;
+        .cal-cell.empty { background: transparent; cursor: default; border-color: transparent; box-shadow: none; }
+        .cal-cell:not(.empty):hover {
             border-color: var(--accent);
+            background: linear-gradient(135deg, #fff, #faf1ff);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(180,130,220,0.15);
+        }
+        .cal-cell.today {
+            background: linear-gradient(135deg, rgba(181,138,255,0.2), rgba(255,163,206,0.22));
+            color: var(--accent-deep);
+            font-weight: 800;
+            border: 2px solid var(--accent);
+            box-shadow: 0 2px 8px rgba(180,130,220,0.18);
+        }
+        .cal-cell.today::before {
+            content: '今';
+            position: absolute; top: -8px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.55rem; font-weight: 800;
+            padding: 1px 6px;
+            background: linear-gradient(135deg, #9b6dd9, #e27eb4);
+            color: #fff;
+            border-radius: 8px;
         }
         .cal-cell.selected {
-            background: linear-gradient(135deg, #b58aff, #e49cff);
-            color: #fff; font-weight: 700;
-            border-color: var(--accent);
+            background: linear-gradient(135deg, #9b6dd9 0%, #e27eb4 100%);
+            color: #fff; font-weight: 800;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(210,130,200,0.35);
         }
+        .cal-cell.selected .has-diary { background: #fff; }
         .cal-cell .has-diary {
-            position: absolute; bottom: 4px;
-            width: 5px; height: 5px; border-radius: 50%;
-            background: #ff8ab3;
+            position: absolute; bottom: 6px;
+            width: 7px; height: 7px; border-radius: 50%;
+            background: linear-gradient(135deg, #ff8ab3, #ffb3d4);
+            box-shadow: 0 0 4px rgba(255,138,179,0.5);
         }
         .cal-cell .mood-tag {
-            position: absolute; top: 2px; right: 2px;
-            font-size: 0.55rem; line-height: 1;
+            position: absolute; top: 3px; left: 3px;
+            font-size: 0.6rem; line-height: 1;
+            background: rgba(255,255,255,0.8);
+            border-radius: 6px;
+            padding: 1px 3px;
+        }
+        .cal-cell.selected .mood-tag {
+            background: rgba(255,255,255,0.25);
+            color: #fff;
         }
 
         /* 跳转日期：滚轮选择器 */
@@ -857,6 +911,196 @@
         .quick-pick-panel .qp-words {
             display: flex; flex-wrap: wrap; gap: 4px;
         }
+
+        /* ===== 颜文字列表 ===== */
+        .mod-list.kao-list .kao-item {
+            padding: 10px 12px;
+            background: rgba(250,245,255,0.5);
+            border: 1px solid rgba(200,170,220,0.15);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .mod-list.kao-list .kao-item:hover { border-color: var(--accent); transform: translateY(-1px); }
+        .mod-list.kao-list .kao-item.selected { border-color: var(--accent); background: rgba(199,158,255,0.12); }
+        .mod-list.kao-list .kao-body {
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+            white-space: pre;
+            font-size: 0.78rem;
+            line-height: 1.35;
+            color: var(--text-primary);
+            padding: 6px 8px;
+            background: #fff;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px dashed rgba(200,170,220,0.25);
+        }
+        .mod-list.kao-list .kao-head {
+            display:flex; justify-content: space-between; align-items:center;
+            margin-bottom: 4px;
+        }
+        .mod-list.kao-list .kao-group-tag {
+            font-size: 0.6rem; padding: 2px 6px; border-radius: 8px;
+            background: rgba(181,138,255,0.15); color: var(--accent-deep);
+        }
+        .mod-list.kao-list .kao-del {
+            position:absolute; top: 6px; right: 8px;
+            background:none; border:none; color:#ccc; cursor:pointer;
+            font-size:0.8rem; padding:2px 6px; border-radius:50%;
+        }
+        .mod-list.kao-list .kao-del:hover { background: rgba(231,76,60,0.1); color:#e74c3c; }
+
+        /* ===== emoji 图片列表 ===== */
+        .em-img-list .em-img-item {
+            aspect-ratio: 1/1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(250,245,255,0.5);
+            border: 1px solid rgba(200,170,220,0.15);
+            display: flex; align-items:center; justify-content:center;
+            position: relative;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .em-img-list .em-img-item:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 4px 10px rgba(180,130,220,0.15); }
+        .em-img-list .em-img-item.selected { border: 2px solid var(--accent); box-shadow: 0 0 0 2px rgba(199,158,255,0.15); }
+        .em-img-list .em-img-item img {
+            width: 100%; height: 100%; object-fit: cover; display:block;
+        }
+        .em-img-list .em-img-del {
+            position: absolute; top: 2px; right: 2px;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: rgba(231,76,60,0.85); color: #fff;
+            border: none; cursor: pointer; font-size: 0.7rem;
+            display:flex; align-items:center; justify-content:center;
+            opacity: 0; transition: 0.15s;
+        }
+        .em-img-list .em-img-item:hover .em-img-del { opacity: 1; }
+        .em-img-list .em-img-group {
+            position:absolute; bottom: 2px; left: 2px;
+            font-size: 0.55rem; padding: 1px 5px; border-radius: 6px;
+            background: rgba(255,255,255,0.85); color: var(--accent-deep);
+        }
+        .em-img-list .em-img-name {
+            position:absolute; bottom: 2px; right: 2px;
+            font-size: 0.55rem; padding: 1px 5px; border-radius: 6px;
+            background: rgba(0,0,0,0.45); color: #fff;
+            max-width: 70%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+        }
+
+        /* ===== 信封板块 ===== */
+        .env-list {
+            display: flex; flex-direction: column; gap: 10px;
+            max-height: 480px; overflow-y: auto;
+            padding-right: 4px;
+        }
+        .env-letter {
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(250,245,255,0.5);
+            border: 1px solid rgba(200,170,220,0.15);
+            position: relative;
+            transition: 0.15s;
+            cursor: pointer;
+        }
+        .env-letter:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(180,130,220,0.1); }
+        .env-letter.unread::before {
+            content: '';
+            position: absolute; top: 12px; left: 6px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: linear-gradient(135deg,#ff8ab3,#ffb3d4);
+            box-shadow: 0 0 5px rgba(255,138,179,0.6);
+        }
+        .env-letter.mine {
+            border-left: 4px solid #b58aff;
+            background: linear-gradient(135deg, rgba(181,138,255,0.08), rgba(250,245,255,0.5));
+        }
+        .env-letter.angle {
+            border-left: 4px solid #ff9abe;
+            background: linear-gradient(135deg, rgba(255,154,190,0.08), rgba(255,224,238,0.1));
+        }
+        .env-letter.space {
+            border-left: 4px solid #9b6dd9;
+            background: linear-gradient(135deg, rgba(155,109,217,0.1), rgba(228,156,255,0.1));
+        }
+        .env-letter .env-head {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 6px; padding-left: 10px;
+        }
+        .env-letter .env-sender { font-size: 0.7rem; font-weight: 700; color: var(--accent-deep); display:flex; gap:6px; align-items:center; }
+        .env-letter .env-time { font-size: 0.62rem; color: var(--text-muted); opacity: 0.7; }
+        .env-letter .env-title {
+            font-size: 0.8rem; font-weight: 600; color: var(--text-primary);
+            padding-left: 10px; margin-bottom: 4px;
+        }
+        .env-letter .env-preview {
+            font-size: 0.72rem; color: var(--text-secondary);
+            padding-left: 10px; margin-bottom: 6px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .env-letter .env-tags {
+            display: flex; gap: 4px; flex-wrap: wrap; padding-left: 10px;
+        }
+        .env-letter .env-tag {
+            font-size: 0.58rem; padding: 2px 6px; border-radius: 8px;
+            background: rgba(200,170,220,0.15); color: var(--accent-deep);
+        }
+        .env-letter .env-tag.read { background: rgba(100,180,120,0.2); color: #2d7a44; }
+        .env-letter .env-tag.unread { background: rgba(255,138,179,0.2); color: #c24273; }
+        .env-letter .env-tag.replied { background: rgba(180,150,255,0.25); color: #6f3fb8; }
+        .env-letter .env-tag.self { background: rgba(255,180,100,0.2); color: #a86219; }
+        .env-letter .env-jump {
+            margin-top: 6px; padding-left: 10px;
+            display: flex; gap: 6px; flex-wrap: wrap;
+        }
+        .env-letter .env-jump button {
+            padding: 3px 10px; font-size: 0.65rem; border-radius: 8px; border: none;
+            background: rgba(200,170,220,0.15); color: var(--accent-deep);
+            cursor: pointer;
+        }
+        .env-letter .env-jump button:hover { background: var(--accent); color: #fff; }
+        .env-letter .env-actions {
+            position: absolute; top: 8px; right: 8px;
+            display: flex; gap: 4px;
+        }
+        .env-letter .env-action-btn {
+            width: 22px; height: 22px; border-radius: 8px;
+            border: none; cursor: pointer;
+            background: rgba(255,255,255,0.6); color: var(--text-secondary);
+            font-size: 0.7rem;
+        }
+        .env-letter .env-action-btn:hover { background: rgba(231,76,60,0.15); color: #e74c3c; }
+        .env-letter.env-detail-open {
+            border-color: var(--accent);
+            box-shadow: 0 4px 14px rgba(199,158,255,0.18);
+        }
+        .env-letter .env-detail {
+            margin-top: 10px; padding: 10px 12px; padding-left: 14px;
+            background: #fff;
+            border-radius: 10px;
+            border: 1px dashed rgba(200,170,220,0.3);
+            font-size: 0.78rem; line-height: 1.7;
+            white-space: pre-wrap;
+            color: var(--text-primary);
+            max-height: 260px; overflow-y: auto;
+        }
+        .env-letter .env-quote {
+            margin-top: 8px; padding: 6px 10px; padding-left: 14px;
+            background: rgba(181,138,255,0.08);
+            border-left: 3px solid var(--accent);
+            border-radius: 6px;
+            font-size: 0.7rem; color: var(--accent-deep);
+            cursor: pointer;
+        }
+        .env-letter .env-quote:hover { background: rgba(181,138,255,0.15); }
+        .env-letter .env-quote-label { font-size: 0.6rem; color: var(--text-muted); margin-bottom: 2px; }
+
+        /* 信封详情内容和未读红点的显示时的 padding 补偿 */
+        .env-letter.unread > * { padding-left: 14px; }
+        .env-letter.unread .env-head { padding-left: 10px; }
+        .env-letter.unread .env-detail, .env-letter.unread .env-quote { margin-left: 4px; }
+        .env-letter .env-detail { padding-left: 10px; }
 
         /* 标注颜色选择器 */
         .mark-color-picker {
@@ -2149,6 +2393,10 @@
             <span class="icon">📖</span>
             <span class="label">心情日记</span>
         </div>
+        <div class="side-grid-item" id="sideEnvelopeBtn">
+            <span class="icon">✉</span>
+            <span class="label">信封</span>
+        </div>
     </div>
 </div>
 
@@ -2710,6 +2958,70 @@
     </div>
 </div>
 
+<!-- ===== 信封板块 ===== -->
+<div class="modal-overlay sub-modal" id="envelopeModal">
+    <div class="modal-content" style="max-width:600px;">
+        <div class="modal-header">
+            <h2>✉ 信封</h2>
+            <button class="modal-close" id="closeEnvelopeModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <!-- 信封三大大板块 tabs -->
+            <div class="lib-tabs" style="margin-bottom:12px;">
+                <button class="tab-btn active" data-env-box="mine">🌸 我的信箱</button>
+                <button class="tab-btn" data-env-box="angle">🌙 他的信箱</button>
+                <button class="tab-btn" data-env-box="space">🌌 时空信箱</button>
+            </div>
+
+            <!-- 大板块内：收件箱 / 回信箱 子 tab（时空信箱只有收信箱） -->
+            <div id="envInnerTabs" class="lib-tabs" style="margin-bottom:10px;">
+                <button class="tab-btn active" data-env-inner="inbox">📥 收信箱 <span class="env-count" id="envInboxCount" style="background:#ff8ab3;color:#fff;padding:1px 6px;border-radius:10px;font-size:0.6rem;">0</span></button>
+                <button class="tab-btn" data-env-inner="outbox">📤 回信箱 <span class="env-count" id="envOutboxCount" style="background:rgba(200,170,220,0.3);padding:1px 6px;border-radius:10px;font-size:0.6rem;">0</span></button>
+            </div>
+
+            <!-- 信件列表 -->
+            <div class="env-list" id="envList">
+                <div class="lib-empty">还没有信件哦~</div>
+            </div>
+
+            <!-- 回信输入区（仅收信箱显示，写回信） -->
+            <div id="envReplyArea" style="margin-top:14px;display:none;">
+                <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;" id="envReplyHint">给 ta 写回信：</div>
+                <textarea class="mod-textarea" id="envReplyInput" rows="4" placeholder="写一封温柔的回信...（Ctrl+Enter 发送）"></textarea>
+                <div class="mod-row" style="margin-top:4px;">
+                    <button class="btn btn-primary-mod" id="envReplySendBtn">📤 发送回信</button>
+                    <button class="btn" id="envReplyCancelBtn">取消</button>
+                </div>
+            </div>
+
+            <!-- 写信按钮（仅回信箱显示，直接新建一封信给对方） -->
+            <div id="envNewLetterArea" style="margin-top:14px;display:none;">
+                <button class="btn btn-primary-mod" id="envNewBtn">✍ 新建一封信</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新建/写信子弹窗 -->
+<div class="modal-overlay sub-modal" id="envLetterModal">
+    <div class="modal-content" style="max-width:500px;">
+        <div class="modal-header">
+            <h2 id="envLetterTitle">✍ 写一封信</h2>
+            <button class="modal-close" id="closeLetterModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;">标题</div>
+            <input type="text" id="envLetterTitleInput" class="lib-search" placeholder="给这封信起个标题（可选）" style="margin-bottom:12px;">
+            <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;">内容</div>
+            <textarea class="mod-textarea" id="envLetterContentInput" rows="8" placeholder="写下你的心里话..."></textarea>
+            <div class="mod-row" style="margin-top:10px;justify-content:flex-end;">
+                <button class="btn" id="envLetterCancelBtn">取消</button>
+                <button class="btn btn-primary-mod" id="envLetterSendBtn">📤 发送</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ===== 昵称设置弹窗 ===== -->
 <div class="modal-overlay sub-modal" id="nicknameModal">
     <div class="modal-content" style="max-width:460px;">
@@ -3238,59 +3550,131 @@
     </div>
 </div>
 
-<!-- ===== 表情包弹窗（分组 + 批量导入） ===== -->
+<!-- ===== 表情素材弹窗：颜文字 tab + emoji 图片 tab ===== -->
 <div class="modal-overlay" id="emojiModal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width:560px;">
         <div class="modal-header">
-            <h2>😊 表情包 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;" id="emojiCount">0 个</span></h2>
+            <h2>😊 表情素材 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;" id="emojiCount">0 个</span></h2>
             <button class="modal-close" id="closeEmojiModal">✕</button>
         </div>
         <div class="modal-body">
-            <div class="mod-group-tabs" id="emojiGroupTabs">
-                <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="emojiAllCount">0</span></span>
+            <!-- 大 tabs：颜文字 / emoji 图片 -->
+            <div class="lib-tabs" style="margin-bottom:12px;">
+                <button class="tab-btn active" data-sticker-tab="kaomoji">⌨ 颜文字</button>
+                <button class="tab-btn" data-sticker-tab="emoji-img">🖼 emoji 图片</button>
             </div>
-            <div class="mod-search-row">
-                <input type="text" id="emojiSearchInput" placeholder="🔍 搜索表情...">
-            </div>
-            <div class="mod-list" id="emojiList">
-                <span class="mod-empty">暂无表情</span>
-            </div>
-            <!-- 批量导入：换行分隔，一行一条 -->
-            <div>
-                <textarea class="mod-textarea" id="emojiBatchInput" placeholder="一行一条表情，回车换行；Ctrl+Enter 批量导入"></textarea>
-                <div class="mod-row" style="margin-top:4px;">
-                    <select id="emojiBatchGroupSelect"><option value="default">默认</option></select>
-                    <button class="btn btn-primary-mod" id="emojiBatchImportBtn">导入</button>
-                    <button class="btn btn-danger" id="emojiClearBatchBtn">清空</button>
+
+            <!-- ========= 颜文字 ========= -->
+            <div id="kaomojiSection">
+                <div class="mod-group-tabs" id="kaoGroupTabs">
+                    <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="kaoAllCount">0</span></span>
                 </div>
-                <div class="mod-hint">💡 Ctrl+Enter 快速导入 · 同分组自动去重</div>
+                <div class="mod-search-row">
+                    <input type="text" id="kaoSearchInput" placeholder="🔍 搜索颜文字...">
+                </div>
+                <!-- 颜文字列表：白底卡片，等宽字体，保留原样展示 -->
+                <div class="mod-list kao-list" id="kaoList" style="display:flex;flex-direction:column;gap:8px;">
+                    <span class="mod-empty">暂无颜文字</span>
+                </div>
+                <!-- 批量导入：颜文字可以大型多行，使用空行+特殊分隔或者「每行按空行分隔」更严格——采用独立输入框 + 每条用分隔符（3个以上的"-"）+ 保留所有\n -->
+                <div>
+                    <textarea class="mod-textarea" id="kaoBatchInput" rows="5" placeholder="多条颜文字之间用单独一行 &#39;---&#39;（连续三个横线）隔开。Ctrl+Enter 一键导入。例如：&#10;我是小恐龙&#10;　⣿⣿⣿⣿⣿&#10;---&#10;我是小猫　(=^･ｪ･^=)"></textarea>
+                    <div class="mod-row" style="margin-top:4px;">
+                        <select id="kaoBatchGroupSelect"><option value="default">默认</option></select>
+                        <button class="btn btn-primary-mod" id="kaoBatchImportBtn">批量导入</button>
+                        <button class="btn btn-danger" id="kaoClearBatchBtn">清空</button>
+                    </div>
+                    <div class="mod-hint">💡 多条之间用单独一行的「---」分隔；大型颜文字的空格和换行全部原样保留</div>
+                </div>
+                <div class="mod-row" style="margin-top:4px;">
+                    <textarea class="mod-textarea" id="kaoInput" rows="3" placeholder="输入/粘贴一条颜文字（原样保留）" style="flex:2;font-family:Consolas,Monaco,monospace;white-space:pre;"></textarea>
+                    <select id="kaoGroupSelect" style="flex:1;min-width:80px;"><option value="default">默认</option></select>
+                    <button class="btn btn-primary-mod" id="addKaoBtn">添加</button>
+                </div>
+                <!-- 分组管理 -->
+                <div class="mod-row" style="margin-top:4px;">
+                    <input type="text" id="kaoGroupInput" placeholder="新分组名">
+                    <button class="btn" id="kaoAddGroupBtn">创建</button>
+                    <button class="btn btn-danger" id="kaoDeleteGroupBtn">删除</button>
+                </div>
+                <hr class="mod-divider">
+                <div class="mod-actions">
+                    <button class="btn" id="kaoSelectBtn">☑ 选择</button>
+                    <button class="btn btn-danger" id="kaoDeleteSelectedBtn" style="display:none;">删除选中</button>
+                    <span style="font-size:0.6rem; color:#7a5b8d;" id="kaoSelectInfo">已选 0</span>
+                </div>
+                <div class="mod-row" style="margin-top:4px; display:none;" id="kaoMoveRow">
+                    <select id="kaoMoveGroupSelect"><option value="">移动到...</option></select>
+                    <button class="btn" id="kaoMoveBtn">移动</button>
+                </div>
+                <div class="mod-actions" style="margin-top:4px;">
+                    <button class="btn btn-danger" id="clearKaoBtn">清空全部</button>
+                    <button class="btn" id="resetKaoBtn">恢复默认</button>
+                </div>
             </div>
-            <!-- 单条添加 -->
-            <div class="mod-row" style="margin-top:4px;">
-                <input type="text" id="emojiInput" placeholder="输入新表情" style="flex:2;">
-                <select id="emojiGroupSelect" style="flex:1; min-width:80px;"><option value="default">默认</option></select>
-                <button class="btn btn-primary-mod" id="addEmojiBtn">添加</button>
-            </div>
-            <div class="mod-hint">💡 支持自定义表情 · 同分组自动去重</div>
-            <!-- 分组管理 -->
-            <div class="mod-row" style="margin-top:4px;">
-                <input type="text" id="emojiGroupInput" placeholder="新分组名">
-                <button class="btn" id="emojiAddGroupBtn">创建</button>
-                <button class="btn btn-danger" id="emojiDeleteGroupBtn">删除</button>
-            </div>
-            <hr class="mod-divider">
-            <div class="mod-actions">
-                <button class="btn" id="emojiSelectBtn">☑ 选择</button>
-                <button class="btn btn-danger" id="emojiDeleteSelectedBtn" style="display:none;">删除选中</button>
-                <span style="font-size:0.6rem; color:#7a5b8d; display:flex; align-items:center;" id="emojiSelectInfo">已选 0</span>
-            </div>
-            <div class="mod-row" style="margin-top:4px; display:none;" id="emojiMoveRow">
-                <select id="emojiMoveGroupSelect"><option value="">移动到...</option></select>
-                <button class="btn" id="emojiMoveBtn">移动</button>
-            </div>
-            <div class="mod-actions" style="margin-top:4px;">
-                <button class="btn btn-danger" id="clearEmojiBtn">清空全部</button>
-                <button class="btn" id="resetEmojiBtn">恢复默认</button>
+
+            <!-- ========= emoji 图片（支持 URL / 本地文件 PNG JPG GIF / 手机相册）========= -->
+            <div id="emojiImgSection" style="display:none;">
+                <div class="mod-group-tabs" id="emImgGroupTabs">
+                    <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="emImgAllCount">0</span></span>
+                </div>
+                <div class="mod-search-row">
+                    <input type="text" id="emImgSearchInput" placeholder="🔍 搜索图片名/备注...">
+                </div>
+                <!-- 图片列表：网格 -->
+                <div class="mod-list em-img-list" id="emImgList" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+                    <span class="mod-empty" style="grid-column:1/-1;">暂无 emoji 图片</span>
+                </div>
+
+                <!-- 添加方式 -->
+                <div style="margin-top:12px;">
+                    <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;">添加方式</div>
+                    <!-- 方式1：URL -->
+                    <div class="mod-row" style="margin-top:4px;">
+                        <input type="text" id="emImgUrlInput" placeholder="粘贴图片链接（http(s):// 或 data:image/...）" style="flex:2;">
+                        <button class="btn btn-primary-mod" id="emImgAddUrlBtn">添加URL</button>
+                    </div>
+                    <!-- 方式2：本地上传（多选 / 相册 / 相机） -->
+                    <div class="mod-row" style="margin-top:6px;flex-wrap:wrap;">
+                        <button class="btn" id="emImgPickFileBtn">📁 选择图片（多选）</button>
+                        <button class="btn" id="emImgPickAlbumBtn">📷 手机相册/拍照</button>
+                        <select id="emImgTargetGroup" style="flex:1;min-width:90px;"><option value="default">默认分组</option></select>
+                        <input type="file" id="emImgFileInput" multiple accept="image/*" style="display:none;">
+                        <input type="file" id="emImgAlbumInput" accept="image/*" capture="environment" style="display:none;">
+                        <span style="font-size:0.65rem;color:var(--text-muted);flex:1 1 100%;margin-top:4px;">支持 PNG / JPG / JPEG / GIF / WebP 等常见图片格式</span>
+                    </div>
+
+                    <!-- 批量 URL 导入 -->
+                    <div style="margin-top:8px;">
+                        <textarea class="mod-textarea" id="emImgBatchUrlInput" rows="3" placeholder="每行一条图片 URL（http:// 或 https:// 或 data:image/...）"></textarea>
+                        <div class="mod-row" style="margin-top:4px;">
+                            <select id="emImgBatchGroupSelect"><option value="default">默认</option></select>
+                            <button class="btn btn-primary-mod" id="emImgBatchUrlBtn">批量导入URL</button>
+                            <button class="btn btn-danger" id="emImgClearBatchUrlBtn">清空</button>
+                        </div>
+                        <div class="mod-hint">💡 每行一条；HTTP 链接将原样使用</div>
+                    </div>
+                </div>
+
+                <!-- 分组管理 -->
+                <div class="mod-row" style="margin-top:8px;">
+                    <input type="text" id="emImgGroupInput" placeholder="新分组名">
+                    <button class="btn" id="emImgAddGroupBtn">创建</button>
+                    <button class="btn btn-danger" id="emImgDeleteGroupBtn">删除</button>
+                </div>
+                <hr class="mod-divider">
+                <div class="mod-actions">
+                    <button class="btn" id="emImgSelectBtn">☑ 选择</button>
+                    <button class="btn btn-danger" id="emImgDeleteSelectedBtn" style="display:none;">删除选中</button>
+                    <span style="font-size:0.6rem; color:#7a5b8d;" id="emImgSelectInfo">已选 0</span>
+                </div>
+                <div class="mod-row" style="margin-top:4px; display:none;" id="emImgMoveRow">
+                    <select id="emImgMoveGroupSelect"><option value="">移动到...</option></select>
+                    <button class="btn" id="emImgMoveBtn">移动</button>
+                </div>
+                <div class="mod-actions" style="margin-top:4px;">
+                    <button class="btn btn-danger" id="clearEmImgBtn">清空全部</button>
+                </div>
             </div>
         </div>
     </div>
@@ -3425,12 +3809,21 @@
         let cardSelectMode = false;
         let cardSelected = new Set();
 
-        let emojiGroups = { default: [...DEFAULT_EMOJIS] };
-        let emojiGroupList = ['default'];
-        let emojiCurrentGroup = 'all';
-        let emojiSearch = '';
-        let emojiSelectMode = false;
-        let emojiSelected = new Set();
+        // 默认表情原来的 emojiGroups 保存在 "颜文字" 分组（kaomojiGroups）中
+        let kaomojiGroups = { default: [...DEFAULT_EMOJIS] };
+        let kaomojiGroupList = ['default'];
+        let kaoCurrentGroup = 'all';
+        let kaoSearch = '';
+        let kaoSelectMode = false;
+        let kaoSelected = new Set();
+
+        // emoji 图片：每个分组是 [{id, url, name}]
+        let emojiImgGroups = { default: [] };
+        let emojiImgGroupList = ['default'];
+        let emImgCurrentGroup = 'all';
+        let emImgSearch = '';
+        let emImgSelectMode = false;
+        let emImgSelected = new Set();
 
         let patGroups = { default: [...DEFAULT_PATS] };
         let patGroupList = ['default'];
@@ -3500,6 +3893,14 @@
         // 心情日记：按日期key -> [entries按ts排序]
         // entries: {id, dateKey, ts, author: 'usr'|'angle', content, mood?: string(梦角心情)}
         let moodDiaries = {};
+
+        // 信封：3个大板块 × 收/回信箱。每一封信: {id,parentId,title,content,from,to,ts,read,replied,sourceBox,replyTargetId?,sourceLetterBox?}
+        // from/to: 'usr'|'angle'|'space'
+        let letterBox = {
+            mine:  { inbox: [], outbox: [] },
+            angle: { inbox: [], outbox: [] },
+            space: { inbox: [] }
+        };
         let bubbleShape = 'round';
         let bubbleCustomCSS = '';
         let customFontName = '';
@@ -5935,6 +6336,20 @@
                     if (!marks.usr) marks.usr = []; if (!marks.angle) marks.angle = [];
                     recalledCache = a.recalledCache && typeof a.recalledCache === 'object' ? a.recalledCache : {};
                     moodDiaries = a.moodDiaries && typeof a.moodDiaries === 'object' ? a.moodDiaries : {};
+                    kaomojiGroups = a.kaomojiGroups && typeof a.kaomojiGroups === 'object' ? a.kaomojiGroups : { default: [...DEFAULT_EMOJIS] };
+                    kaomojiGroupList = Array.isArray(a.kaomojiGroupList) ? a.kaomojiGroupList : ['default'];
+                    emojiImgGroups = a.emojiImgGroups && typeof a.emojiImgGroups === 'object' ? a.emojiImgGroups : { default: [] };
+                    emojiImgGroupList = Array.isArray(a.emojiImgGroupList) ? a.emojiImgGroupList : ['default'];
+                    if (a.letterBox && typeof a.letterBox === 'object') {
+                        letterBox.mine  = a.letterBox.mine  || { inbox: [], outbox: [] };
+                        letterBox.angle = a.letterBox.angle || { inbox: [], outbox: [] };
+                        letterBox.space = a.letterBox.space || { inbox: [] };
+                        if (!letterBox.mine.inbox) letterBox.mine.inbox = [];
+                        if (!letterBox.mine.outbox) letterBox.mine.outbox = [];
+                        if (!letterBox.angle.inbox) letterBox.angle.inbox = [];
+                        if (!letterBox.angle.outbox) letterBox.angle.outbox = [];
+                        if (!letterBox.space.inbox) letterBox.space.inbox = [];
+                    }
                 } catch (e) {}
             }
             // 同步表单
@@ -6059,7 +6474,10 @@
                 chatLetterMin, chatLetterMinUnit, chatLetterMax, chatLetterMaxUnit,
                 chatReplyMin, chatReplyMinUnit, chatReplyMax, chatReplyMaxUnit,
                 chatReplyMinSent, chatReplyMaxSent,
-                favorites, marks, recalledCache, moodDiaries
+                favorites, marks, recalledCache, moodDiaries,
+                kaomojiGroups, kaomojiGroupList,
+                emojiImgGroups, emojiImgGroupList,
+                letterBox
             };
             localStorage.setItem('dream_appearance', JSON.stringify(data));
             applyBubbleStyle();
@@ -6166,6 +6584,11 @@
             marks = { usr: [], angle: [] };
             recalledCache = {};
             moodDiaries = {};
+            kaomojiGroups = { default: [...DEFAULT_EMOJIS] };
+            kaomojiGroupList = ['default']; kaoCurrentGroup = 'all'; kaoSelected = new Set(); kaoSelectMode = false; kaoSearch = '';
+            emojiImgGroups = { default: [] };
+            emojiImgGroupList = ['default']; emImgCurrentGroup = 'all'; emImgSelected = new Set(); emImgSelectMode = false; emImgSearch = '';
+            letterBox = { mine:{inbox:[],outbox:[]}, angle:{inbox:[],outbox:[]}, space:{inbox:[]} };
             quickPats = [];
             bubbleShape = 'round'; bubbleUserColor = '#e8ddf2'; bubbleAngleColor = '#f3eef8';
             bubbleRadius = 18; bgColor = '#fcfaff'; bgImage = '';
@@ -6737,18 +7160,26 @@
                         break;
                     }
                     case 'mark': {
-                        // 再次点击已标注的消息 = 取消标注
+                        // 标注分桶：梦女手动标注 → marks.usr「我的标注」；梦角自动/发起标注 → marks.angle「ta 的标注」
                         const contentDiv = div.querySelector('.msg-content');
-                        const curColor = contentDiv && contentDiv.style.background ? contentDiv.style.background : '';
-                        const pool = marks[sender] || (marks[sender] = []);
-                        // 查找同一条消息（按 msgId 或 按文本+发送者+已标注色）
+                        const pool = marks['usr'] || (marks['usr'] = []);
+                        // 查找同一条消息：优先 msgId 精确匹配，其次 文本+发送者匹配
                         const existIdx = pool.findIndex(i =>
                             (mid && i.msgId === mid) ||
-                            (!mid && i.text === text && i.sender === sender && (i.color ? curColor.includes(i.color.slice(1,7)) : !curColor))
+                            (!mid && i.text === text && i.sender === sender)
                         );
-                        if (existIdx >= 0 && curColor) {
-                            // 取消标注
-                            const removed = pool.splice(existIdx, 1)[0];
+                        const hasMark = contentDiv && contentDiv.style.background && /rgba?|^#|color/.test(contentDiv.style.background);
+                        if (existIdx >= 0 || hasMark) {
+                            // 再次点击 = 取消标注
+                            let removedColor = '';
+                            if (existIdx >= 0) {
+                                const removed = pool.splice(existIdx, 1)[0];
+                                removedColor = removed.color || '';
+                            }
+                            // 同步清除所有 tab 中相同 msgId 的残留
+                            for (const k of Object.keys(marks)) {
+                                marks[k] = (marks[k] || []).filter(i => !((mid && i.msgId === mid) || (!mid && i.text === text && i.sender === sender)));
+                            }
                             if (contentDiv) {
                                 contentDiv.style.background = '';
                                 contentDiv.style.padding = '';
@@ -6758,8 +7189,8 @@
                             showToast('已取消标注');
                             closeMsgToolbar();
                         } else {
-                            // 打开颜色选择器，把 msgId 带过去
-                            openMarkPicker(div, sender, text, mid);
+                            // 打开颜色选择器，msgId 带给 savePendingMark
+                            openMarkPicker(div, sender, text, mid, 'usr');
                         }
                         break;
                     }
@@ -6862,7 +7293,8 @@
                 if (!text) return;
                 if (!favorites.angle) favorites.angle = [];
                 if (favorites.angle.some(i => i.text === text)) return;  // ta 已收藏过
-                const item = { id: 'fav-' + Date.now().toString(36), text, sender: 'usr', ts: Date.now(), from: userName };
+                const msgId = last.dataset.msgId || '';
+                const item = { id: 'fav-' + Date.now().toString(36), msgId, text, sender: 'usr', ts: Date.now(), from: userName };
                 favorites.angle.unshift(item);
                 // 若尚无星标则补一个
                 if (!last.querySelector('.msg-fav-star')) {
@@ -6899,9 +7331,39 @@
                     markColorPicker.appendChild(d);
                 });
             }
+            // 梦角偶尔标注梦女的最新消息 → 存入「ta 的标注」(marks.angle)（markColors 已定义）
+            function angleMarkUserMsgRandom() {
+                const userMsgs = chatBox.querySelectorAll('.message.user');
+                if (!userMsgs.length) return;
+                if (Math.random() > 0.03) return;  // 3%
+                const last = userMsgs[userMsgs.length - 1];
+                const contentEl = last.querySelector('.msg-content');
+                const text = contentEl ? contentEl.textContent.trim() : '';
+                if (!text) return;
+                if (!marks.angle) marks.angle = [];
+                const msgId = last.dataset.msgId || '';
+                if (marks.angle.some(i => (msgId && i.msgId === msgId) || (!msgId && i.text === text && i.sender === 'usr'))) return;
+                const colors = markColors.filter(c => c.v).map(c => c.v);
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                if (contentEl) {
+                    contentEl.style.background = color;
+                    contentEl.style.padding = '6px 10px';
+                    contentEl.style.borderRadius = '14px';
+                }
+                const now = Date.now();
+                marks.angle.unshift({
+                    id: 'm-' + now.toString(36) + Math.random().toString(36).slice(2,6),
+                    msgId, text, sender: 'usr', ts: now,
+                    color, note: '', marker: 'angle',
+                    from: userName
+                });
+                saveAppearance();
+                showToast(`${angleName} 标注了你的一条消息`);
+            }
             let pendingMark = null;
-            function openMarkPicker(div, sender, text, msgId) {
-                pendingMark = { div, sender, text, msgId: msgId || '' };
+            // marker: 'usr' = 梦女手动标注（默认） / 'angle' = 梦角发起标注
+            function openMarkPicker(div, sender, text, msgId, marker) {
+                pendingMark = { div, sender, text, msgId: msgId || '', marker: marker || 'usr' };
                 const tbRect = toolbar.getBoundingClientRect();
                 markColorPicker.style.left = Math.max(4, Math.min(window.innerWidth - 300, tbRect.left)) + 'px';
                 markColorPicker.style.top = (tbRect.bottom + 6) + 'px';
@@ -6946,12 +7408,14 @@
             });
             function savePendingMark(note) {
                 if (!pendingMark) return;
-                const { sender, text, color, msgId } = pendingMark;
-                const pool = marks[sender] || (marks[sender] = []);
-                // 先按 msgId 或 文本+发送者+颜色 去重
+                const { sender, text, color, msgId, marker } = pendingMark;
+                // 按「标注者」分桶：usr = 我的标注；angle = 他的标注
+                const markOwner = marker || 'usr';
+                const pool = marks[markOwner] || (marks[markOwner] = []);
+                // 去重：同 msgId 或 文本+发送者
                 const existingIdx = pool.findIndex(i =>
                     (msgId && i.msgId === msgId) ||
-                    (!msgId && i.text === text && i.color === (color||''))
+                    (!msgId && i.text === text && i.sender === sender)
                 );
                 const now = Date.now();
                 if (existingIdx >= 0) {
@@ -6965,11 +7429,12 @@
                         text, sender, ts: now,
                         color: color || '',
                         note: note || '',
+                        marker: markOwner,
                         from: sender==='usr'?userName:angleName
                     });
                 }
                 saveAppearance();
-                showToast('已标注');
+                showToast(markOwner==='usr' ? '已标注（我的标注）' : 'ta 已标注');
                 closeMarkPickers();
             }
             if (markNoteCancel) markNoteCancel.addEventListener('click', () => { savePendingMark(''); });
@@ -7166,6 +7631,783 @@
                     chatReadStyle = v;
                     saveAppearance();
                 });
+            });
+
+            // ========== 颜文字 + emoji 图片 + 信封 ==========
+            // ===== 标签切换：颜文字 / emoji 图片 =====
+            const kaomojiSection = document.getElementById('kaomojiSection');
+            const emojiImgSection = document.getElementById('emojiImgSection');
+            document.querySelectorAll('[data-sticker-tab]').forEach(b => b.addEventListener('click', () => {
+                document.querySelectorAll('[data-sticker-tab]').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                const tab = b.dataset.stickerTab;
+                if (kaomojiSection) kaomojiSection.style.display = tab === 'kaomoji' ? '' : 'none';
+                if (emojiImgSection) emojiImgSection.style.display = tab === 'emoji-img' ? '' : 'none';
+            }));
+
+            // ===== 颜文字（替代原 emojiGroups 文本表情）=====
+            let kaoGroupTabs = document.getElementById('kaoGroupTabs');
+            let kaoList = document.getElementById('kaoList');
+            let kaoSearchInput = document.getElementById('kaoSearchInput');
+            let kaoBatchInput = document.getElementById('kaoBatchInput');
+            let kaoBatchImportBtn = document.getElementById('kaoBatchImportBtn');
+            let kaoClearBatchBtn = document.getElementById('kaoClearBatchBtn');
+            let kaoBatchGroupSelect = document.getElementById('kaoBatchGroupSelect');
+            let kaoInput = document.getElementById('kaoInput');
+            let kaoGroupSelect = document.getElementById('kaoGroupSelect');
+            let addKaoBtn = document.getElementById('addKaoBtn');
+            let kaoGroupInput = document.getElementById('kaoGroupInput');
+            let kaoAddGroupBtn = document.getElementById('kaoAddGroupBtn');
+            let kaoDeleteGroupBtn = document.getElementById('kaoDeleteGroupBtn');
+            let kaoSelectBtn = document.getElementById('kaoSelectBtn');
+            let kaoDeleteSelectedBtn = document.getElementById('kaoDeleteSelectedBtn');
+            let kaoSelectInfo = document.getElementById('kaoSelectInfo');
+            let kaoMoveRow = document.getElementById('kaoMoveRow');
+            let kaoMoveBtn = document.getElementById('kaoMoveBtn');
+            let kaoMoveGroupSelect = document.getElementById('kaoMoveGroupSelect');
+            let clearKaoBtn = document.getElementById('clearKaoBtn');
+            let resetKaoBtn = document.getElementById('resetKaoBtn');
+            let kaoAllCount = document.getElementById('kaoAllCount');
+            let kaoLibraryFlat = [];
+            function refreshKaoFlat() {
+                kaoLibraryFlat = [];
+                for (const g in kaomojiGroups) kaoLibraryFlat = kaoLibraryFlat.concat(kaomojiGroups[g]);
+            }
+            function renderKaoGroups() {
+                if (!kaoGroupTabs) return;
+                kaoGroupTabs.innerHTML = `<span class="mod-group-tab ${kaoCurrentGroup==='all'?'active':''}" data-group="all">全部 <span class="count" id="kaoAllCount">${kaoLibraryFlat.length}</span></span>`;
+                kaomojiGroupList.forEach(g => {
+                    const len = (kaomojiGroups[g]||[]).length;
+                    const s = document.createElement('span');
+                    s.className = 'mod-group-tab' + (kaoCurrentGroup===g?' active':'');
+                    s.dataset.group = g;
+                    s.innerHTML = `${g} <span class="count">${len}</span>`;
+                    kaoGroupTabs.appendChild(s);
+                });
+                kaoGroupTabs.querySelectorAll('[data-group]').forEach(t => t.addEventListener('click', () => {
+                    kaoCurrentGroup = t.dataset.group;
+                    renderKaoGroups(); renderKaos();
+                }));
+                // 同步所有 select
+                [kaoBatchGroupSelect, kaoGroupSelect, kaoMoveGroupSelect].forEach(sel => {
+                    if (!sel) return;
+                    const cur = sel.value;
+                    sel.innerHTML = '';
+                    kaomojiGroupList.forEach(g => {
+                        const o = document.createElement('option');
+                        o.value = g; o.textContent = g; sel.appendChild(o);
+                    });
+                    if (kaomojiGroupList.includes(cur)) sel.value = cur;
+                });
+            }
+            function renderKaos() {
+                if (!kaoList) return;
+                refreshKaoFlat();
+                const kw = (kaoSearchInput?.value || '').toLowerCase();
+                let src = [];
+                if (kaoCurrentGroup === 'all') for (const g in kaomojiGroups) {
+                    (kaomojiGroups[g]||[]).forEach(v => src.push({ group:g, value:v }));
+                } else (kaomojiGroups[kaoCurrentGroup]||[]).forEach(v => src.push({ group:kaoCurrentGroup, value:v }));
+                if (kw) src = src.filter(x => (x.value||'').toLowerCase().includes(kw));
+                kaoList.innerHTML = '';
+                if (!src.length) { kaoList.innerHTML = '<span class="mod-empty">暂无颜文字</span>'; renderKaoGroups(); return; }
+                src.forEach(({group, value}) => {
+                    const d = document.createElement('div');
+                    d.className = 'kao-item' + (kaoSelected.has(group+'|'+value)?' selected':'');
+                    d.innerHTML = `
+                        <div class="kao-head"><span class="kao-group-tag">${group}</span></div>
+                        <div class="kao-body"></div>
+                        <button class="kao-del" title="删除">✕</button>`;
+                    d.querySelector('.kao-body').textContent = value;
+                    if (kaoSelectMode) {
+                        d.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const key = group+'|'+value;
+                            if (kaoSelected.has(key)) kaoSelected.delete(key);
+                            else kaoSelected.add(key);
+                            renderKaos();
+                        });
+                    } else {
+                        d.addEventListener('click', () => {
+                            userInput.value += value;
+                            userInput.focus();
+                            closeModal(emojiModal);
+                        });
+                    }
+                    d.querySelector('.kao-del').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        kaomojiGroups[group] = (kaomojiGroups[group]||[]).filter(x => x !== value);
+                        kaoSelected.delete(group+'|'+value);
+                        saveAppearance();
+                        renderKaos();
+                    });
+                    kaoList.appendChild(d);
+                });
+                if (kaoSelectInfo) kaoSelectInfo.textContent = `已选 ${kaoSelected.size}`;
+                renderKaoGroups();
+            }
+            // 分组 select 事件
+            if (addKaoBtn) addKaoBtn.addEventListener('click', () => {
+                const t = (kaoInput?.value || '');
+                if (!t.trim()) { showToast('请输入/粘贴颜文字'); return; }
+                const g = kaoGroupSelect?.value || 'default';
+                if (!kaomojiGroups[g]) kaomojiGroups[g] = [];
+                if (kaomojiGroups[g].includes(t)) { showToast('已存在'); return; }
+                kaomojiGroups[g].push(t);
+                kaoInput.value = '';
+                saveAppearance(); renderKaos(); showToast('已添加');
+            });
+            if (kaoBatchInput) kaoBatchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); kaoBatchImportBtn && kaoBatchImportBtn.click(); }
+            });
+            if (kaoBatchImportBtn) kaoBatchImportBtn.addEventListener('click', () => {
+                // 多条之间按独立行的 '---'（3个连字符）分隔
+                const raw = kaoBatchInput?.value || '';
+                if (!raw.trim()) { showToast('请输入内容'); return; }
+                const items = raw.split(/^\s*---+\s*$/m).map(s => s.replace(/^\n+|\n+$/g, '')).filter(s => s.trim());
+                if (!items.length) { showToast('没有有效内容'); return; }
+                const g = kaoBatchGroupSelect?.value || 'default';
+                if (!kaomojiGroups[g]) kaomojiGroups[g] = [];
+                let added = 0;
+                items.forEach(it => {
+                    if (!kaomojiGroups[g].includes(it)) { kaomojiGroups[g].push(it); added++; }
+                });
+                kaoBatchInput.value = '';
+                saveAppearance(); renderKaos();
+                showToast(`导入 ${added} 条颜文字（共 ${items.length} 条）`);
+            });
+            if (kaoClearBatchBtn) kaoClearBatchBtn.addEventListener('click', () => { kaoBatchInput.value = ''; });
+            if (kaoAddGroupBtn) kaoAddGroupBtn.addEventListener('click', () => {
+                const n = (kaoGroupInput?.value || '').trim();
+                if (!n) { showToast('请输入分组名'); return; }
+                if (kaomojiGroupList.includes(n)) { showToast('分组已存在'); return; }
+                kaomojiGroupList.push(n); kaomojiGroups[n] = [];
+                kaoGroupInput.value = ''; saveAppearance(); renderKaos();
+            });
+            if (kaoDeleteGroupBtn) kaoDeleteGroupBtn.addEventListener('click', () => {
+                const cur = kaoCurrentGroup;
+                if (cur === 'all' || !kaomojiGroupList.includes(cur)) { showToast('请先选择一个分组'); return; }
+                if (cur === 'default') { showToast('默认分组不能删除'); return; }
+                if (!confirm(`删除分组「${cur}」？组内 ${(kaomojiGroups[cur]||[]).length} 条将一同删除`)) return;
+                kaomojiGroupList = kaomojiGroupList.filter(x => x !== cur);
+                delete kaomojiGroups[cur]; kaoCurrentGroup = 'all';
+                saveAppearance(); renderKaos();
+            });
+            if (kaoSelectBtn) kaoSelectBtn.addEventListener('click', () => {
+                kaoSelectMode = !kaoSelectMode;
+                if (!kaoSelectMode) kaoSelected.clear();
+                kaoDeleteSelectedBtn.style.display = kaoSelectMode ? '' : 'none';
+                kaoMoveRow.style.display = kaoSelectMode ? 'flex' : 'none';
+                kaoSelectBtn.textContent = kaoSelectMode ? '✕ 取消选择' : '☑ 选择';
+                renderKaos();
+            });
+            if (kaoDeleteSelectedBtn) kaoDeleteSelectedBtn.addEventListener('click', () => {
+                if (!kaoSelected.size) return;
+                kaoSelected.forEach(key => {
+                    const [g, v] = key.split('|');
+                    if (kaomojiGroups[g]) kaomojiGroups[g] = kaomojiGroups[g].filter(x => x !== v);
+                });
+                kaoSelected.clear(); saveAppearance(); renderKaos();
+            });
+            if (kaoMoveBtn) kaoMoveBtn.addEventListener('click', () => {
+                if (!kaoSelected.size) return;
+                const tg = kaoMoveGroupSelect?.value || 'default';
+                if (!kaomojiGroups[tg]) kaomojiGroups[tg] = [];
+                let moved = 0;
+                kaoSelected.forEach(key => {
+                    const [g, v] = key.split('|');
+                    if (g === tg) return;
+                    if (kaomojiGroups[g]) kaomojiGroups[g] = kaomojiGroups[g].filter(x => x !== v);
+                    if (!kaomojiGroups[tg].includes(v)) { kaomojiGroups[tg].push(v); moved++; }
+                });
+                kaoSelected.clear(); saveAppearance(); renderKaos(); showToast(`移动 ${moved} 条到「${tg}」`);
+            });
+            if (clearKaoBtn) clearKaoBtn.addEventListener('click', () => {
+                if (!kaoLibraryFlat.length) return;
+                if (!confirm('清空所有颜文字？（不可恢复）')) return;
+                for (const g of kaomojiGroupList) kaomojiGroups[g] = [];
+                kaoSelected.clear(); saveAppearance(); renderKaos(); showToast('已清空');
+            });
+            if (resetKaoBtn) resetKaoBtn.addEventListener('click', () => {
+                if (!confirm('恢复默认颜文字？（覆盖当前）')) return;
+                kaomojiGroups = { default: [...DEFAULT_EMOJIS] };
+                kaomojiGroupList = ['default']; kaoCurrentGroup = 'all'; kaoSelected.clear(); kaoSelectMode = false;
+                saveAppearance(); renderKaos(); showToast('已恢复默认');
+            });
+            if (kaoSearchInput) kaoSearchInput.addEventListener('input', renderKaos);
+
+            // ===== emoji 图片 =====
+            let emImgList = document.getElementById('emImgList');
+            let emImgSearchInput = document.getElementById('emImgSearchInput');
+            let emImgUrlInput = document.getElementById('emImgUrlInput');
+            let emImgAddUrlBtn = document.getElementById('emImgAddUrlBtn');
+            let emImgPickFileBtn = document.getElementById('emImgPickFileBtn');
+            let emImgPickAlbumBtn = document.getElementById('emImgPickAlbumBtn');
+            let emImgFileInput = document.getElementById('emImgFileInput');
+            let emImgAlbumInput = document.getElementById('emImgAlbumInput');
+            let emImgTargetGroup = document.getElementById('emImgTargetGroup');
+            let emImgBatchUrlInput = document.getElementById('emImgBatchUrlInput');
+            let emImgBatchUrlBtn = document.getElementById('emImgBatchUrlBtn');
+            let emImgClearBatchUrlBtn = document.getElementById('emImgClearBatchUrlBtn');
+            let emImgBatchGroupSelect = document.getElementById('emImgBatchGroupSelect');
+            let emImgGroupInput = document.getElementById('emImgGroupInput');
+            let emImgAddGroupBtn = document.getElementById('emImgAddGroupBtn');
+            let emImgDeleteGroupBtn = document.getElementById('emImgDeleteGroupBtn');
+            let emImgGroupTabs = document.getElementById('emImgGroupTabs');
+            let emImgSelectBtn = document.getElementById('emImgSelectBtn');
+            let emImgDeleteSelectedBtn = document.getElementById('emImgDeleteSelectedBtn');
+            let emImgSelectInfo = document.getElementById('emImgSelectInfo');
+            let emImgMoveRow = document.getElementById('emImgMoveRow');
+            let emImgMoveBtn = document.getElementById('emImgMoveBtn');
+            let emImgMoveGroupSelect = document.getElementById('emImgMoveGroupSelect');
+            let clearEmImgBtn = document.getElementById('clearEmImgBtn');
+            let emImgAllCount = document.getElementById('emImgAllCount');
+            function emImgAll() {
+                const all = [];
+                for (const g in emojiImgGroups) (emojiImgGroups[g]||[]).forEach(item => all.push({...item, _group:g}));
+                return all;
+            }
+            function renderEmImgGroups() {
+                if (!emImgGroupTabs) return;
+                const all = emImgAll().length;
+                emImgGroupTabs.innerHTML = `<span class="mod-group-tab ${emImgCurrentGroup==='all'?'active':''}" data-group="all">全部 <span class="count" id="emImgAllCount">${all}</span></span>`;
+                emojiImgGroupList.forEach(g => {
+                    const len = (emojiImgGroups[g]||[]).length;
+                    const s = document.createElement('span');
+                    s.className = 'mod-group-tab' + (emImgCurrentGroup===g?' active':'');
+                    s.dataset.group = g;
+                    s.innerHTML = `${g} <span class="count">${len}</span>`;
+                    emImgGroupTabs.appendChild(s);
+                });
+                emImgGroupTabs.querySelectorAll('[data-group]').forEach(t => t.addEventListener('click', () => {
+                    emImgCurrentGroup = t.dataset.group;
+                    renderEmImgGroups(); renderEmImgs();
+                }));
+                [emImgTargetGroup, emImgBatchGroupSelect, emImgMoveGroupSelect].forEach(sel => {
+                    if (!sel) return;
+                    const cur = sel.value;
+                    sel.innerHTML = '';
+                    emojiImgGroupList.forEach(g => {
+                        const o = document.createElement('option');
+                        o.value = g; o.textContent = g; sel.appendChild(o);
+                    });
+                    if (emojiImgGroupList.includes(cur)) sel.value = cur;
+                });
+            }
+            function renderEmImgs() {
+                if (!emImgList) return;
+                const kw = (emImgSearchInput?.value || '').toLowerCase();
+                let list = [];
+                if (emImgCurrentGroup === 'all') list = emImgAll();
+                else list = (emojiImgGroups[emImgCurrentGroup]||[]).map(x => ({...x, _group:emImgCurrentGroup}));
+                if (kw) list = list.filter(x => (x.name||'').toLowerCase().includes(kw) || (x.url||'').toLowerCase().includes(kw));
+                emImgList.innerHTML = '';
+                if (!list.length) { emImgList.innerHTML = '<span class="mod-empty" style="grid-column:1/-1;">暂无 emoji 图片</span>'; renderEmImgGroups(); return; }
+                list.forEach(item => {
+                    const d = document.createElement('div');
+                    d.className = 'em-img-item' + (emImgSelected.has(item.id)?' selected':'');
+                    const imgsrc = item.url || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 fill=%22%23eee%22/><text x=%2220%22 y=%2222%22 text-anchor=%22middle%22 font-size=%2210%22 fill=%22%23aaa%22>?</text></svg>';
+                    d.innerHTML = `<img src="" alt=""><button class="em-img-del" title="删除">✕</button><span class="em-img-group"></span><span class="em-img-name"></span>`;
+                    const img = d.querySelector('img'); img.setAttribute('loading','lazy'); img.src = imgsrc; img.onerror = () => { img.src = 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 fill=%22%23f7e7ef%22/><text x=%2220%22 y=%2222%22 text-anchor=%22middle%22 font-size=%229%22 fill=%22%23c24273%22>失效</text></svg>'; };
+                    d.querySelector('.em-img-group').textContent = item._group;
+                    d.querySelector('.em-img-name').textContent = item.name || (item.url||'').slice(0, 12);
+                    d.querySelector('.em-img-del').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        emojiImgGroups[item._group] = (emojiImgGroups[item._group]||[]).filter(x => x.id !== item.id);
+                        emImgSelected.delete(item.id); saveAppearance(); renderEmImgs();
+                    });
+                    if (emImgSelectMode) {
+                        d.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (emImgSelected.has(item.id)) emImgSelected.delete(item.id);
+                            else emImgSelected.add(item.id);
+                            renderEmImgs();
+                        });
+                    } else {
+                        d.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            userInput.value += `<img src="${item.url}" style="max-width:180px;vertical-align:middle;">`;
+                            userInput.focus();
+                            closeModal(emojiModal);
+                        });
+                    }
+                    emImgList.appendChild(d);
+                });
+                if (emImgSelectInfo) emImgSelectInfo.textContent = `已选 ${emImgSelected.size}`;
+                renderEmImgGroups();
+            }
+            function addEmImgUrl(url, group) {
+                const u = (url||'').trim();
+                if (!u) return 0;
+                if (!/^(https?:|data:image\/|\/|\.)/i.test(u)) { showToast('URL 格式不正确'); return 0; }
+                const g = group || 'default';
+                if (!emojiImgGroups[g]) emojiImgGroups[g] = [];
+                if (emojiImgGroups[g].some(x => x.url === u)) { showToast('该图片URL已存在于该分组'); return 0; }
+                const name = u.split('/').pop().slice(0, 20) || 'image';
+                emojiImgGroups[g].push({ id: 'ei-' + Date.now().toString(36) + Math.random().toString(36).slice(2,6), url:u, name });
+                return 1;
+            }
+            if (emImgAddUrlBtn) emImgAddUrlBtn.addEventListener('click', () => {
+                const u = emImgUrlInput?.value || '';
+                const g = emImgTargetGroup?.value || 'default';
+                const n = addEmImgUrl(u, g);
+                if (n) { emImgUrlInput.value = ''; saveAppearance(); renderEmImgs(); showToast('已添加'); }
+            });
+            if (emImgPickFileBtn) emImgPickFileBtn.addEventListener('click', () => emImgFileInput && emImgFileInput.click());
+            if (emImgPickAlbumBtn) emImgPickAlbumBtn.addEventListener('click', () => emImgAlbumInput && emImgAlbumInput.click());
+            function handleEmImgFiles(fileList) {
+                if (!fileList || !fileList.length) return;
+                const g = emImgTargetGroup?.value || 'default';
+                if (!emojiImgGroups[g]) emojiImgGroups[g] = [];
+                let loaded = 0, fails = 0, total = fileList.length;
+                Array.from(fileList).forEach(f => {
+                    if (!f.type.startsWith('image/')) { fails++; if (loaded + fails === total) finalize(); return; }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const url = e.target.result;
+                            if (!emojiImgGroups[g].some(x => x.url === url)) {
+                                emojiImgGroups[g].push({ id: 'ei-' + Date.now().toString(36) + Math.random().toString(36).slice(2,6), url, name: f.name || 'image' });
+                                loaded++;
+                            }
+                        } catch (err) { fails++; }
+                        if (loaded + fails >= total) finalize();
+                    };
+                    reader.onerror = () => { fails++; if (loaded + fails >= total) finalize(); };
+                    reader.readAsDataURL(f);
+                });
+                function finalize() {
+                    if (loaded) { saveAppearance(); renderEmImgs(); showToast(`导入 ${loaded} 张图片${fails?'，失败 '+fails+' 张':''}`); }
+                    else if (fails) showToast('全部导入失败');
+                }
+            }
+            if (emImgFileInput) emImgFileInput.addEventListener('change', function() { handleEmImgFiles(this.files); this.value = ''; });
+            if (emImgAlbumInput) emImgAlbumInput.addEventListener('change', function() { handleEmImgFiles(this.files); this.value = ''; });
+            if (emImgBatchUrlBtn) emImgBatchUrlBtn.addEventListener('click', () => {
+                const raw = emImgBatchUrlInput?.value || '';
+                const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+                if (!lines.length) { showToast('请输入URL'); return; }
+                const g = emImgBatchGroupSelect?.value || 'default';
+                let added = 0;
+                lines.forEach(u => added += addEmImgUrl(u, g));
+                emImgBatchUrlInput.value = '';
+                if (added) { saveAppearance(); renderEmImgs(); }
+                showToast(`导入 ${added}/${lines.length} 条`);
+            });
+            if (emImgClearBatchUrlBtn) emImgClearBatchUrlBtn.addEventListener('click', () => { emImgBatchUrlInput.value = ''; });
+            if (emImgAddGroupBtn) emImgAddGroupBtn.addEventListener('click', () => {
+                const n = (emImgGroupInput?.value||'').trim();
+                if (!n) { showToast('请输入分组名'); return; }
+                if (emojiImgGroupList.includes(n)) { showToast('分组已存在'); return; }
+                emojiImgGroupList.push(n); emojiImgGroups[n] = [];
+                emImgGroupInput.value = ''; saveAppearance(); renderEmImgs();
+            });
+            if (emImgDeleteGroupBtn) emImgDeleteGroupBtn.addEventListener('click', () => {
+                const cur = emImgCurrentGroup;
+                if (cur === 'all' || !emojiImgGroupList.includes(cur)) { showToast('请先选择一个分组'); return; }
+                if (cur === 'default') { showToast('默认分组不能删除'); return; }
+                if (!confirm(`删除分组「${cur}」？组内 ${(emojiImgGroups[cur]||[]).length} 张将一同删除`)) return;
+                emojiImgGroupList = emojiImgGroupList.filter(x => x !== cur);
+                delete emojiImgGroups[cur]; emImgCurrentGroup = 'all';
+                saveAppearance(); renderEmImgs();
+            });
+            if (emImgSelectBtn) emImgSelectBtn.addEventListener('click', () => {
+                emImgSelectMode = !emImgSelectMode;
+                if (!emImgSelectMode) emImgSelected.clear();
+                emImgDeleteSelectedBtn.style.display = emImgSelectMode ? '' : 'none';
+                emImgMoveRow.style.display = emImgSelectMode ? 'flex' : 'none';
+                emImgSelectBtn.textContent = emImgSelectMode ? '✕ 取消选择' : '☑ 选择';
+                renderEmImgs();
+            });
+            if (emImgDeleteSelectedBtn) emImgDeleteSelectedBtn.addEventListener('click', () => {
+                if (!emImgSelected.size) return;
+                for (const g in emojiImgGroups) emojiImgGroups[g] = (emojiImgGroups[g]||[]).filter(x => !emImgSelected.has(x.id));
+                emImgSelected.clear(); saveAppearance(); renderEmImgs();
+            });
+            if (emImgMoveBtn) emImgMoveBtn.addEventListener('click', () => {
+                if (!emImgSelected.size) return;
+                const tg = emImgMoveGroupSelect?.value || 'default';
+                if (!emojiImgGroups[tg]) emojiImgGroups[tg] = [];
+                let moved = 0;
+                for (const g in emojiImgGroups) {
+                    const remaining = [];
+                    (emojiImgGroups[g]||[]).forEach(x => {
+                        if (emImgSelected.has(x.id) && g !== tg) {
+                            if (!emojiImgGroups[tg].some(y => y.url === x.url)) { emojiImgGroups[tg].push(x); moved++; }
+                        } else remaining.push(x);
+                    });
+                    emojiImgGroups[g] = remaining;
+                }
+                emImgSelected.clear(); saveAppearance(); renderEmImgs(); showToast(`移动 ${moved} 张到「${tg}」`);
+            });
+            if (clearEmImgBtn) clearEmImgBtn.addEventListener('click', () => {
+                if (!emImgAll().length) return;
+                if (!confirm('清空所有 emoji 图片？（不可恢复）')) return;
+                for (const g of emojiImgGroupList) emojiImgGroups[g] = [];
+                emImgSelected.clear(); saveAppearance(); renderEmImgs(); showToast('已清空');
+            });
+            if (emImgSearchInput) emImgSearchInput.addEventListener('input', renderEmImgs);
+            // 表情弹窗默认选中颜文字tab
+            const firstTab = document.querySelector('[data-sticker-tab="kaomoji"]');
+            if (firstTab) firstTab.classList.add('active');
+            // 初次渲染
+            renderKaos(); renderEmImgs();
+
+            // ========== 信封板块 ==========
+            const envelopeModal = document.getElementById('envelopeModal');
+            const closeEnvelopeModal = document.getElementById('closeEnvelopeModal');
+            const envList = document.getElementById('envList');
+            const envInboxCount = document.getElementById('envInboxCount');
+            const envOutboxCount = document.getElementById('envOutboxCount');
+            const envInnerTabs = document.getElementById('envInnerTabs');
+            const envReplyArea = document.getElementById('envReplyArea');
+            const envReplyInput = document.getElementById('envReplyInput');
+            const envReplySendBtn = document.getElementById('envReplySendBtn');
+            const envReplyCancelBtn = document.getElementById('envReplyCancelBtn');
+            const envReplyHint = document.getElementById('envReplyHint');
+            const envNewLetterArea = document.getElementById('envNewLetterArea');
+            const envNewBtn = document.getElementById('envNewBtn');
+
+            const envLetterModal = document.getElementById('envLetterModal');
+            const closeLetterModal = document.getElementById('closeLetterModal');
+            const envLetterTitleInput = document.getElementById('envLetterTitleInput');
+            const envLetterContentInput = document.getElementById('envLetterContentInput');
+            const envLetterSendBtn = document.getElementById('envLetterSendBtn');
+            const envLetterCancelBtn = document.getElementById('envLetterCancelBtn');
+            const envLetterTitle = document.getElementById('envLetterTitle');
+
+            const sideEnvelopeBtn = document.getElementById('sideEnvelopeBtn');
+            let envState = { box: 'mine', inner: 'inbox', replyingToId: null, writingFrom: null };
+
+            // 梦角自发写时空信箱的信
+            function angleAutoSpaceLetterRandom() {
+                if (Math.random() > 0.06) return;  // 6%
+                if (!cardLibrary.length) return;
+                const letter = makeLetter({
+                    from: 'space', to: 'usr', title: '',
+                    content: cardLibrary[Math.floor(Math.random()*cardLibrary.length)],
+                    sourceBox: 'space', parentId: null
+                });
+                letterBox.space.inbox.unshift(letter);
+                // 同步出现在"我的信箱"收件箱（时空来信）
+                const mirror = {...letter, id: letter.id + '-m', mirrorOf: letter.id, sourceBox: 'mine'};
+                letterBox.mine.inbox.unshift(mirror);
+                saveAppearance();
+                showToast(`${angleName} 给你发了一封时空来信 ✉`);
+                if (envelopeModal && envelopeModal.classList.contains('active')) renderEnvList();
+            }
+
+            function makeLetter({from,to,title,content,sourceBox,parentId,replyTargetId,sourceLetterBox}) {
+                return {
+                    id: 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+                    parentId: parentId || null,
+                    replyTargetId: replyTargetId || null,
+                    sourceLetterBox: sourceLetterBox || null,
+                    title: title || '',
+                    content: content || '',
+                    from, to,
+                    ts: Date.now(),
+                    read: false,
+                    replied: false,
+                    sourceBox
+                };
+            }
+            function getBox(box, inner) {
+                if (box === 'space') return letterBox.space.inbox;
+                return letterBox[box]?.[inner] || [];
+            }
+            function findLetter(letterId) {
+                for (const bk of ['mine','angle','space']) {
+                    const pools = bk === 'space' ? ['inbox'] : ['inbox','outbox'];
+                    for (const ik of pools) {
+                        const arr = letterBox[bk]?.[ik] || [];
+                        const f = arr.find(x => x.id === letterId);
+                        if (f) return {letter:f, bk, ik, arr};
+                    }
+                }
+                return null;
+            }
+
+            function renderEnvList() {
+                if (!envList) return;
+                // 隐藏或显示 inner tabs（空间信箱只显示收件箱）
+                if (envInnerTabs) {
+                    const showBoth = envState.box !== 'space';
+                    envInnerTabs.style.display = showBoth ? 'flex' : 'none';
+                }
+                // inner tabs 显示或隐藏"回信箱"tab
+                const outBtn = document.querySelector('[data-env-inner="outbox"]');
+                if (outBtn) outBtn.style.display = envState.box === 'space' ? 'none' : '';
+
+                const inboxBtn = document.querySelector('[data-env-inner="inbox"]');
+                if (inboxBtn) {
+                    const cnt = getBox(envState.box, 'inbox').length;
+                    if (envInboxCount) envInboxCount.textContent = cnt;
+                }
+                if (outBtn) {
+                    const cnt = getBox(envState.box, 'outbox').length;
+                    if (envOutboxCount) envOutboxCount.textContent = cnt;
+                }
+                // 回信/新建按钮区域
+                envReplyArea.style.display = 'none';
+                envNewLetterArea.style.display = envState.inner === 'outbox' ? 'flex' : 'none';
+
+                const arr = getBox(envState.box, envState.inner).slice().sort((a,b)=>b.ts-a.ts);
+                envList.innerHTML = '';
+                if (!arr.length) { envList.innerHTML = '<div class="lib-empty">还没有信件哦~</div>'; return; }
+                arr.forEach(letter => {
+                    const d = document.createElement('div');
+                    const cls = envState.box === 'space' ? 'space' : (envState.box === 'mine' ? 'mine' : 'angle');
+                    const unread = !letter.read ? ' unread' : '';
+                    d.className = `env-letter ${cls}${unread}`;
+                    const title = letter.title || (letter.content.slice(0, 20) + (letter.content.length>20?'…':''));
+                    const preview = letter.content.slice(0, 80) + (letter.content.length>80?'…':'');
+                    const senderLabel = letter.from === 'usr' ? userName : (letter.from === 'angle' ? angleName : `${angleName}(时空)`);
+                    const toLabel = letter.to === 'usr' ? userName : angleName;
+                    const tags = [];
+                    tags.push(letter.read ? `<span class="env-tag read">已读</span>` : `<span class="env-tag unread">未读</span>`);
+                    if (letter.replied) tags.push(`<span class="env-tag replied">已回信</span>`);
+                    if (letter.parentId) tags.push(`<span class="env-tag self">回复</span>`);
+                    if (letter.sourceBox === 'space' || letter.from === 'space') tags.push(`<span class="env-tag">🌌 时空</span>`);
+
+                    d.innerHTML = `
+                        <div class="env-actions">
+                            <button class="env-action-btn env-delete-btn" title="删除">✕</button>
+                        </div>
+                        <div class="env-head">
+                            <span class="env-sender">${envState.inner==='inbox' ? '📥 来自 ' + senderLabel : '📤 写给 ' + toLabel}</span>
+                            <span class="env-time">${formatDateCN(letter.ts)} ${formatTimeHMS(letter.ts)}</span>
+                        </div>
+                        <div class="env-title"></div>
+                        <div class="env-preview"></div>
+                        <div class="env-tags">${tags.join('')}</div>
+                    `;
+                    d.querySelector('.env-title').textContent = title;
+                    d.querySelector('.env-preview').textContent = preview;
+
+                    // 删除
+                    d.querySelector('.env-delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (!confirm('确定删除这封信？')) return;
+                        const pool = getBox(envState.box, envState.inner);
+                        const idx = pool.findIndex(x => x.id === letter.id);
+                        if (idx >= 0) pool.splice(idx, 1);
+                        saveAppearance(); renderEnvList();
+                    });
+
+                    // 点击卡片 = 展开详情 + 标记已读
+                    d.addEventListener('click', (e) => {
+                        if (e.target.closest('.env-jump,.env-quote,.env-delete-btn,.env-reply-btn')) return;
+                        toggleLetterDetail(d, letter);
+                        if (!letter.read) { letter.read = true; saveAppearance(); renderEnvList(); }
+                    });
+                    envList.appendChild(d);
+                });
+            }
+
+            function toggleLetterDetail(cardEl, letter) {
+                // 先移除其他详情
+                const others = envList.querySelectorAll('.env-detail, .env-quote, .env-jump, .env-reply-btn');
+                others.forEach(o => o.remove());
+                envList.querySelectorAll('.env-detail-open').forEach(c => c.classList.remove('env-detail-open'));
+                if (cardEl.classList.contains('env-detail-open')) { cardEl.classList.remove('env-detail-open'); return; }
+                cardEl.classList.add('env-detail-open');
+                // 详情
+                const det = document.createElement('div');
+                det.className = 'env-detail';
+                det.textContent = letter.content;
+                cardEl.appendChild(det);
+                // 引用（回信原信 / 被回信的原信）
+                if (letter.replyTargetId || letter.parentId) {
+                    const targetId = letter.replyTargetId || letter.parentId;
+                    const f = findLetter(targetId);
+                    if (f) {
+                        const q = document.createElement('div');
+                        q.className = 'env-quote';
+                        const qTitle = f.letter.title || (f.letter.content.slice(0,20)+'…');
+                        q.innerHTML = `<div class="env-quote-label">↪ ${f.bk==='mine'?'我':(f.bk==='angle'?angleName:'时空')}的${f.ik==='inbox'?'原信':'回信'}</div><div></div>`;
+                        q.querySelector('div:nth-child(2)').textContent = qTitle + ' — ' + (f.letter.content.slice(0, 50) + (f.letter.content.length>50?'…':''));
+                        q.addEventListener('click', () => jumpToLetterInBox(targetId));
+                        cardEl.appendChild(q);
+                    }
+                }
+                // 跳转按钮
+                const jumpWrap = document.createElement('div');
+                jumpWrap.className = 'env-jump';
+                // 收件箱可点"回信"
+                if (envState.inner === 'inbox') {
+                    const rb = document.createElement('button');
+                    rb.textContent = '✍ 给 ta 回信';
+                    rb.className = 'env-reply-btn';
+                    rb.addEventListener('click', () => startReply(letter));
+                    jumpWrap.appendChild(rb);
+                }
+                // 跳转回原信（如果本封是回信）
+                if (letter.replyTargetId || letter.parentId) {
+                    const jb = document.createElement('button');
+                    jb.textContent = '↩ 跳转到原信';
+                    jb.addEventListener('click', () => jumpToLetterInBox(letter.replyTargetId || letter.parentId));
+                    jumpWrap.appendChild(jb);
+                }
+                cardEl.appendChild(jumpWrap);
+            }
+
+            function jumpToLetterInBox(targetId) {
+                const f = findLetter(targetId);
+                if (!f) { showToast('原信已被删除，无法跳转'); return; }
+                envState.box = f.bk;
+                if (f.bk !== 'space') envState.inner = f.ik;
+                // 同步 tabs 高亮
+                document.querySelectorAll('[data-env-box]').forEach(b => b.classList.toggle('active', b.dataset.envBox === f.bk));
+                document.querySelectorAll('[data-env-inner]').forEach(b => {
+                    if (f.bk === 'space' && b.dataset.envInner !== 'inbox') return;
+                    b.classList.toggle('active', b.dataset.envInner === f.ik);
+                });
+                renderEnvList();
+                setTimeout(() => {
+                    const cards = envList.querySelectorAll('.env-letter');
+                    let target = null;
+                    cards.forEach(c => {
+                        const t = c.querySelector('.env-title')?.textContent || '';
+                        const p = c.querySelector('.env-preview')?.textContent || '';
+                        const full = f.letter.title || f.letter.content.slice(0,20)+'…';
+                        const prev = f.letter.content.slice(0,80)+(f.letter.content.length>80?'…':'');
+                        if (t === full && p === prev) target = c;
+                    });
+                    if (target) { target.scrollIntoView({behavior:'smooth', block:'center'}); toggleLetterDetail(target, f.letter); }
+                }, 100);
+            }
+
+            // 点收信箱某信 = 进入回信模式
+            function startReply(letter) {
+                envState.replyingToId = letter.id;
+                envReplyArea.style.display = '';
+                envReplyHint.textContent = `给 ${letter.from === 'usr' ? userName : angleName} 回信（回复：${letter.title || letter.content.slice(0,20)}…）：`;
+                envReplyInput.value = '';
+                setTimeout(() => envReplyInput.focus(), 50);
+                envReplyInput.scrollIntoView({behavior:'smooth', block:'nearest'});
+            }
+
+            // 发送回信：我的信箱.outbox（回信） → 他的信箱.inbox（收信）；反之对称
+            // 时空信箱的回信：也全部进入他的信箱.inbox（梦角收件），互不干扰
+            function sendReply() {
+                const content = (envReplyInput?.value||'').trim();
+                const title = '';
+                if (!content) { showToast('请写点内容'); return; }
+                const target = findLetter(envState.replyingToId);
+                if (!target) { showToast('无法定位原信'); return; }
+                const origin = target.letter;
+                // 回信者：根据当前所在大板块判断是谁在发信
+                const me = envState.box === 'mine' ? 'usr' : 'angle';
+                const peer = me === 'usr' ? 'angle' : 'usr';
+                const meBox = envState.box;  // 'mine' or 'angle'
+                const peerBox = meBox === 'mine' ? 'angle' : 'mine';
+                // 我的回信进入"当前大板块.outbox"
+                const outLetter = makeLetter({
+                    from: me, to: peer, title, content,
+                    sourceBox: meBox,
+                    parentId: origin.id, replyTargetId: origin.id,
+                    sourceLetterBox: target.bk
+                });
+                letterBox[meBox].outbox.unshift(outLetter);
+                // 对方收信箱增加一封收信（引用同内容，新id）
+                const inLetter = makeLetter({
+                    from: me, to: peer, title, content,
+                    sourceBox: peerBox,
+                    parentId: origin.id, replyTargetId: origin.id,
+                    sourceLetterBox: target.bk
+                });
+                inLetter.id = 'R' + Date.now().toString(36) + Math.random().toString(36).slice(2,4);
+                letterBox[peerBox].inbox.unshift(inLetter);
+                // 原信标为已回信
+                origin.replied = true;
+                // 如对方收信箱有对应的 mirror 或同一id（时空），也标记
+                saveAppearance();
+                envReplyArea.style.display = 'none';
+                envReplyInput.value = '';
+                envState.replyingToId = null;
+                showToast(`回信已送达${peerBox==='mine'?'我的':'他的'}收信箱 ✉`);
+                renderEnvList();
+            }
+
+            // 新建一封信（在回信箱里点"新建"= 非回复，直接写给对方）
+            let envWritingLetterState = 'new';  // 'new' or 'reply'
+            function openNewLetter(writeAs) {
+                envWritingLetterState = 'new';
+                envLetterTitle.textContent = writeAs === 'usr' ? '✍ 我给梦角写一封信' : '✍ 梦角给我写一封信';
+                envState.writingFrom = writeAs;
+                envLetterTitleInput.value = '';
+                envLetterContentInput.value = '';
+                openModal(envLetterModal);
+                setTimeout(() => envLetterTitleInput.focus(), 50);
+            }
+            function closeNewLetter() { closeModal(envLetterModal); }
+            function sendNewLetter() {
+                const content = (envLetterContentInput?.value||'').trim();
+                const title = (envLetterTitleInput?.value||'').trim();
+                if (!content) { showToast('信的内容不能为空'); return; }
+                const me = envState.writingFrom || (envState.box === 'mine' ? 'usr' : 'angle');
+                const peer = me === 'usr' ? 'angle' : 'usr';
+                const meBox = me === 'usr' ? 'mine' : 'angle';
+                const peerBox = me === 'usr' ? 'angle' : 'mine';
+                // 我的 outbox
+                const out = makeLetter({ from:me, to:peer, title, content, sourceBox:meBox, parentId:null, replyTargetId:null });
+                letterBox[meBox].outbox.unshift(out);
+                // 对方 inbox
+                const inc = makeLetter({ from:me, to:peer, title, content, sourceBox:peerBox, parentId:null, replyTargetId:null });
+                inc.id = 'R' + Date.now().toString(36) + Math.random().toString(36).slice(2,4);
+                letterBox[peerBox].inbox.unshift(inc);
+                saveAppearance(); closeNewLetter();
+                showToast('信件已寄出 ✉');
+                renderEnvList();
+            }
+            if (envReplySendBtn) envReplySendBtn.addEventListener('click', sendReply);
+            if (envReplyInput) envReplyInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); sendReply(); }
+            });
+            if (envReplyCancelBtn) envReplyCancelBtn.addEventListener('click', () => {
+                envReplyArea.style.display = 'none';
+                envReplyInput.value = '';
+                envState.replyingToId = null;
+            });
+            if (envNewBtn) envNewBtn.addEventListener('click', () => {
+                const writeAs = envState.box === 'mine' ? 'usr' : (envState.box === 'angle' ? 'angle' : 'usr');
+                openNewLetter(writeAs);
+            });
+            if (closeLetterModal) closeLetterModal.addEventListener('click', closeNewLetter);
+            if (envLetterCancelBtn) envLetterCancelBtn.addEventListener('click', closeNewLetter);
+            if (envLetterSendBtn) envLetterSendBtn.addEventListener('click', sendNewLetter);
+            if (envLetterContentInput) envLetterContentInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); sendNewLetter(); }
+            });
+
+            // tabs 绑定
+            document.querySelectorAll('[data-env-box]').forEach(b => b.addEventListener('click', () => {
+                document.querySelectorAll('[data-env-box]').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                envState.box = b.dataset.envBox;
+                if (envState.box === 'space') envState.inner = 'inbox';
+                document.querySelectorAll('[data-env-inner]').forEach(ib => {
+                    ib.classList.toggle('active', ib.dataset.envInner === envState.inner);
+                });
+                renderEnvList();
+            }));
+            document.querySelectorAll('[data-env-inner]').forEach(b => b.addEventListener('click', () => {
+                document.querySelectorAll('[data-env-inner]').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                envState.inner = b.dataset.envInner;
+                renderEnvList();
+            }));
+            if (closeEnvelopeModal) closeEnvelopeModal.addEventListener('click', () => closeModal(envelopeModal));
+            if (envelopeModal) envelopeModal.addEventListener('click', (e) => { if (e.target === envelopeModal) closeModal(envelopeModal); });
+            if (envLetterModal) envLetterModal.addEventListener('click', (e) => { if (e.target === envLetterModal) closeModal(envLetterModal); });
+            if (sideEnvelopeBtn) sideEnvelopeBtn.addEventListener('click', () => {
+                closeSidePanel();
+                envState = { box: 'mine', inner: 'inbox', replyingToId: null, writingFrom: null };
+                document.querySelectorAll('[data-env-box]').forEach(b => b.classList.toggle('active', b.dataset.envBox === 'mine'));
+                document.querySelectorAll('[data-env-inner]').forEach(b => b.classList.toggle('active', b.dataset.envInner === 'inbox'));
+                renderEnvList();
+                openModal(envelopeModal);
             });
 
             // ========== 日历 + 跳转日期 + 心情日记 ==========
@@ -7592,7 +8834,9 @@
                 const ret = _origReply.apply(this, arguments);
                 setTimeout(angleRecallUserMsgRandom, 1500);
                 setTimeout(angleFavUserMsgRandom, 2000);
+                setTimeout(angleMarkUserMsgRandom, 2500);  // 梦角偶尔标注梦女消息→ta 的标注
                 setTimeout(angleAutoDiaryRandom, 3000);  // 梦角偶尔自动写日记+心情
+                setTimeout(angleAutoSpaceLetterRandom, 3500);  // 梦角偶尔自发送时空来信
                 return ret;
             };
 
@@ -7616,12 +8860,17 @@
                     if (calendarModal.classList.contains('active')) closeModal(calendarModal);
                     if (diaryModal.classList.contains('active')) closeModal(diaryModal);
                     if (jumpDateModal.classList.contains('active')) closeModal(jumpDateModal);
+                    if (typeof envelopeModal !== 'undefined' && envelopeModal.classList.contains('active')) closeModal(envelopeModal);
+                    if (typeof envLetterModal !== 'undefined' && envLetterModal.classList.contains('active')) closeModal(envLetterModal);
                 }
             });
         }
 
         function isAnySubModalOpen() {
-            return [nicknameModal, avatarModal, bubbleModal, bgFontModal, themeModal, favModal, markModal, calendarModal, diaryModal, jumpDateModal].some(m => m.classList.contains('active'));
+            const checks = [nicknameModal, avatarModal, bubbleModal, bgFontModal, themeModal, favModal, markModal, calendarModal, diaryModal, jumpDateModal];
+            if (typeof envelopeModal !== 'undefined') checks.push(envelopeModal);
+            if (typeof envLetterModal !== 'undefined') checks.push(envLetterModal);
+            return checks.some(m => m.classList.contains('active'));
         }
 
 
