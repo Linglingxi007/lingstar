@@ -461,38 +461,58 @@
         .quote-bar .q-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
         .quote-bar .q-clear { cursor: pointer; color: var(--danger, #e74c3c); padding: 2px 6px; border-radius: 50%; font-weight: bold; }
         .quote-bar .q-clear:hover { background: rgba(231, 76, 60, 0.1); }
-        /* 消息拓展栏（气泡弹出工具栏） */
+        /* 消息拓展栏（气泡长按弹出悬浮工具栏） */
         .msg-toolbar {
             position: fixed;
             z-index: 150;
             background: rgba(255, 252, 255, 0.98);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(220, 200, 240, 0.2);
-            border-radius: 14px;
-            padding: 4px;
-            box-shadow: 0 8px 28px rgba(80, 50, 110, 0.18);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(181, 138, 255, 0.35);
+            border-radius: 16px;
+            padding: 6px;
+            box-shadow: 0 12px 34px rgba(125, 80, 190, 0.22),
+                        0 2px 6px rgba(181, 138, 255, 0.12) inset;
             display: none;
-            gap: 2px;
+            gap: 4px;
             align-items: center;
+            opacity: 0;
+            transform-origin: bottom center;
+            transform: translateY(6px) scale(0.92);
+            transition: opacity 0.16s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
         }
-        .msg-toolbar.show { display: inline-flex; }
+        .msg-toolbar.show {
+            display: inline-flex;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
         .msg-toolbar button {
-            background: none;
-            border: none;
-            padding: 6px 10px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(252,247,255,0.9) 100%);
+            border: 1px solid rgba(200, 170, 230, 0.18);
+            padding: 7px 12px;
             border-radius: 10px;
-            font-size: 0.72rem;
+            font-size: 0.76rem;
+            font-weight: 600;
             cursor: pointer;
             color: var(--text-primary);
             display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             transition: 0.15s;
             white-space: nowrap;
         }
-        .msg-toolbar button:hover { background: var(--accent-soft); }
-        .msg-toolbar button.danger:hover { background: rgba(231, 76, 60, 0.1); color: var(--danger, #e74c3c); }
-        .msg-toolbar button.danger-warn:hover { background: rgba(243, 156, 18, 0.1); color: #e67e22; }
+        .msg-toolbar button:hover { background: linear-gradient(135deg, #efe2ff, #ffd8ec); transform: translateY(-1px); box-shadow: 0 3px 8px rgba(181,138,255,0.18); }
+        .msg-toolbar button.danger:hover { background: linear-gradient(135deg, #ffe1de, #ffcfca); color: #e74c3c; }
+        .msg-toolbar button.danger-warn:hover { background: linear-gradient(135deg, #fff1dc, #ffe5bf); color: #d9820b; }
+        /* 长按触发时消息高亮 动画 */
+        @keyframes msg-long-press-hint {
+            0%   { box-shadow: 0 0 0 0 rgba(181, 138, 255, 0.0); border-radius: 14px; }
+            60%  { box-shadow: 0 0 0 4px rgba(181, 138, 255, 0.28); }
+            100% { box-shadow: 0 0 0 6px rgba(181, 138, 255, 0.0); }
+        }
+        .message.lp-highlight { animation: msg-long-press-hint 460ms ease-out forwards; }
         /* 撤回提示条 */
         .msg-recall-notice {
             align-self: center;
@@ -634,18 +654,30 @@
             color: #fff;
             transform: translateY(-1px);
         }
+        .cal-header .cal-nav { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; }
         .cal-header .cal-jump-btn {
-            padding: 8px 14px; border-radius: 12px; border: none;
+            padding: 6px 8px; min-width: 34px; height: 34px; border-radius: 12px; border: none;
             background: linear-gradient(135deg, #9b6dd9 0%, #e27eb4 100%);
-            color: #fff; font-size: 0.78rem; cursor: pointer;
+            color: #fff; font-size: 0.95rem; cursor: pointer; line-height: 1;
             font-weight: 600;
             box-shadow: 0 2px 8px rgba(210,130,200,0.22);
-            transition: 0.15s;
+            transition: 0.15s; display: inline-flex; align-items: center; justify-content: center;
         }
         .cal-header .cal-jump-btn:hover {
             filter: brightness(1.05);
             transform: translateY(-1px);
         }
+        /* 跳转日期子弹窗美化 */
+        #jumpDateModal .modal-content { border-radius: 20px; overflow: hidden; border: 1px solid rgba(198,168,222,0.15); box-shadow: 0 20px 50px rgba(155,109,217,0.18); }
+        #jumpDateModal .dl-year-viewport, #jumpDateModal .dl-month-viewport, #jumpDateModal .dl-day-viewport {
+            background: linear-gradient(180deg, rgba(245,235,252,0.5) 0%, rgba(255,255,255,1) 100%);
+            border-radius: 14px; border: 1px solid rgba(200,170,220,0.18);
+        }
+        #jumpDateModal .dl-col-item.active {
+            background: linear-gradient(135deg, #b58aff, #e49cff); color: #fff; font-weight: 600; border-radius: 10px;
+        }
+        #jumpDateModal .btn-confirm { background: linear-gradient(135deg,#b58aff,#e49cff); color:#fff; border-radius:12px; padding:6px 18px; border:none; font-weight:600; }
+        #jumpDateModal .btn-cancel { background: rgba(200,170,220,0.15); color: var(--text-secondary); border-radius:12px; padding:6px 18px; border:none; }
         .cal-weekdays {
             display: grid; grid-template-columns: repeat(6, 1fr);
             gap: 6px; margin-bottom: 8px;
@@ -1494,6 +1526,40 @@
             transition: 0.15s;
         }
         .mod-textarea:focus { border-color: var(--accent-deep); box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
+        /* ===== 大信纸 Modal & 折叠原信 ===== */
+        .env-letter-full { border-radius: 24px; }
+        .env-letter-body { padding: 18px 24px; }
+        .env-letter-textarea {
+            width: 100%; resize: vertical; min-height: 220px; font-size: 0.92rem; line-height: 1.7;
+            border-radius: 16px; padding: 16px 18px;
+            background: linear-gradient(180deg, #fffdfc 0%, #faf3ff 100%);
+            border: 1px solid rgba(200, 170, 230, 0.18);
+        }
+        .env-reply-fold {
+            margin-bottom: 14px; border-radius: 14px; overflow: hidden;
+            border: 1px solid rgba(200, 170, 230, 0.22);
+            background: linear-gradient(135deg, rgba(238,226,253,0.35) 0%, rgba(255,224,243,0.35) 100%);
+        }
+        .env-reply-fold[open] .env-reply-summary::before { transform: rotate(90deg); }
+        .env-reply-summary {
+            cursor: pointer; padding: 10px 16px; font-size: 0.78rem; font-weight: 600;
+            color: var(--accent-deep); list-style: none; user-select: none;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .env-reply-summary::-webkit-details-marker { display: none; }
+        .env-reply-summary::before {
+            content: '▶'; display: inline-block; transition: transform 0.2s;
+            font-size: 0.55rem; color: var(--accent-deep);
+        }
+        .env-reply-quote { padding: 0 18px 14px; font-size: 0.78rem; color: var(--text-secondary); }
+        .env-rq-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; opacity: 0.7; }
+        .env-rq-sender b { color: var(--accent-deep); }
+        .env-rq-time { font-size: 0.66rem; }
+        .env-rq-title { font-size: 0.84rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+        .env-rq-content {
+            white-space: pre-wrap; max-height: 180px; overflow-y: auto; line-height: 1.6;
+            padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.5);
+        }
         .mod-hint { font-size: 0.58rem; color: var(--text-hint); opacity: 0.4; margin-top: 2px; }
         .mod-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
         .mod-actions .btn { padding: 4px 12px; font-size: 0.66rem; border-radius: 30px; }
@@ -2277,13 +2343,13 @@
         <span class="q-clear" id="quoteBarClear" title="取消引用">✕</span>
     </div>
 
-    <!-- 消息拓展工具栏（点击气泡弹出） -->
+    <!-- 消息拓展工具栏（长按 / 右键 气泡弹出悬浮窗） -->
     <div class="msg-toolbar" id="msgToolbar">
+        <button data-action="recall" class="danger-warn" title="撤回消息">↶ 撤回</button>
+        <button data-action="delete" class="danger" title="删除消息">🗑 删除</button>
+        <button data-action="fav" title="收藏消息">⭐ 收藏</button>
+        <button data-action="mark"  title="给消息加标注">🏷 标注</button>
         <button data-action="quote" title="引用回复">↩ 引用</button>
-        <button data-action="mark" title="标注标注">🏷 标注</button>
-        <button data-action="fav" title="收藏">⭐ 收藏</button>
-        <button data-action="recall" class="danger-warn" title="撤回">↶ 撤回</button>
-        <button data-action="delete" class="danger" title="删除">🗑 删除</button>
     </div>
 
     <!-- 标注颜色选择浮层 -->
@@ -2606,9 +2672,15 @@
                         <span class="switch-icon">✦</span>
                         <div class="switch-info">
                             <div class="switch-label">拼字卡</div>
-                            <div class="switch-desc">开启后，系统会随机将字卡拼接合并发送</div>
+                            <div class="switch-desc">开启后，梦角会随机把多条字卡拼成一句话发出</div>
                         </div>
                         <label class="chat-switch"><input type="checkbox" id="chatMergeCards"><span></span></label>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">拼卡条数</div>
+                        <input type="range" id="chatMergeCountSlider" min="2" max="10" step="1" value="3">
+                        <span class="slider-value" id="chatMergeCountVal">3 条</span>
+                        <div class="slider-note">梦角从字卡库选择，最少 2 条最多 10 条</div>
                     </div>
 
                     <div class="chat-section-title">字卡抽取方式</div>
@@ -2686,20 +2758,22 @@
                     <div class="chat-section-title">时空来信间隔</div>
                     <div class="chat-slider-row">
                         <div class="slider-label">最少</div>
-                        <input type="range" id="chatLetterMinSlider" min="1" max="48" step="1" value="4">
-                        <span class="slider-value" id="chatLetterMinVal">4小时</span>
+                        <input type="range" id="chatLetterMinSlider" min="1" max="180" step="1" value="15">
+                        <span class="slider-value" id="chatLetterMinVal">15分钟</span>
                         <select id="chatLetterMinUnit">
-                            <option value="hour" selected>小时</option>
+                            <option value="minute" selected>分钟</option>
+                            <option value="hour">小时</option>
                             <option value="day">天</option>
                         </select>
                     </div>
                     <div class="chat-slider-row">
                         <div class="slider-label">最多</div>
-                        <input type="range" id="chatLetterMaxSlider" min="1" max="168" step="1" value="72">
-                        <span class="slider-value" id="chatLetterMaxVal">3天</span>
+                        <input type="range" id="chatLetterMaxSlider" min="2" max="480" step="1" value="60">
+                        <span class="slider-value" id="chatLetterMaxVal">60分钟</span>
                         <select id="chatLetterMaxUnit">
+                            <option value="minute" selected>分钟</option>
                             <option value="hour">小时</option>
-                            <option value="day" selected>天</option>
+                            <option value="day">天</option>
                         </select>
                     </div>
                     <div class="chat-switch-row">
@@ -2744,8 +2818,8 @@
                     <div class="chat-switch-row">
                         <span class="switch-icon">😊</span>
                         <div class="switch-info">
-                            <div class="switch-label">表情混入消息</div>
-                            <div class="switch-desc">开启后表情与文字同条发送</div>
+                            <div class="switch-label">emoji表情混入消息</div>
+                            <div class="switch-desc">开启后，随机 emoji 会混入字卡前后或中间</div>
                         </div>
                         <label class="chat-switch"><input type="checkbox" id="chatEmojiMix"><span></span></label>
                     </div>
@@ -2859,7 +2933,7 @@
                 </div>
                 <div class="cal-title" id="calTitle">2026年9月</div>
                 <div class="cal-nav">
-                    <button id="calJumpBtn" class="cal-jump-btn">🕹 跳转</button>
+                    <button id="calJumpBtn" class="cal-jump-btn" title="跳转到日期">🕹</button>
                     <button id="calNextMonth" title="下一月">›</button>
                     <button id="calNextYear" title="下一年">»</button>
                 </div>
@@ -3004,16 +3078,29 @@
 
 <!-- 新建/写信子弹窗 -->
 <div class="modal-overlay sub-modal" id="envLetterModal">
-    <div class="modal-content" style="max-width:500px;">
+    <div class="modal-content env-letter-full" style="max-width:720px;">
         <div class="modal-header">
             <h2 id="envLetterTitle">✍ 写一封信</h2>
             <button class="modal-close" id="closeLetterModal">✕</button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body env-letter-body">
+            <!-- 回信场景时显示：梦角寄来的原信折叠窗（默认折叠，点标题展开） -->
+            <details id="envReplyFold" class="env-reply-fold" style="display:none;">
+                <summary class="env-reply-summary">📜 梦角寄来的原信（点击展开对照）</summary>
+                <div class="env-reply-quote">
+                    <div class="env-rq-head">
+                        <span class="env-rq-sender">来自 <b id="envRqSender">ta</b></span>
+                        <span class="env-rq-time" id="envRqTime"></span>
+                    </div>
+                    <div class="env-rq-title" id="envRqTitle"></div>
+                    <div class="env-rq-content" id="envRqContent"></div>
+                </div>
+            </details>
+
             <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;">标题</div>
             <input type="text" id="envLetterTitleInput" class="lib-search" placeholder="给这封信起个标题（可选）" style="margin-bottom:12px;">
             <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;">内容</div>
-            <textarea class="mod-textarea" id="envLetterContentInput" rows="8" placeholder="写下你的心里话..."></textarea>
+            <textarea class="mod-textarea env-letter-textarea" id="envLetterContentInput" rows="14" placeholder="写下你的心里话..."></textarea>
             <div class="mod-row" style="margin-top:10px;justify-content:flex-end;">
                 <button class="btn" id="envLetterCancelBtn">取消</button>
                 <button class="btn btn-primary-mod" id="envLetterSendBtn">📤 发送</button>
@@ -3558,10 +3645,11 @@
             <button class="modal-close" id="closeEmojiModal">✕</button>
         </div>
         <div class="modal-body">
-            <!-- 大 tabs：颜文字 / emoji 图片 -->
+            <!-- 大 tabs：颜文字 / Emoji符号 / 自定义图片表情包（三分类） -->
             <div class="lib-tabs" style="margin-bottom:12px;">
                 <button class="tab-btn active" data-sticker-tab="kaomoji">⌨ 颜文字</button>
-                <button class="tab-btn" data-sticker-tab="emoji-img">🖼 emoji 图片</button>
+                <button class="tab-btn" data-sticker-tab="emoji-symbol">😀 Emoji符号</button>
+                <button class="tab-btn" data-sticker-tab="emoji-img">🖼 表情包（图片）</button>
             </div>
 
             <!-- ========= 颜文字 ========= -->
@@ -3610,6 +3698,44 @@
                 <div class="mod-actions" style="margin-top:4px;">
                     <button class="btn btn-danger" id="clearKaoBtn">清空全部</button>
                     <button class="btn" id="resetKaoBtn">恢复默认</button>
+                </div>
+            </div>
+
+            <!-- ========= Emoji 符号（Unicode 字符表情 😣 😊 😴 这类，三分类第二板块） ========= -->
+            <div id="emojiSymbolSection" style="display:none;">
+                <div class="mod-group-tabs" id="emSymGroupTabs">
+                    <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="emSymAllCount">0</span></span>
+                </div>
+                <div class="mod-search-row">
+                    <input type="text" id="emSymSearchInput" placeholder="🔍 搜索 Emoji 符号...">
+                </div>
+                <!-- 符号列表：大网格，点击直接插入到聊天输入框 -->
+                <div class="mod-list" id="emSymList" style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px;">
+                    <span class="mod-empty" style="grid-column:1/-1;">暂无 Emoji 符号</span>
+                </div>
+                <div class="mod-row" style="margin-top:8px;">
+                    <input type="text" id="emSymInput" placeholder="粘贴或输入 Emoji（可多个连写，按单字符拆分）" style="flex:2;font-size:1.2rem;">
+                    <select id="emSymGroupSelect" style="flex:1;min-width:80px;"><option value="default">默认</option></select>
+                    <button class="btn btn-primary-mod" id="addEmSymBtn">添加</button>
+                </div>
+                <div class="mod-row" style="margin-top:4px;">
+                    <input type="text" id="emSymGroupInput" placeholder="新分组名">
+                    <button class="btn" id="emSymAddGroupBtn">创建</button>
+                    <button class="btn btn-danger" id="emSymDeleteGroupBtn">删除</button>
+                </div>
+                <hr class="mod-divider">
+                <div class="mod-actions">
+                    <button class="btn" id="emSymSelectBtn">☑ 选择</button>
+                    <button class="btn btn-danger" id="emSymDeleteSelectedBtn" style="display:none;">删除选中</button>
+                    <span style="font-size:0.6rem; color:#7a5b8d;" id="emSymSelectInfo">已选 0</span>
+                </div>
+                <div class="mod-row" style="margin-top:4px; display:none;" id="emSymMoveRow">
+                    <select id="emSymMoveGroupSelect"><option value="">移动到...</option></select>
+                    <button class="btn" id="emSymMoveBtn">移动</button>
+                </div>
+                <div class="mod-actions" style="margin-top:4px;">
+                    <button class="btn btn-danger" id="clearEmSymBtn">清空全部</button>
+                    <button class="btn" id="resetEmSymBtn">恢复默认</button>
                 </div>
             </div>
 
@@ -3788,7 +3914,11 @@
             "你是我未完成的诗",
             "梦境的碎片闪烁"
         ];
-        const DEFAULT_EMOJIS = ['😊','🌹','🌙','✨','💕','🥺','😴','🌸','💫','🤍','🍀','🎀','🍃','🌙','🌌','🕊️'];
+        const DEFAULT_EMOJIS = ['😊','🌹','🌙','✨','💕','🥺','😴','🌸','💫','🤍','🍀','🎀','🍃','🌌','🕊️'];
+        // 真正的颜文字（Kaomoji）默认组 —— 之前误放了 emoji 导致"颜文字"板块内容和 emoji 重复
+        const DEFAULT_KAOMOJIS = ['(´･ω･`)','(◕ᴗ◕✿)','≧∇≦','ฅ^•ﻌ•^ฅ','(๑˃̵ᴗ˂̵)و','(｡･ω･｡)','(ﾉ´ヮ`)ﾉ*: ・ﾟ✧','(^▽^)','(｡•ᴗ-)✧','(´-ω-`)','ヾ(≧▽≦*)o','(◍•ᴗ•◍)','(づ｡◕‿‿◕｡)づ','(•̀ᴗ•́)و','٩(ˊᗜˋ*)و','╰(⸝⸝⸝´꒳`⸝⸝⸝)╯','(｡･ω･｡)ﾉ♡','(｣°ﾛ°)｣','<(￣︶￣)>','(╥﹏╥)','(T_T)','┭┮﹏┭┮','(´；ω；`)','༼ つ ◕_◕ ༽つ','( ´･ω･)ﾉ( ´･ω･)ﾉ','( ˘ ³˘)♥'];
+        // Emoji 符号（😣😌🌸 这类 Unicode 字符表情）
+        const DEFAULT_EMOJI_SYMBOLS = ['😌','😘','🥰','😭','😤','🤗','😎','🙃','🥺','😇','🤩','😴','🤔','😏','🤤','😱','🤯','🥳','🤫','😬','🙄','😈','🤓','😽','💪','🙌','🤝','👌','✌️','🤞','💖','💜','💙','💚','💛','🧡','❤️','💘','💞','💗','✨','🌟','⭐','🌙','☀️','🌸','🌹','🌺','🌷','🌼','🌻','🍀','🍃','🌊','🌈','🎀','🎀','🎀','🍰','🧁','🍡','🍜','🍙','🍫','🍬','🍭','🍩','🍪','🎁','🎈','🎉','🎊','🏮','🎆','🎇','🧨','🔥','⚡','❄️','🌨','☁️','⛅','⛈','🌤','🌥','🌦','🌧','⛈','🌩','🌪','🌫','🌬','🌀','🌈','🌂','☂️','☔','⛱','⚡','🌡','☀️','🌤','🌥','🌦','🌧','⛈','🌩','🌪','🌫','🌬','🌀'];
         const DEFAULT_PATS = [
             "拍了拍肩膀",
             "揉了揉头发",
@@ -3810,12 +3940,20 @@
         let cardSelected = new Set();
 
         // 默认表情原来的 emojiGroups 保存在 "颜文字" 分组（kaomojiGroups）中
-        let kaomojiGroups = { default: [...DEFAULT_EMOJIS] };
+        let kaomojiGroups = { default: [...DEFAULT_KAOMOJIS] };
         let kaomojiGroupList = ['default'];
         let kaoCurrentGroup = 'all';
         let kaoSearch = '';
         let kaoSelectMode = false;
         let kaoSelected = new Set();
+
+        // Emoji 符号（😣😌🌸 这类 Unicode 字符表情）
+        let emojiGroups = { default: [...DEFAULT_EMOJI_SYMBOLS] };
+        let emojiGroupList = ['default'];
+        let emojiCurrentGroup = 'all';
+        let emojiSearch = '';
+        let emojiSelectMode = false;
+        let emojiSelected = new Set();
 
         // emoji 图片：每个分组是 [{id, url, name}]
         let emojiImgGroups = { default: [] };
@@ -3871,6 +4009,7 @@
         let chatLetterEnabled = true;   // 主动写信
         let chatCustomReplyRule = false;
         let chatMergeCards = false;
+        let chatMergeCount = 3;      // 拼字卡条数自定义：2-10，梦角从字卡库抽
         let chatEmojiMix = false;
         let chatKaomojiMix = false;
         let chatSoundMsg = false;
@@ -3878,8 +4017,11 @@
         let chatVolume = 70;
         let angleCallChance = 30;       // 梦角回复开头混入称呼的概率 %（默认30%）
         // 梦角时间戳/已读/昵称状态缓存
-        let chatLetterMin = 4, chatLetterMinUnit = 'hour';
-        let chatLetterMax = 72, chatLetterMaxUnit = 'day';
+        // 主动写信间隔（默认最少时间单位改为分钟方便测验）
+        let chatLetterMin = 15, chatLetterMinUnit = 'minute';
+        let chatLetterMax = 60, chatLetterMaxUnit = 'minute';
+        let letterTimer = null;      // 主动写信定时器句柄
+        let replyTimer = null;       // 用户消息→梦角回复 定时器句柄
         let chatReplyMin = 10, chatReplyMinUnit = 'min';
         let chatReplyMax = 2, chatReplyMaxUnit = 'hour';
         let chatReplyMinSent = 5, chatReplyMaxSent = 20;
@@ -4436,13 +4578,17 @@
         });
         bindSlider('chatLetterMinSlider', 'chatLetterMinVal', v => {
             const unit = document.getElementById('chatLetterMinUnit');
-            const u = unit ? unit.value : 'hour';
-            return v + (u === 'hour' ? '小时' : '天');
+            const u = unit ? unit.value : 'minute';
+            if (u === 'minute' || u === 'min') return v + '分钟';
+            if (u === 'hour') return v + '小时';
+            return v + '天';
         });
         bindSlider('chatLetterMaxSlider', 'chatLetterMaxVal', v => {
             const unit = document.getElementById('chatLetterMaxUnit');
-            const u = unit ? unit.value : 'day';
-            return v + (u === 'hour' ? '小时' : '天');
+            const u = unit ? unit.value : 'minute';
+            if (u === 'minute' || u === 'min') return v + '分钟';
+            if (u === 'hour') return v + '小时';
+            return v + '天';
         });
         bindSlider('chatReplyMinSlider', 'chatReplyMinVal', v => {
             const unit = document.getElementById('chatReplyMinUnit');
@@ -4631,8 +4777,10 @@
             _msgIdCounter++;
             const mid = 'msg-' + _msgIdCounter + '-' + Date.now().toString(36);
             msgDiv.dataset.msgId = mid;
-            msgDiv.dataset.sender = type === 'user' ? 'usr' : 'angle';
+            const senderKey = type === 'user' ? 'usr' : 'angle';
+            msgDiv.dataset.sender = senderKey;
 
+            // ============ 开关：chatShowAvatar 为 true 时才渲染头像 ============
             if (chatShowAvatar) {
                 const avatarSpan = document.createElement('span');
                 avatarSpan.className = 'msg-avatar';
@@ -4651,11 +4799,10 @@
             const contentDiv = document.createElement('div');
             contentDiv.className = 'msg-content';
             contentDiv.innerHTML = text.replace(/\n/g, '<br>');
-            // 标注颜色（如果有）
             if (opts.markColor) {
                 contentDiv.style.background = opts.markColor;
                 contentDiv.style.borderRadius = '14px';
-                contentDiv.style.padding = opts.markColor && opts.markColor.includes('rgb') ? '6px 10px' : '6px 10px';
+                contentDiv.style.padding = '6px 10px';
             }
             bodyDiv.appendChild(contentDiv);
 
@@ -4664,23 +4811,28 @@
                 const q = document.createElement('div');
                 q.className = 'msg-quote';
                 const qLabel = opts.quote.sender === 'usr' ? userName : angleName;
-                q.innerHTML = `<span class="q-label">${qLabel}：</span><span class="q-text">${opts.quote.text.replace(/\n/g, ' ').slice(0, 80)}</span>`;
+                const safe = (opts.quote.text || '').replace(/\n/g, ' ').slice(0, 80);
+                q.innerHTML = `<span class="q-label">${qLabel}：</span><span class="q-text">${safe}</span>`;
                 bodyDiv.appendChild(q);
             }
 
-            // 时间戳 + 昵称 + 已读回执（在引用下方）
+            // 时间戳 + 昵称 + 已读回执（用户消息先显示未读 ✓ / 未读 ，1.5–5s 随机延迟后变 ✓✓ / 已读）
             const metaDiv = document.createElement('div');
             metaDiv.className = 'msg-meta';
             const now = opts.ts ? new Date(opts.ts) : new Date();
             const tsStr = formatTimestamp(now, chatTimestampStyle);
             const senderName = type === 'user' ? userName : angleName;
             const whoSpan = chatShowNickname ? `<span class="msg-who">${senderName}</span> · ` : '';
-            let readSpan = '';
+            let readHtml = '';
+            const readElId = mid + '-read';
             if (chatReadReceipt && type === 'user') {
-                if (chatReadStyle === 'text') readSpan = ` · <span class="msg-read-text">已读</span>`;
-                else readSpan = ` <span class="msg-read-graphic">✓✓</span>`;
+                if (chatReadStyle === 'text') {
+                    readHtml = ` · <span class="msg-read-text" id="${readElId}">未读</span>`;
+                } else {
+                    readHtml = ` <span class="msg-read-graphic" id="${readElId}" style="color:#a999c5;font-weight:700;">✓</span>`;
+                }
             }
-            metaDiv.innerHTML = `<small>${whoSpan}${tsStr}${readSpan}</small>`;
+            metaDiv.innerHTML = `<small>${whoSpan}${tsStr}${readHtml}</small>`;
             bodyDiv.appendChild(metaDiv);
 
             msgDiv.appendChild(bodyDiv);
@@ -4693,8 +4845,32 @@
                 msgDiv.appendChild(star);
             }
 
+            // ============ 交互：点击消息什么都不做；长按 (450ms) / 右键 (桌面端回退) → 弹出悬浮工具栏 —— 全部通过 init() 里 chatBox 的委托事件监听，避免 IIFE 内 openMsgToolbar 函数作用域问题 ============
+
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            // ============ 已读回执：随机 1.5–5s 延迟再变已读（避免用户一发消息就秒已读）============
+            if (chatReadReceipt && type === 'user') {
+                const delay = 1500 + Math.floor(Math.random() * 3500);
+                setTimeout(() => {
+                    const el = document.getElementById(readElId);
+                    if (!el) return;
+                    if (chatReadStyle === 'text') {
+                        el.textContent = '已读';
+                        el.style.color = '#b496ff';
+                    } else {
+                        el.textContent = '✓✓';
+                        el.style.color = '#b496ff';
+                    }
+                }, delay);
+            }
+
+            // ============ 消息提示音：梦角消息发出时 playSfx('msg') ============
+            if (chatSoundMsg && (type === 'angle' || (type === 'system' && senderKey === 'angle'))) {
+                playSfx('msg');
+            }
+
             return { id: mid, div: msgDiv };
         }
 
@@ -5351,7 +5527,7 @@
         }
         function resetEmojis() {
             if (Object.values(emojiGroups).reduce((a, b) => a + b.length, 0) && !confirm('恢复默认表情？')) return;
-            emojiGroups = { default: [...DEFAULT_EMOJIS] };
+            emojiGroups = { default: [...DEFAULT_KAOMOJIS] };
             emojiGroupList = ['default'];
             emojiCurrentGroup = 'all';
             emojiSelected.clear();
@@ -5671,36 +5847,94 @@
         function replyWithRandomCard(isActive) {
             hideTyping();
             if (!cardLibrary.length) {
-                addChatMessage(`${angleName}沉默不语…… 字卡空空如也。`, 'system');
+                addChatMessage(`${angleName}沉默不语…… 字卡空空如也。`, 'angle');
                 return;
             }
-            let picked;
-            if (chatPickMode === 'sequence') {
-                picked = cardLibrary[seqCursor % cardLibrary.length];
-                seqCursor++;
-            } else if (chatPickMode === 'norepeat') {
-                if (!replyWithRandomCard._pool || !replyWithRandomCard._pool.length) {
-                    replyWithRandomCard._pool = [...cardLibrary];
+            // ========== chatCustomReplyRule：开=全套自定义，关=强制 simple random 一张 ==========
+            const useRule = !!chatCustomReplyRule;
+            const effPickMode = useRule ? chatPickMode : 'random';
+            const effMerge    = useRule ? !!chatMergeCards    : false;
+            const effEmoji    = useRule ? !!chatEmojiMix      : false;
+            const effKao      = useRule ? !!chatKaomojiMix    : false;
+
+            // 抽一张字卡
+            function pickOne() {
+                if (effPickMode === 'sequence') {
+                    const p = cardLibrary[seqCursor % cardLibrary.length];
+                    seqCursor++;
+                    return p;
+                } else if (effPickMode === 'norepeat') {
+                    if (!replyWithRandomCard._pool || !replyWithRandomCard._pool.length) {
+                        replyWithRandomCard._pool = cardLibrary.slice(0);
+                    }
+                    const ii = Math.floor(Math.random() * replyWithRandomCard._pool.length);
+                    return replyWithRandomCard._pool.splice(ii, 1)[0];
+                } else {
+                    return cardLibrary[Math.floor(Math.random() * cardLibrary.length)];
                 }
-                const i = Math.floor(Math.random() * replyWithRandomCard._pool.length);
-                picked = replyWithRandomCard._pool.splice(i, 1)[0];
-            } else {
-                const idx = Math.floor(Math.random() * cardLibrary.length);
-                picked = cardLibrary[idx];
             }
-            let msg = isActive ? `✦ ${picked}` : picked;
-            // 梦角回复开头混入称呼（按angleCallChance概率，从angleCallsUser选一个）
+
+            let msg;
+            if (effMerge) {
+                // 拼卡条数：chatMergeCount（用户滑块设的 2-10）±1 随机浮动，防止每次都精准到同一数值
+                const baseCount = Math.max(2, Math.min(10, chatMergeCount || 3));
+                const count = Math.max(2, Math.min(10, baseCount + (Math.random() < 0.5 ? 0 : (Math.random() < 0.5 ? -1 : 1))));
+                const parts = [];
+                for (let j = 0; j < count; j++) parts.push(pickOne());
+                // 50% 逗号，50% 换行拼接
+                msg = parts.join(Math.random() < 0.5 ? '，' : '\n');
+            } else {
+                msg = pickOne();
+            }
+            if (isActive) msg = '✦ ' + msg;
+
+            // ========== 表情混入（60% 概率，前/中/后 三段） ==========
+            if (effEmoji && Math.random() < 0.6) {
+                const flat = [];
+                for (const g in emojiGroups) flat.push.apply(flat, (emojiGroups[g] || []));
+                if (flat.length) {
+                    const em = flat[Math.floor(Math.random() * flat.length)];
+                    const roll = Math.random();
+                    if (roll < 0.35) msg = em + msg;
+                    else if (roll < 0.7) msg = msg + em;
+                    else {
+                        // 中间：按换行或逗号切
+                        const chunks = msg.split(/(\n|，)/);
+                        if (chunks.length >= 3) {
+                            const mid = Math.floor(chunks.length / 2);
+                            chunks.splice(mid, 0, em);
+                            msg = chunks.join('');
+                        } else {
+                            msg = msg.slice(0, Math.floor(msg.length / 2)) + em + msg.slice(Math.floor(msg.length / 2));
+                        }
+                    }
+                }
+            }
+
+            // 梦角回复开头混入称呼（按 angleCallChance 概率，从 angleCallsUser 选）
             if (angleCallsUser && angleCallsUser.length && Math.random() * 100 < angleCallChance) {
                 const call = angleCallsUser[Math.floor(Math.random() * angleCallsUser.length)];
                 msg = `${call}，${msg}`;
             }
-            // 如果用户是引用回复，梦角也可能带引用
+
+            // ========== 颜文字混入（50% 概率，换行 or 末尾空格） ==========
+            if (effKao && Math.random() < 0.5) {
+                const kaoFlat = [];
+                for (const g in kaomojiGroups) kaoFlat.push.apply(kaoFlat, (kaomojiGroups[g] || []));
+                if (kaoFlat.length) {
+                    const k = kaoFlat[Math.floor(Math.random() * kaoFlat.length)];
+                    if (Math.random() < 0.7) msg = msg + '\n' + k;
+                    else msg = msg + ' ' + k;
+                }
+            }
+
+            // 如果用户是引用回复，梦角也可能带引用；type 改成 angle 让 sender/头像/提示音 正确生效
             if (quoteMsg && Math.random() < 0.5) {
-                addChatMessage(msg, 'system', { quote: quoteMsg });
+                addChatMessage(msg, 'angle', { quote: quoteMsg });
                 quoteMsg = null;
                 return;
             }
-            addChatMessage(msg, 'system');
+            addChatMessage(msg, 'angle');
         }
 
         // ===== 正在输入指示器 =====
@@ -5725,8 +5959,9 @@
             const fromEl = document.getElementById('quoteBarFrom');
             const textEl = document.getElementById('quoteBarText');
             if (!bar) return;
+            const safeText = (text == null) ? '' : String(text);
             if (fromEl) fromEl.textContent = (sender === 'usr' ? userName : angleName) + '：';
-            if (textEl) textEl.textContent = text.length > 40 ? text.slice(0, 40) + '…' : text;
+            if (textEl) textEl.textContent = safeText.length > 40 ? safeText.slice(0, 40) + '…' : safeText;
             bar.classList.add('show');
         }
         function clearQuoteBar() {
@@ -5742,14 +5977,18 @@
             addChatMessage(text, 'user', opts);
             userInput.value = '';
             userInput.focus();
-            // 已读不回：若已开启 chatReadNoReply，随机跳过回复
-            if (chatReadNoReply && Math.random() < 0.25) return;
-            // 随机延迟区间回复
-            const minD = Math.min(replyDelayMin, replyDelayMax);
-            const maxD = Math.max(replyDelayMin, replyDelayMax);
-            const delay = minD + Math.random() * (maxD - minD);
+            if (chatSoundMsg) playSfx('send');
+            // 已读不回：已开启时 45% 概率不回（但消息还是会在 1.5–5s 延迟标记"已读" ✓✓）
+            if (chatReadNoReply && Math.random() < 0.45) return;
+            // 随机延迟区间回复：chatReplySpeed (ms) 作为基础，叠加 [minD,maxD]
+            const minD = Math.max(100, Math.floor(Math.min(replyDelayMin || 0, replyDelayMax || 0)));
+            const maxD = Math.max(minD + 200, Math.floor(Math.max(replyDelayMin || 0, replyDelayMax || 0)));
+            const baseSpeed = isNaN(chatReplySpeed) ? 0 : Math.max(0, Math.floor(chatReplySpeed));
+            const delay = baseSpeed + minD + Math.floor(Math.random() * Math.max(1, (maxD - minD)));
+            // 防止用户连发消息时定时器叠加：清掉上一条 pending replyTimer
+            if (replyTimer) { clearTimeout(replyTimer); replyTimer = null; }
             showTyping();
-            setTimeout(() => { replyWithRandomCard(); }, delay);
+            replyTimer = setTimeout(() => { replyWithRandomCard(); }, delay);
         }
 
         // ===== 拍一拍触发 =====
@@ -6339,6 +6578,7 @@
                     chatLetterEnabled = a.chatLetterEnabled != null ? a.chatLetterEnabled : chatLetterEnabled;
                     chatCustomReplyRule = a.chatCustomReplyRule != null ? a.chatCustomReplyRule : chatCustomReplyRule;
                     chatMergeCards = a.chatMergeCards != null ? a.chatMergeCards : chatMergeCards;
+                    chatMergeCount = (a.chatMergeCount != null && a.chatMergeCount >= 2 && a.chatMergeCount <= 10) ? a.chatMergeCount : chatMergeCount;
                     chatEmojiMix = a.chatEmojiMix != null ? a.chatEmojiMix : chatEmojiMix;
                     chatKaomojiMix = a.chatKaomojiMix != null ? a.chatKaomojiMix : chatKaomojiMix;
                     chatSoundMsg = a.chatSoundMsg != null ? a.chatSoundMsg : chatSoundMsg;
@@ -6361,7 +6601,17 @@
                     if (!marks.usr) marks.usr = []; if (!marks.angle) marks.angle = [];
                     recalledCache = a.recalledCache && typeof a.recalledCache === 'object' ? a.recalledCache : {};
                     moodDiaries = a.moodDiaries && typeof a.moodDiaries === 'object' ? a.moodDiaries : {};
-                    kaomojiGroups = a.kaomojiGroups && typeof a.kaomojiGroups === 'object' ? a.kaomojiGroups : { default: [...DEFAULT_EMOJIS] };
+                    kaomojiGroups = a.kaomojiGroups && typeof a.kaomojiGroups === 'object' ? a.kaomojiGroups : { default: [...DEFAULT_KAOMOJIS] };
+                    // 一次性迁移：之前错误地把 DEFAULT_EMOJIS（全 emoji）存进了 kaomojiGroups.default，
+                    // 检测到第一个元素不含颜文字特征（无括号/≧/T_T）就自动替换，刷新一次即可生效
+                    try {
+                        var kdef = kaomojiGroups.default || [];
+                        var looksLikeEmoji = kdef.length && /^[^\(\)≧≦_T].{0,10}$/.test(kdef[0]) && !/\(/.test(kdef[0]);
+                        if (looksLikeEmoji) {
+                            kaomojiGroups = { default: [...DEFAULT_KAOMOJIS] };
+                            saveAppearance();
+                        }
+                    } catch(_e) {}
                     kaomojiGroupList = Array.isArray(a.kaomojiGroupList) ? a.kaomojiGroupList : ['default'];
                     emojiImgGroups = a.emojiImgGroups && typeof a.emojiImgGroups === 'object' ? a.emojiImgGroups : { default: [] };
                     emojiImgGroupList = Array.isArray(a.emojiImgGroupList) ? a.emojiImgGroupList : ['default'];
@@ -6465,8 +6715,8 @@
             if (cpm) cpm.value = chatPickMode;
             syncSlider('angleCallChanceSlider', angleCallChance, 'angleCallChanceVal', v => v + '%');
             syncSlider('chatVolumeSlider', chatVolume, 'chatVolumeVal', v => v + '%');
-            syncSlider('chatLetterMinSlider', chatLetterMin, 'chatLetterMinVal', v => v + (chatLetterMinUnit === 'day' ? '天' : '小时'));
-            syncSlider('chatLetterMaxSlider', chatLetterMax, 'chatLetterMaxVal', v => v + (chatLetterMaxUnit === 'day' ? '天' : '小时'));
+            syncSlider('chatLetterMinSlider', chatLetterMin, 'chatLetterMinVal', v => v + (chatLetterMinUnit === 'day' ? '天' : (chatLetterMinUnit === 'minute' || chatLetterMinUnit === 'min' ? '分钟' : '小时')));
+            syncSlider('chatLetterMaxSlider', chatLetterMax, 'chatLetterMaxVal', v => v + (chatLetterMaxUnit === 'day' ? '天' : (chatLetterMaxUnit === 'minute' || chatLetterMaxUnit === 'min' ? '分钟' : '小时')));
             syncSlider('chatReplyMinSlider', chatReplyMin, 'chatReplyMinVal', v => v + (chatReplyMinUnit === 'hour' ? '小时' : '分钟'));
             syncSlider('chatReplyMaxSlider', chatReplyMax, 'chatReplyMaxVal', v => v + (chatReplyMaxUnit === 'hour' ? '小时' : '分钟'));
             const selSync = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
@@ -6494,7 +6744,7 @@
                 userCallsAngle, angleCallsUser,
                 chatShowNickname, chatQuoteEnabled, chatReadReceipt, chatReadStyle, chatReadNoReply,
                 chatEnterSend, chatTimestampStyle, chatCallEnabled, chatLetterEnabled, chatCustomReplyRule,
-                chatMergeCards, chatEmojiMix, chatKaomojiMix, chatSoundMsg, chatSoundCall, chatVolume,
+                chatMergeCards, chatMergeCount, chatEmojiMix, chatKaomojiMix, chatSoundMsg, chatSoundCall, chatVolume,
                 angleCallChance,
                 chatLetterMin, chatLetterMinUnit, chatLetterMax, chatLetterMaxUnit,
                 chatReplyMin, chatReplyMinUnit, chatReplyMax, chatReplyMaxUnit,
@@ -6542,7 +6792,7 @@
                     cardLibrary = payload.cards.cardLibrary || (() => { let a = []; for (const g in groups) a = a.concat(groups[g]); return a; })();
                 }
                 if (payload.emojis) {
-                    emojiGroups = payload.emojis.groups || { default: [...DEFAULT_EMOJIS] };
+                    emojiGroups = payload.emojis.groups || { default: [...DEFAULT_KAOMOJIS] };
                     emojiGroupList = payload.emojis.groupList || ['default'];
                 }
                 if (payload.pats) {
@@ -6569,7 +6819,7 @@
             cardSelected.clear();
             cardSelectMode = false;
 
-            emojiGroups = { default: [...DEFAULT_EMOJIS] };
+            emojiGroups = { default: [...DEFAULT_KAOMOJIS] };
             emojiGroupList = ['default'];
             emojiCurrentGroup = 'all';
             emojiSelected.clear();
@@ -6596,11 +6846,11 @@
             chatReadReceipt = true; chatReadStyle = 'graphic'; chatReadNoReply = true;
             chatEnterSend = false; chatTimestampStyle = 'HH:MM';
             chatCallEnabled = true; chatLetterEnabled = true; chatCustomReplyRule = false;
-            chatMergeCards = false; chatEmojiMix = false; chatKaomojiMix = false;
+            chatMergeCards = false; chatMergeCount = 3; chatEmojiMix = false; chatKaomojiMix = false;
             chatSoundMsg = false; chatSoundCall = false; chatVolume = 70;
             angleCallChance = 30;
-            chatLetterMin = 4; chatLetterMinUnit = 'hour';
-            chatLetterMax = 72; chatLetterMaxUnit = 'day';
+            chatLetterMin = 15; chatLetterMinUnit = 'minute';
+            chatLetterMax = 60; chatLetterMaxUnit = 'minute';
             chatReplyMin = 10; chatReplyMinUnit = 'min';
             chatReplyMax = 2; chatReplyMaxUnit = 'hour';
             chatReplyMinSent = 5; chatReplyMaxSent = 20;
@@ -6609,7 +6859,7 @@
             marks = { usr: [], angle: [] };
             recalledCache = {};
             moodDiaries = {};
-            kaomojiGroups = { default: [...DEFAULT_EMOJIS] };
+            kaomojiGroups = { default: [...DEFAULT_KAOMOJIS] };
             kaomojiGroupList = ['default']; kaoCurrentGroup = 'all'; kaoSelected = new Set(); kaoSelectMode = false; kaoSearch = '';
             emojiImgGroups = { default: [] };
             emojiImgGroupList = ['default']; emImgCurrentGroup = 'all'; emImgSelected = new Set(); emImgSelectMode = false; emImgSearch = '';
@@ -6648,7 +6898,11 @@
             arrowUpBtn.addEventListener('click', toggleBottomSheet);
 
             // 底部按钮
-            bottomCallBtn.addEventListener('click', () => { closeBottomSheet(); openModal(callModal); });
+            bottomCallBtn.addEventListener('click', () => {
+                closeBottomSheet();
+                if (chatSoundCall) playSfx('call');
+                openModal(callModal);
+            });
             bottomEmojiBtn.addEventListener('click', () => { closeBottomSheet(); openModal(emojiModal); });
             bottomPatBtn.addEventListener('click', () => {
                 closeBottomSheet();
@@ -7101,28 +7355,81 @@
                 const sender = div.dataset.sender;
                 curToolbarMsgId = mid; curToolbarSender = sender; curToolbarDiv = div;
                 const rect = div.getBoundingClientRect();
-                toolbar.style.display = 'inline-flex';
-                const tbRect = toolbar.getBoundingClientRect();
-                let left = sender === 'usr' ? (rect.right - tbRect.width) : rect.left;
-                let top = rect.top - tbRect.height - 8;
-                if (top < 4) top = rect.bottom + 4;
-                if (left < 4) left = 4;
-                if (left + tbRect.width > window.innerWidth - 4) left = window.innerWidth - tbRect.width - 4;
-                toolbar.style.left = left + 'px';
-                toolbar.style.top = top + 'px';
-                toolbar.classList.add('show');
-                ev.stopPropagation();
+                toolbar.style.display = 'inline-flex'; // 先显示，下一帧再算 rect + 加 show class 得入场动画
+                requestAnimationFrame(() => {
+                    const tbRect = toolbar.getBoundingClientRect();
+                    // 长按触发者位置：放在消息正上方中间对齐；如果上方不够，就放下方
+                    let left = rect.left + (rect.width - tbRect.width) / 2;
+                    let top = rect.top - tbRect.height - 10;
+                    if (top < 8) top = rect.bottom + 10;
+                    if (left < 8) left = 8;
+                    if (left + tbRect.width > window.innerWidth - 8) left = window.innerWidth - tbRect.width - 8;
+                    toolbar.style.left = left + 'px';
+                    toolbar.style.top = top + 'px';
+                    toolbar.classList.add('show');
+                });
+                if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
             }
             function closeMsgToolbar() {
-                if (toolbar) { toolbar.classList.remove('show'); toolbar.style.display = ''; }
+                if (toolbar) { toolbar.classList.remove('show'); setTimeout(() => { if(toolbar && !toolbar.classList.contains('show')) toolbar.style.display = ''; }, 180); }
                 curToolbarMsgId = null; curToolbarSender = null; curToolbarDiv = null;
             }
-            // 点击消息弹出工具栏（委托）
-            chatBox.addEventListener('click', (e) => {
+            // ========== 长按触发（450ms）+ 桌面端右键回退 ==========
+            let __lpTimer = null;
+            let __lpMsgDiv = null;
+            let __lpFired = false;
+            function __lpClear() {
+                if (__lpTimer) { clearTimeout(__lpTimer); __lpTimer = null; }
+                if (__lpMsgDiv && __lpFired) { __lpMsgDiv.classList.remove('lp-highlight'); }
+                __lpMsgDiv = null; __lpFired = false;
+            }
+            function __lpStart(ev, msgDiv) {
+                // 受聊天设置开关 chatQuoteEnabled 控制：关闭时长按不弹窗
+                if (!chatQuoteEnabled) return;
+                __lpClear();
+                __lpMsgDiv = msgDiv;
+                __lpFired = false;
+                msgDiv.classList.add('lp-highlight');
+                __lpTimer = setTimeout(() => {
+                    __lpFired = true;
+                    try {
+                        if (window.navigator && navigator.vibrate) { try { navigator.vibrate(18); } catch(e){} } // 移动端触觉反馈
+                    } catch(e){}
+                    openMsgToolbar(msgDiv, ev);
+                }, 450);
+            }
+            // pointerdown / touchstart 开始计时
+            chatBox.addEventListener('pointerdown', (e) => {
+                const msgDiv = e.target.closest('.message');
+                if (!msgDiv) return;
+                if (e.target.closest('.msg-toolbar') || e.target.closest('.msg-recall-notice')) return;
+                // 只响应主键（鼠标左键 / 默认 pointerType）
+                if (e.button != null && e.button !== 0) return;
+                __lpStart(e, msgDiv);
+            }, { passive: true });
+            chatBox.addEventListener('touchstart', (e) => {
+                const msgDiv = e.target.closest('.message');
+                if (!msgDiv) return;
+                if (e.target.closest('.msg-toolbar') || e.target.closest('.msg-recall-notice')) return;
+                __lpStart(e, msgDiv);
+            }, { passive: true });
+            // 取消场景：up / cancel / leave / scroll / 按键抬起
+            ['pointerup','pointercancel','pointerleave','touchend','touchcancel','touchmove'].forEach(evt => {
+                chatBox.addEventListener(evt, __lpClear, { passive: true });
+            });
+            // 桌面端右键 → 直接弹出（长按的兼容备用，同样受 chatQuoteEnabled 控制）
+            chatBox.addEventListener('contextmenu', (e) => {
+                if (!chatQuoteEnabled) return;
                 const msgDiv = e.target.closest('.message');
                 if (msgDiv && !e.target.closest('.msg-recall-notice') && !e.target.closest('.msg-toolbar')) {
+                    e.preventDefault(); e.stopPropagation();
+                    __lpClear();
                     openMsgToolbar(msgDiv, e);
                 }
+            });
+            // 点击空白处关闭工具栏
+            chatBox.addEventListener('click', (e) => {
+                if (!e.target.closest('.message') && !e.target.closest('.msg-toolbar')) closeMsgToolbar();
             });
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.msg-toolbar') && !e.target.closest('.message')) closeMsgToolbar();
@@ -7622,17 +7929,46 @@
                 if (m) m.addEventListener('click', (e) => { if (e.target === m) closeModal(m); });
             });
 
-            // ========== 聊天设置功能 tab 状态同步 ==========
-            const chatQuoteEnabledEl = document.getElementById('chatQuoteEnabled');
-            if (chatQuoteEnabledEl) { chatQuoteEnabledEl.checked = chatQuoteEnabled; chatQuoteEnabledEl.addEventListener('change', () => { chatQuoteEnabled = chatQuoteEnabledEl.checked; saveAppearance(); if (!chatQuoteEnabled) { quoteMsg = null; clearQuoteBar(); } }); }
-            const chatReadReceiptEl = document.getElementById('chatReadReceipt');
-            if (chatReadReceiptEl) { chatReadReceiptEl.checked = chatReadReceipt; chatReadReceiptEl.addEventListener('change', () => { chatReadReceipt = chatReadReceiptEl.checked; saveAppearance(); }); }
-            const chatReadNoReplyEl = document.getElementById('chatReadNoReply');
-            if (chatReadNoReplyEl) { chatReadNoReplyEl.checked = chatReadNoReply; chatReadNoReplyEl.addEventListener('change', () => { chatReadNoReply = chatReadNoReplyEl.checked; saveAppearance(); }); }
-            const chatShowNicknameEl = document.getElementById('chatShowNickname');
-            if (chatShowNicknameEl) { chatShowNicknameEl.checked = chatShowNickname; chatShowNicknameEl.addEventListener('change', () => { chatShowNickname = chatShowNicknameEl.checked; saveAppearance(); }); }
-            const chatEnterSendToggle = document.getElementById('chatEnterSend');
-            if (chatEnterSendToggle) { chatEnterSendToggle.checked = chatEnterSend; chatEnterSendToggle.addEventListener('change', () => { chatEnterSend = chatEnterSendToggle.checked; saveAppearance(); }); }
+            // ========== 聊天设置功能 tab 状态同步 —— 所有开关统一双向绑定 ==========
+            function bindChatSwitch(cbId, varName, onChange) {
+                const el = document.getElementById(cbId);
+                if (!el) return;
+                el.checked = eval(varName); // 初始化 UI
+                el.addEventListener('change', () => {
+                    eval(varName + ' = el.checked;');
+                    saveAppearance();
+                    if (typeof onChange === 'function') onChange(el.checked);
+                });
+            }
+            // 已有特殊逻辑的开关：quoteEnabled（关了要清 quoteBar）
+            bindChatSwitch('chatQuoteEnabled', 'chatQuoteEnabled', (v) => { if (!v) { quoteMsg = null; clearQuoteBar(); } });
+            // 下面 11 个开关之前**完全没绑定 change 事件**，用户改 UI 无效 —— 现在统一绑定
+            bindChatSwitch('chatReadReceipt', 'chatReadReceipt');
+            bindChatSwitch('chatReadNoReply', 'chatReadNoReply');
+            bindChatSwitch('chatShowNickname', 'chatShowNickname');
+            bindChatSwitch('chatEnterSend', 'chatEnterSend');
+            bindChatSwitch('chatShowAvatar', 'chatShowAvatar');
+            bindChatSwitch('chatShowTimestamp', 'chatShowTimestamp');
+            bindChatSwitch('chatCallEnabled', 'chatCallEnabled');
+            bindChatSwitch('chatLetterEnabled', 'chatLetterEnabled');
+            bindChatSwitch('chatCustomReplyRule', 'chatCustomReplyRule');
+            bindChatSwitch('chatMergeCards', 'chatMergeCards');
+            bindChatSwitch('chatEmojiMix', 'chatEmojiMix');
+            bindChatSwitch('chatKaomojiMix', 'chatKaomojiMix');
+            bindChatSwitch('chatSoundMsg', 'chatSoundMsg');
+            bindChatSwitch('chatSoundCall', 'chatSoundCall');
+            // chatMergeCountSlider：拼字卡条数滑块同步
+            const mcs = document.getElementById('chatMergeCountSlider');
+            const mcval = document.getElementById('chatMergeCountVal');
+            if (mcs) {
+                mcs.value = chatMergeCount;
+                if (mcval) mcval.textContent = chatMergeCount + ' 条';
+                mcs.addEventListener('input', () => {
+                    chatMergeCount = parseInt(mcs.value, 10) || 3;
+                    if (mcval) mcval.textContent = chatMergeCount + ' 条';
+                    saveAppearance();
+                });
+            }
             // time-stamp options 点击同步
             document.querySelectorAll('#chatTimestampOptions .ts-option').forEach(opt => {
                 const v = opt.dataset.val;
@@ -7658,15 +7994,17 @@
                 });
             });
 
-            // ========== 颜文字 + emoji 图片 + 信封 ==========
-            // ===== 标签切换：颜文字 / emoji 图片 =====
+            // ========== 颜文字 + Emoji符号 + 图片表情包 + 信封 ==========
+            // ===== 标签切换：三分类（颜文字 / Emoji符号 / 图片） =====
             const kaomojiSection = document.getElementById('kaomojiSection');
+            const emojiSymbolSection = document.getElementById('emojiSymbolSection');
             const emojiImgSection = document.getElementById('emojiImgSection');
             document.querySelectorAll('[data-sticker-tab]').forEach(b => b.addEventListener('click', () => {
                 document.querySelectorAll('[data-sticker-tab]').forEach(x => x.classList.remove('active'));
                 b.classList.add('active');
                 const tab = b.dataset.stickerTab;
                 if (kaomojiSection) kaomojiSection.style.display = tab === 'kaomoji' ? '' : 'none';
+                if (emojiSymbolSection) emojiSymbolSection.style.display = tab === 'emoji-symbol' ? '' : 'none';
                 if (emojiImgSection) emojiImgSection.style.display = tab === 'emoji-img' ? '' : 'none';
             }));
 
@@ -7855,11 +8193,207 @@
             });
             if (resetKaoBtn) resetKaoBtn.addEventListener('click', () => {
                 if (!confirm('恢复默认颜文字？（覆盖当前）')) return;
-                kaomojiGroups = { default: [...DEFAULT_EMOJIS] };
+                kaomojiGroups = { default: [...DEFAULT_KAOMOJIS] };
                 kaomojiGroupList = ['default']; kaoCurrentGroup = 'all'; kaoSelected.clear(); kaoSelectMode = false;
                 saveAppearance(); renderKaos(); showToast('已恢复默认');
             });
             if (kaoSearchInput) kaoSearchInput.addEventListener('input', renderKaos);
+
+            // ===== Emoji 符号（Unicode 字符表情：😣 😊 😴 这类，对应 emojiGroups；三分类第二板块） =====
+            let emSymGroupTabs = document.getElementById('emSymGroupTabs');
+            let emSymList = document.getElementById('emSymList');
+            let emSymSearchInput = document.getElementById('emSymSearchInput');
+            let emSymInput = document.getElementById('emSymInput');
+            let emSymGroupSelect = document.getElementById('emSymGroupSelect');
+            let addEmSymBtn = document.getElementById('addEmSymBtn');
+            let emSymGroupInput = document.getElementById('emSymGroupInput');
+            let emSymAddGroupBtn = document.getElementById('emSymAddGroupBtn');
+            let emSymDeleteGroupBtn = document.getElementById('emSymDeleteGroupBtn');
+            let emSymSelectBtn = document.getElementById('emSymSelectBtn');
+            let emSymDeleteSelectedBtn = document.getElementById('emSymDeleteSelectedBtn');
+            let emSymSelectInfo = document.getElementById('emSymSelectInfo');
+            let emSymMoveRow = document.getElementById('emSymMoveRow');
+            let emSymMoveGroupSelect = document.getElementById('emSymMoveGroupSelect');
+            let emSymMoveBtn = document.getElementById('emSymMoveBtn');
+            let clearEmSymBtn = document.getElementById('clearEmSymBtn');
+            let resetEmSymBtn = document.getElementById('resetEmSymBtn');
+            let emSymAllCount = document.getElementById('emSymAllCount');
+            let emSymSelectMode = false;
+            function renderEmSymGroups() {
+                if (!emSymGroupTabs) return;
+                let total = 0;
+                for (const g in emojiGroups) total += emojiGroups[g].length;
+                emSymGroupTabs.innerHTML = `<span class="mod-group-tab ${emojiCurrentGroup==='all'?'active':''}" data-group="all">全部 <span class="count" id="emSymAllCount">${total}</span></span>`;
+                emojiGroupList.forEach(g => {
+                    const len = (emojiGroups[g]||[]).length;
+                    const s = document.createElement('span');
+                    s.className = 'mod-group-tab ' + (emojiCurrentGroup===g ? 'active' : '');
+                    s.dataset.group = g;
+                    s.innerHTML = `${g} <span class="count">${len}</span>`;
+                    emSymGroupTabs.appendChild(s);
+                });
+                emSymGroupTabs.querySelectorAll('[data-group]').forEach(t => t.addEventListener('click', () => {
+                    emojiCurrentGroup = t.dataset.group;
+                    renderEmSymGroups(); renderEmSyms();
+                }));
+                [emSymGroupSelect, emSymMoveGroupSelect].forEach(sel => {
+                    if (!sel) return;
+                    const cur = sel.value;
+                    sel.innerHTML = '';
+                    emojiGroupList.forEach(g => {
+                        const o = document.createElement('option');
+                        o.value = g; o.textContent = g;
+                        sel.appendChild(o);
+                    });
+                    if (emojiGroupList.includes(cur)) sel.value = cur;
+                });
+                if (emSymAllCount) emSymAllCount.textContent = String(total);
+            }
+            function renderEmSyms() {
+                if (!emSymList) return;
+                let items = emojiCurrentGroup === 'all'
+                    ? (function(){ let a = []; for (const g in emojiGroups) a = a.concat(emojiGroups[g].map(v=>({group:g,value:v}))); return a; })()
+                    : (emojiGroups[emojiCurrentGroup]||[]).map(v => ({group:emojiCurrentGroup, value:v}));
+                const kw = (emSymSearchInput?.value || '').toLowerCase();
+                if (kw) items = items.filter(x => x.value.toLowerCase().includes(kw));
+                emSymList.innerHTML = '';
+                if (!items.length) {
+                    const e = document.createElement('span');
+                    e.className = 'mod-empty';
+                    e.style.gridColumn = '1/-1';
+                    e.textContent = kw ? '未找到匹配 Emoji' : (emojiCurrentGroup==='all' ? '暂无 Emoji 符号' : '「'+emojiCurrentGroup+'」为空');
+                    emSymList.appendChild(e);
+                } else {
+                    items.forEach(({group, value}) => {
+                        const key = group+'|'+value;
+                        const d = document.createElement('div');
+                        d.className = 'em-img-item' + (emojiSelected.has(key) ? ' selected' : '');
+                        d.style.cssText = 'aspect-ratio:1/1;border-radius:12px;background:rgba(255,255,255,0.6);border:1px solid rgba(200,170,220,0.25);display:flex;align-items:center;justify-content:center;font-size:1.8rem;cursor:pointer;transition:0.15s;position:relative;user-select:none;';
+                        d.textContent = value;
+                        d.title = value;
+                        if (emSymSelectMode) {
+                            if (emojiSelected.has(key)) {
+                                d.style.background = 'linear-gradient(135deg,#b58aff,#e49cff)';
+                                d.style.color = '#fff';
+                                d.style.boxShadow = '0 0 0 2px #c6a8de inset';
+                            }
+                            d.addEventListener('click', () => {
+                                if (emojiSelected.has(key)) emojiSelected.delete(key);
+                                else emojiSelected.add(key);
+                                renderEmSyms();
+                            });
+                            const del = document.createElement('span');
+                            del.className = 'del';
+                            del.style.cssText = 'position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#e74c3c;color:#fff;font-size:0.7rem;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;';
+                            del.textContent = '✕';
+                            del.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                emojiGroups[group] = (emojiGroups[group]||[]).filter(x => x !== value);
+                                emojiSelected.delete(key);
+                                saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                            });
+                            d.appendChild(del);
+                        } else {
+                            d.addEventListener('click', () => {
+                                if (typeof userInput !== 'undefined' && userInput) { userInput.value += value; userInput.focus(); }
+                                closeModal(emojiModal);
+                            });
+                        }
+                        emSymList.appendChild(d);
+                    });
+                }
+                if (emSymSelectInfo) emSymSelectInfo.textContent = '已选 '+emojiSelected.size;
+                if (emSymDeleteSelectedBtn) emSymDeleteSelectedBtn.style.display = emSymSelectMode ? '' : 'none';
+                if (emSymMoveRow) emSymMoveRow.style.display = emSymSelectMode ? '' : 'none';
+                if (emSymSelectBtn) emSymSelectBtn.textContent = emSymSelectMode ? '✔ 取消' : '☑ 选择';
+            }
+            function addEmSym() {
+                const raw = (emSymInput?.value || '').trim();
+                if (!raw) { showToast('请输入 Emoji 符号'); return; }
+                const grp = (emSymGroupSelect?.value || 'default') || 'default';
+                if (!emojiGroups[grp]) emojiGroups[grp] = [];
+                // Array.from 按 code point 拆分，正确处理 surrogate pair emoji
+                const symbols = Array.from(raw).filter(c => c && c.trim().length);
+                let added = 0;
+                symbols.forEach(s => {
+                    if (!emojiGroups[grp].includes(s)) { emojiGroups[grp].push(s); added++; }
+                });
+                if (!added) { showToast('全部已存在'); if (emSymInput) emSymInput.value=''; return; }
+                saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                if (emSymInput) emSymInput.value = '';
+                showToast('已添加 '+added+' 个 Emoji');
+            }
+            if (addEmSymBtn) addEmSymBtn.addEventListener('click', addEmSym);
+            if (emSymInput) emSymInput.addEventListener('keydown', e => { if (e.key === 'Enter') addEmSym(); });
+            if (emSymGroupInput && emSymAddGroupBtn) emSymAddGroupBtn.addEventListener('click', () => {
+                const g = (emSymGroupInput.value || '').trim();
+                if (!g) return showToast('请输入分组名');
+                if (emojiGroupList.includes(g)) return showToast('分组已存在');
+                emojiGroupList.push(g); emojiGroups[g] = [];
+                saveAppearance(); renderEmSymGroups();
+                emSymGroupInput.value = '';
+                showToast('分组已创建');
+            });
+            if (emSymDeleteGroupBtn) emSymDeleteGroupBtn.addEventListener('click', () => {
+                const g = (emSymGroupSelect?.value || 'default');
+                if (!g || g === 'default') return showToast('默认分组不可删除');
+                if (!confirm('删除分组「'+g+'」？组内 Emoji 将一并移除。')) return;
+                emojiGroupList = emojiGroupList.filter(x => x !== g);
+                delete emojiGroups[g];
+                if (emojiCurrentGroup === g) emojiCurrentGroup = 'all';
+                saveAppearance(); renderEmSymGroups(); renderEmSyms();
+                showToast('分组已删除');
+            });
+            if (emSymSelectBtn) emSymSelectBtn.addEventListener('click', () => {
+                emSymSelectMode = !emSymSelectMode;
+                if (!emSymSelectMode) emojiSelected.clear();
+                renderEmSyms();
+            });
+            if (emSymDeleteSelectedBtn) emSymDeleteSelectedBtn.addEventListener('click', () => {
+                if (!emojiSelected.size) return showToast('未选中');
+                if (!confirm('删除选中的 '+emojiSelected.size+' 个 Emoji？')) return;
+                emojiSelected.forEach(key => {
+                    const [g, v] = key.split('|');
+                    if (emojiGroups[g]) emojiGroups[g] = emojiGroups[g].filter(x => x !== v);
+                });
+                emojiSelected.clear(); emSymSelectMode = false;
+                saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                showToast('已删除');
+            });
+            if (emSymMoveBtn) emSymMoveBtn.addEventListener('click', () => {
+                const tgt = (emSymMoveGroupSelect?.value || '');
+                if (!tgt || !emojiSelected.size) return;
+                let moved = 0;
+                emojiSelected.forEach(key => {
+                    const [g, v] = key.split('|');
+                    if (g === tgt) return;
+                    if (emojiGroups[g]) emojiGroups[g] = emojiGroups[g].filter(x => x !== v);
+                    if (!emojiGroups[tgt]) emojiGroups[tgt] = [];
+                    if (!emojiGroups[tgt].includes(v)) { emojiGroups[tgt].push(v); moved++; }
+                });
+                emojiSelected.clear(); emSymSelectMode = false;
+                saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                showToast('已移动 '+moved+' 个');
+            });
+            if (clearEmSymBtn) clearEmSymBtn.addEventListener('click', () => {
+                const cnt = Object.values(emojiGroups).reduce((a,b)=>a+b.length,0);
+                if (!cnt) return showToast('当前没有 Emoji 可清空');
+                if (!confirm('清空全部 '+cnt+' 个 Emoji 符号？（不可恢复）')) return;
+                for (const g of emojiGroupList) emojiGroups[g] = [];
+                emojiSelected.clear(); emSymSelectMode = false; saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                showToast('已清空');
+            });
+            if (resetEmSymBtn) resetEmSymBtn.addEventListener('click', () => {
+                const curCnt = Object.values(emojiGroups).reduce((a,b)=>a+b.length,0);
+                if (curCnt && !confirm('恢复默认 Emoji 符号？当前自定义内容将丢失。')) return;
+                emojiGroups = { default: [...DEFAULT_KAOMOJIS] };
+                emojiGroupList = ['default'];
+                emojiCurrentGroup = 'all';
+                emojiSelected.clear(); emSymSelectMode = false;
+                saveAppearance(); renderEmSyms(); renderEmSymGroups();
+                showToast('已恢复默认');
+            });
+            if (emSymSearchInput) emSymSearchInput.addEventListener('input', renderEmSyms);
 
             // ===== emoji 图片 =====
             let emImgList = document.getElementById('emImgList');
@@ -8076,7 +8610,7 @@
             const firstTab = document.querySelector('[data-sticker-tab="kaomoji"]');
             if (firstTab) firstTab.classList.add('active');
             // 初次渲染
-            renderKaos(); renderEmImgs();
+            renderKaos(); renderEmSymGroups(); renderEmSyms(); renderEmImgs();
 
             // ========== 信封板块 ==========
             const envelopeModal = document.getElementById('envelopeModal');
@@ -8220,11 +8754,16 @@
                         saveAppearance(); renderEnvList();
                     });
 
-                    // 点击卡片 = 展开详情 + 标记已读
+                    // 点击卡片 = 展开详情 + 标记已读（按 box 类型区分：梦角收件箱不自动已读）
                     d.addEventListener('click', (e) => {
                         if (e.target.closest('.env-jump,.env-quote,.env-delete-btn,.env-reply-btn')) return;
                         toggleLetterDetail(d, letter);
-                        if (!letter.read) { letter.read = true; saveAppearance(); renderEnvList(); }
+                        // 只有"我的收信箱" 和 "时空信箱"里的信，梦女点查看才算已读；
+                        // "梦角收件箱"(angle.inbox) 梦女点查看 ≠ 梦角已读 —— 梦角读信需另一条独立逻辑，不能在这里改
+                        const box = envState.box;
+                        if ((box === 'mine' || box === 'space') && envState.inner === 'inbox') {
+                            if (!letter.read) { letter.read = true; saveAppearance(); renderEnvList(); }
+                        }
                     });
                     envList.appendChild(d);
                 });
@@ -8305,12 +8844,25 @@
 
             // 点收信箱某信 = 进入回信模式
             function startReply(letter) {
+                // 回信改走大信纸 Modal（envLetterModal），让用户在大信纸上撰写回信 + 折叠对照原信
+                envWritingLetterState = 'reply';
                 envState.replyingToId = letter.id;
-                envReplyArea.style.display = '';
-                envReplyHint.textContent = `给 ${letter.from === 'usr' ? userName : angleName} 回信（回复：${letter.title || letter.content.slice(0,20)}…）：`;
-                envReplyInput.value = '';
-                setTimeout(() => envReplyInput.focus(), 50);
-                envReplyInput.scrollIntoView({behavior:'smooth', block:'nearest'});
+                envLetterTitle.textContent = '✍ 回信给 ' + (letter.from === 'usr' ? userName : angleName);
+                // 折叠窗注入梦角原信内容
+                var fold = document.getElementById('envReplyFold');
+                if (fold) {
+                    fold.style.display = '';
+                    fold.open = false; // 默认折叠
+                }
+                var rq = document.getElementById('envRqSender');  if (rq) rq.textContent = (letter.from === 'usr' ? userName : angleName);
+                var rt = document.getElementById('envRqTime');    if (rt) rt.textContent = formatDateCN(letter.ts) + ' ' + formatTimeHMS(letter.ts);
+                var rtt = document.getElementById('envRqTitle');  if (rtt) rtt.textContent = letter.title || '(无标题)';
+                var rc = document.getElementById('envRqContent'); if (rc) rc.textContent = letter.content;
+                // 预填回信标题 & 正文（可选预填）
+                envLetterTitleInput.value = 'Re：' + (letter.title || '梦角来信');
+                envLetterContentInput.value = '';
+                openModal(envLetterModal);
+                setTimeout(() => envLetterContentInput.focus(), 80);
             }
 
             // 发送回信：我的信箱.outbox（回信） → 他的信箱.inbox（收信）；反之对称
@@ -8363,22 +8915,60 @@
                 envState.writingFrom = writeAs;
                 envLetterTitleInput.value = '';
                 envLetterContentInput.value = '';
+                // 新建模式隐藏原信折叠窗
+                var fold = document.getElementById('envReplyFold');
+                if (fold) fold.style.display = 'none';
                 openModal(envLetterModal);
                 setTimeout(() => envLetterTitleInput.focus(), 50);
             }
-            function closeNewLetter() { closeModal(envLetterModal); }
+            function closeNewLetter() {
+                // 关闭时把折叠窗 reset
+                var fold = document.getElementById('envReplyFold');
+                if (fold) { fold.style.display = 'none'; fold.open = false; }
+                envWritingLetterState = 'new';
+                envState.replyingToId = null;
+                closeModal(envLetterModal);
+            }
             function sendNewLetter() {
                 const content = (envLetterContentInput?.value||'').trim();
                 const title = (envLetterTitleInput?.value||'').trim();
                 if (!content) { showToast('信的内容不能为空'); return; }
+                // 回信模式 —— 调 sendReply 原有逻辑
+                if (envWritingLetterState === 'reply' && envState.replyingToId) {
+                    var origin = findLetter(envState.replyingToId);
+                    if (!origin) { showToast('原信已丢失'); closeNewLetter(); return; }
+                    var letter = makeLetter({
+                        from: envState.box === 'mine' ? 'usr' : 'angle',
+                        to: envState.box === 'mine' ? 'angle' : 'usr',
+                        title: title, content: content,
+                        sourceBox: envState.box === 'mine' ? 'mine' : 'angle',
+                        parentId: origin.letter.id,
+                        replyTargetId: origin.letter.id,
+                        replied: true
+                    });
+                    // 进入双方 outbox/inbox（时空信 不受影响，只进正常收发）
+                    var rMe = letter.from, rPeer = letter.to;
+                    var rMeBox = rMe === 'usr' ? 'mine' : 'angle';
+                    var rPeerBox = rMe === 'usr' ? 'angle' : 'mine';
+                    letterBox[rMeBox].outbox.unshift(letter);
+                    var inc2 = makeLetter({ from: rMe, to: rPeer, title, content, sourceBox: rPeerBox, parentId: origin.letter.id, replyTargetId: origin.letter.id, replied: true });
+                    letterBox[rPeerBox].inbox.unshift(inc2);
+                    // 原信标记已被回信
+                    var originLetter = origin.letter;
+                    var originPool = getBox(origin.source, origin.inner);
+                    var idx = originPool.findIndex(x => x.id === originLetter.id);
+                    if (idx >= 0) originPool[idx].replied = true;
+                    saveAppearance(); closeNewLetter();
+                    showToast('回信已寄出 ✉'); renderEnvList();
+                    return;
+                }
+                // 新建模式
                 const me = envState.writingFrom || (envState.box === 'mine' ? 'usr' : 'angle');
                 const peer = me === 'usr' ? 'angle' : 'usr';
                 const meBox = me === 'usr' ? 'mine' : 'angle';
                 const peerBox = me === 'usr' ? 'angle' : 'mine';
-                // 我的 outbox
                 const out = makeLetter({ from:me, to:peer, title, content, sourceBox:meBox, parentId:null, replyTargetId:null });
                 letterBox[meBox].outbox.unshift(out);
-                // 对方 inbox
                 const inc = makeLetter({ from:me, to:peer, title, content, sourceBox:peerBox, parentId:null, replyTargetId:null });
                 inc.id = 'R' + Date.now().toString(36) + Math.random().toString(36).slice(2,4);
                 letterBox[peerBox].inbox.unshift(inc);
@@ -8584,14 +9174,13 @@
                 });
             }
 
-            // 快速插入行（字卡/表情缩略，点击插入到输入框）
+            // 快速插入行（用户要求：梦女/梦角 tab 都去掉字卡快捷插入，只保留 Emoji 符号快捷）
             function renderQuickRow() {
                 if (!diaryQuickRow) return;
                 diaryQuickRow.innerHTML = '';
-                const sampleWords = (cardLibrary||[]).slice(0, 10);
                 const sampleEmojis = [];
-                for (const g in emojiGroups) sampleEmojis.push(...(emojiGroups[g]||[]).slice(0,2));
-                [...sampleWords, ...sampleEmojis.slice(0,6)].forEach(w => {
+                for (const g in emojiGroups) sampleEmojis.push(...(emojiGroups[g]||[]).slice(0,3));
+                [...sampleEmojis.slice(0,12)].forEach(w => {
                     const c = document.createElement('div');
                     c.className = 'diary-quick-chip';
                     c.textContent = w.length > 10 ? w.slice(0,10)+'…' : w;
@@ -8898,6 +9487,84 @@
             return checks.some(m => m.classList.contains('active'));
         }
 
+        // ===== Web Audio 合成提示音（无需外部音频文件）=====
+        let __sfxCtx = null;
+        function playSfx(kind) {
+            try {
+                if (!__sfxCtx) __sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = __sfxCtx;
+                const now = ctx.currentTime;
+                const vol = Math.max(0.05, Math.min(1, chatVolume / 100));
+                function tone(freq, start, dur, type, gain) {
+                    const osc = ctx.createOscillator();
+                    const g = ctx.createGain();
+                    osc.type = type || 'sine';
+                    osc.frequency.value = freq;
+                    g.gain.setValueAtTime(0.0001, now + start);
+                    g.gain.exponentialRampToValueAtTime(vol * (gain||1), now + start + 0.01);
+                    g.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
+                    osc.connect(g); g.connect(ctx.destination);
+                    osc.start(now + start); osc.stop(now + start + dur + 0.02);
+                }
+                if (kind === 'msg') {
+                    tone(880, 0, 0.08, 'sine', 0.9);
+                    tone(1320, 0.09, 0.12, 'sine', 0.8);
+                } else if (kind === 'call') {
+                    for (var i = 0; i < 3; i++) {
+                        tone(660, i * 0.5, 0.18, 'triangle', 1);
+                        tone(990, i * 0.5 + 0.2, 0.18, 'triangle', 0.9);
+                    }
+                } else if (kind === 'send') {
+                    tone(1200, 0, 0.04, 'sine', 0.5);
+                }
+            } catch(e) {}
+        }
+
+        // ===== 主动写信：定时器 + 随机内容投递 =====
+        function __letterUnitMs(val, unit) {
+            if (unit === 'minute' || unit === 'min') return val * 60 * 1000;
+            if (unit === 'hour') return val * 60 * 60 * 1000;
+            if (unit === 'day') return val * 24 * 60 * 60 * 1000;
+            return val * 60 * 1000;
+        }
+        function randLetterDelay() {
+            const a = __letterUnitMs(chatLetterMin, chatLetterMinUnit);
+            const b = __letterUnitMs(chatLetterMax, chatLetterMaxUnit);
+            const lo = Math.min(a, b), hi = Math.max(a, b);
+            return Math.max(5000, Math.floor(lo + Math.random() * Math.max(1, (hi - lo))));
+        }
+        function deliverAutoLetter() {
+            if (!chatLetterEnabled) { restartLetterTimer(); return; }
+            try {
+                const titles = ['想你了', '碎碎念', '梦里见', '写给你', '今天的我', '月光下', '给你的信', '忽然想起你'];
+                const t = titles[Math.floor(Math.random() * titles.length)];
+                const n = 1 + Math.floor(Math.random() * 3);
+                const picks = [];
+                for (var i = 0; i < n; i++) if (cardLibrary.length) picks.push(cardLibrary[Math.floor(Math.random() * cardLibrary.length)]);
+                var content = picks.join('\n');
+                try {
+                    var f = [];
+                    for (var g in emojiGroups) f.push.apply(f, (emojiGroups[g]||[]));
+                    if (f.length) content += '\n' + f[Math.floor(Math.random() * f.length)];
+                } catch(e) {}
+                if (!letterBox.mine.inbox) letterBox.mine.inbox = [];
+                letterBox.mine.inbox.push({
+                    id: 'L' + Date.now() + '-' + Math.floor(Math.random()*10000),
+                    parentId: null, title: t, content: content,
+                    from: 'angle', to: 'usr', ts: Date.now(),
+                    read: false, replied: false, sourceBox: 'mine', replyTargetId: null, sourceLetterBox: 'mine', source: 'auto'
+                });
+                saveAppearance();
+                if (typeof showToast === 'function') showToast('✉ ta来信：' + t);
+                if (chatSoundMsg) playSfx('msg');
+            } catch(e) {}
+            restartLetterTimer();
+        }
+        function restartLetterTimer() {
+            if (letterTimer) { clearTimeout(letterTimer); letterTimer = null; }
+            if (!chatLetterEnabled) return;
+            letterTimer = setTimeout(deliverAutoLetter, randLetterDelay());
+        }
 
         // 颜色加深/减淡工具（用于 accent_deep 自动计算）
         function shade(hex, percent) {
@@ -8934,7 +9601,13 @@
         }
 
         init();
+        updateAllOpacityDisplays();
+        // 启动主动写信定时器（init 后 letterBox/letterBox.mine.inbox 已就绪）
+        restartLetterTimer();
     })();
 </script>
+<!-- ===== 消息提示音/通话提示音占位：实际声音由下方 Web Audio playSfx 合成（无需外部文件） ===== -->
+<audio id="sndMsg" preload="auto"></audio>
+<audio id="sndCall" preload="auto"></audio>
 </body>
 </html>
