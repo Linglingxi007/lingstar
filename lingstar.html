@@ -7313,6 +7313,8 @@
                 __lpMsgDiv = null; __lpFired = false;
             }
             function __lpStart(ev, msgDiv) {
+                // 受聊天设置开关 chatQuoteEnabled 控制：关闭时长按不弹窗
+                if (!chatQuoteEnabled) return;
                 __lpClear();
                 __lpMsgDiv = msgDiv;
                 __lpFired = false;
@@ -7344,8 +7346,9 @@
             ['pointerup','pointercancel','pointerleave','touchend','touchcancel','touchmove'].forEach(evt => {
                 chatBox.addEventListener(evt, __lpClear, { passive: true });
             });
-            // 桌面端右键 → 直接弹出（长按的兼容备用）
+            // 桌面端右键 → 直接弹出（长按的兼容备用，同样受 chatQuoteEnabled 控制）
             chatBox.addEventListener('contextmenu', (e) => {
+                if (!chatQuoteEnabled) return;
                 const msgDiv = e.target.closest('.message');
                 if (msgDiv && !e.target.closest('.msg-recall-notice') && !e.target.closest('.msg-toolbar')) {
                     e.preventDefault(); e.stopPropagation();
