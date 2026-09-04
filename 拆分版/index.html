@@ -6,6 +6,7 @@
     <title>梦语 · 传讯</title>
     <link rel="stylesheet" href="style.css">
 </head>
+</head>
 <body>
 <div class="phone-frame" id="app">
     <!-- ===== 顶栏 ===== -->
@@ -155,9 +156,17 @@
                     <span class="icon">🎨</span>
                     <span class="label">主题外观</span>
                 </div>
+                <div class="appearance-btn" id="openChatSettingsBtn">
+                    <span class="icon">💬</span>
+                    <span class="label">聊天设置</span>
+                </div>
                 <div class="appearance-btn" id="openDataBtn">
                     <span class="icon">💾</span>
                     <span class="label">数据管理</span>
+                </div>
+                <div class="appearance-btn" id="openMiscBtn">
+                    <span class="icon">🎛️</span>
+                    <span class="label">外观细节</span>
                 </div>
             </div>
         </div>
@@ -695,6 +704,34 @@
         </div>
     </div>
 </div>
+<!-- ===== 聊天设置弹窗 ===== -->
+<div class="modal-overlay" id="chatSettingsModal">
+    <div class="modal-content" style="max-width:440px;">
+        <div class="modal-header">
+            <h2>💬 聊天设置 <span style="font-weight:400;font-size:0.62rem;opacity:0.5;margin-left:6px;">字体/气泡/显示 17 项</span></h2>
+            <button class="modal-close" id="closeChatSettingsModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+                <button class="btn-primary-mod" id="chatResetBtn" style="flex:1;background:var(--bg_card);color:var(--text_primary);">♻ 恢复默认</button>
+                <button class="btn-primary-mod" id="chatPreviewBtn" style="flex:1;">👁 预览一下</button>
+            </div>
+            <div id="chatSettingsForm" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 外观细节弹窗（头部/侧栏/动效） ===== -->
+<div class="modal-overlay" id="miscModal">
+    <div class="modal-content" style="max-width:420px;">
+        <div class="modal-header">
+            <h2>🎛️ 外观细节</h2>
+            <button class="modal-close" id="closeMiscModal">✕</button>
+        </div>
+        <div class="modal-body" id="miscForm" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+</div>
+
 <!-- 缺失元素占位 (给旧 DOM 引用避免 getElementById(null)) -->
 <div style="display:none;">
     <span id="bgFontModal"></span>
