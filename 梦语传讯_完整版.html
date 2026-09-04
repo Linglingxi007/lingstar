@@ -2490,17 +2490,33 @@ textarea.input,
             <button class="modal-close" id="closeNicknameModal">✕</button>
         </div>
         <div class="modal-body">
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
                 <div style="flex:1; min-width:120px;">
-                    <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.5; margin-bottom:4px;">梦女（我）</div>
-                    <input type="text" id="userNameInput" value="我" style="width:100%; padding:8px 14px; border-radius:20px; border:1px solid rgba(200,170,220,0.15); font-size:0.85rem; outline:none;">
+                    <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.6; margin-bottom:4px; font-weight:500;">🌸 梦女（我）</div>
+                    <input type="text" id="userNameInput" value="我" style="width:100%; padding:10px 14px; border-radius:14px; border:1px solid rgba(200,170,220,0.3); font-size:0.85rem; outline:none; background:var(--bg_card); color:var(--text_primary);">
                 </div>
                 <div style="flex:1; min-width:120px;">
-                    <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.5; margin-bottom:4px;">梦角（ta）</div>
-                    <input type="text" id="angleNameInput" value="ta" style="width:100%; padding:8px 14px; border-radius:20px; border:1px solid rgba(200,170,220,0.15); font-size:0.85rem; outline:none;">
+                    <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.6; margin-bottom:4px; font-weight:500;">🌙 梦角（ta）</div>
+                    <input type="text" id="angleNameInput" value="ta" style="width:100%; padding:10px 14px; border-radius:14px; border:1px solid rgba(200,170,220,0.3); font-size:0.85rem; outline:none; background:var(--bg_card); color:var(--text_primary);">
                 </div>
             </div>
-            <button class="btn btn-primary-mod" id="saveNicknameBtn" style="padding:8px 20px; margin-top:6px; align-self:flex-end;">保存</button>
+            <!-- 梦角对梦女的称呼（折叠） -->
+            <div style="border:1px solid var(--bg_border); border-radius:14px; margin-bottom:10px; background:var(--bg_card);">
+                <div id="callUserToggle" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; cursor:pointer;">
+                    <span style="font-size:0.78rem; font-weight:500; color:var(--text_primary);">💌 梦角对梦女的称呼</span>
+                    <span id="callUserArrow" style="color:var(--accent); transition:transform .25s; font-size:0.9rem;">▼</span>
+                </div>
+                <div id="callUserBody" style="display:none; padding:4px 14px 14px; border-top:1px dashed var(--bg_border);">
+                    <div style="font-size:0.68rem; color:var(--text_muted); opacity:0.7; margin-bottom:6px;">用于梦角回复开头的称呼</div>
+                    <input type="text" id="angleCallUserInput" value="亲爱的" placeholder="如：亲爱的、宝贝、老婆..." style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(200,170,220,0.3); font-size:0.82rem; outline:none; background:var(--bg_panel); color:var(--text_primary); margin-bottom:10px;">
+                    <div style="font-size:0.68rem; color:var(--text_muted); opacity:0.7; margin-bottom:4px;">称呼出现概率</div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="range" id="angleCallChanceSlider" min="0" max="100" value="30" style="flex:1; accent-color:var(--accent);">
+                        <span id="angleCallChanceVal" style="font-size:0.72rem; color:var(--accent); font-weight:600; min-width:36px; text-align:right;">30%</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary-mod" id="saveNicknameBtn" style="padding:10px 24px; margin-top:4px; align-self:flex-end; border-radius:14px;">保存</button>
         </div>
     </div>
 </div>
@@ -3379,6 +3395,9 @@ textarea.input,
     let node = document.getElementById(styleId);
     if (!node) { node = document.createElement('style'); node.id = styleId; document.head.appendChild(node); }
     node.textContent = '.no-tail .msg-bubble::after{ display:none !important; }' +
+      '.no-tail .msg-bubble{ border-radius: var(--bubble-radius) !important; }' +
+      ':not(.no-tail) .msg-bubble{ border-radius: var(--bubble-radius) var(--bubble-radius) var(--bubble-radius) calc(var(--bubble-radius) * 0.35) !important; }' +
+      ':not(.no-tail) .message.user .msg-bubble{ border-radius: var(--bubble-radius) var(--bubble-radius) calc(var(--bubble-radius) * 0.35) var(--bubble-radius) !important; }' +
       '.avatar-inside .message.user, .avatar-inside .message.angle { gap: 0 !important; }' +
       '.avatar-inside .msg-avatar { display: none; }' +
       '.density-compact .chat-list { gap: 6px; } .density-compact .msg-bubble { padding: 5px 9px; }' +
@@ -3453,6 +3472,8 @@ textarea.input,
         let userAvatar = '🌸';
         let angleName = 'ta';
         let angleAvatar = '🌙';
+        let angleCallUser = '亲爱的';    // 梦角对梦女的称呼
+        let angleCallChance = 0.3;       // 称呼出现在回复开头的概率（默认30%）
         let avatarShape = 'circle';
         let userSize = 60,
             userLeft = 0,
@@ -3832,6 +3853,8 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                     userAvatar = p.userAvatar || '🌸';
                     angleName = p.angleName || 'ta';
                     angleAvatar = p.angleAvatar || '🌙';
+                    angleCallUser = p.angleCallUser || '亲爱的';
+                    angleCallChance = (p.angleCallChance !== undefined) ? p.angleCallChance : 0.3;
                     avatarShape = p.avatarShape || 'circle';
                     userSize = p.userSize || 60;
                     userLeft = p.userLeft || 0;
@@ -3855,6 +3878,12 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             }
  if (userNameInput) userNameInput.value = userName;
             if (angleNameInput) angleNameInput.value = angleName;
+            const aci = document.getElementById('angleCallUserInput');
+            const acs = document.getElementById('angleCallChanceSlider');
+            const acv = document.getElementById('angleCallChanceVal');
+            if (aci) aci.value = angleCallUser;
+            if (acs) acs.value = Math.round(angleCallChance*100);
+            if (acv) acv.textContent = Math.round(angleCallChance*100) + '%';
             if (userAvatarInput) userAvatarInput.value = userAvatar;
             if (angleAvatarInput) angleAvatarInput.value = angleAvatar;
             renderAvatar(previewUserAvatar, userAvatar, avatarShape, userSize, userLeft, userTop);
@@ -3887,6 +3916,8 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                 userAvatar,
                 angleName,
                 angleAvatar,
+                angleCallUser,
+                angleCallChance,
                 avatarShape,
                 userSize,
                 userLeft,
@@ -4633,10 +4664,9 @@ function resetEmojis() {
                 picked.push(pool.splice(idx,1)[0]);
             }
             let final = picked.length>1 ? picked.join('\n') : picked[0];
-            // 称呼前缀 30%
-            if (Math.random() < 0.3) {
-                const calls = [angleName+'，', '亲爱的，', '宝贝，', ''];
-                final = calls[Math.floor(Math.random()*calls.length)] + final;
+            // 称呼前缀（概率由 angleCallChance 控制，默认 30%）
+            if (angleCallUser && angleCallUser.trim() && Math.random() < angleCallChance) {
+                final = angleCallUser.trim() + '，' + final;
             }
             // emoji 混入 60%
             if (chatEmojiMix && Math.random() < 0.6) {
@@ -4844,7 +4874,7 @@ function resetEmojis() {
             const delay = Math.max(60000, chatProactiveIntervalMs||180000);
             proTimer = setTimeout(function(){
                 if (cardLibrary.length) {
-                    addChatMessage('✦ ' + cardLibrary[Math.floor(Math.random()*cardLibrary.length)], 'angle');
+                    replyWithRandomCard();
                 }
                 restartProactiveMsgTimer();
             }, delay);
@@ -5203,12 +5233,14 @@ function resetEmojis() {
                 });
             });
             const L = appearance.logicSettings;
-            // 辅助：创建开关行
+            // 辅助：创建开关行（整行可点击，用 addEventListener 确保可靠触发）
             function mkToggle(pane, key, label, desc, icon) {
-                const row = document.createElement('div'); row.className='cs-row';
+                const row = document.createElement('div'); row.className='cs-row'; row.style.cursor='pointer';
                 row.innerHTML = `<div class="cs-icon">${icon||'⚙'}</div><div class="cs-row-text"><span class="cs-row-label">${label}</span>${desc?`<span class="cs-row-desc">${desc}</span>`:''}</div>`;
                 const tg = document.createElement('div'); tg.className='cs-toggle'+(L[key]?' on':'');
-                tg.onclick = function(){ L[key]=!L[key]; syncLogic(); tg.classList.toggle('on', L[key]); saveAppearance(); };
+                function doToggle(){ L[key]=!L[key]; syncLogic(); tg.classList.toggle('on', L[key]); saveAppearance(); }
+                tg.addEventListener('click', function(e){ e.stopPropagation(); doToggle(); });
+                row.addEventListener('click', function(e){ if (e.target !== tg) doToggle(); });
                 row.appendChild(tg); pane.appendChild(row);
             }
             // 辅助：创建带滑块的行（数值）
@@ -5262,8 +5294,8 @@ function resetEmojis() {
             const seg = document.createElement('div'); seg.className='cs-seg';
             const bG = document.createElement('button'); bG.textContent='✓ 图形'; bG.className=(L.chatReceiptStyle==='graphic')?'active':'';
             const bT = document.createElement('button'); bT.textContent='文字'; bT.className=(L.chatReceiptStyle==='text')?'active':'';
-            bG.onclick=function(){ L.chatReceiptStyle='graphic'; syncLogic(); bG.classList.add('active'); bT.classList.remove('active'); saveAppearance(); };
-            bT.onclick=function(){ L.chatReceiptStyle='text'; syncLogic(); bT.classList.add('active'); bG.classList.remove('active'); saveAppearance(); };
+            bG.addEventListener('click', function(){ L.chatReceiptStyle='graphic'; syncLogic(); bG.classList.add('active'); bT.classList.remove('active'); saveAppearance(); });
+            bT.addEventListener('click', function(){ L.chatReceiptStyle='text'; syncLogic(); bT.classList.add('active'); bG.classList.remove('active'); saveAppearance(); });
             seg.appendChild(bG); seg.appendChild(bT);
             styleRow.appendChild(seg); card1.appendChild(styleRow);
             mkToggle(card1, 'chatReadNoReply', '已读不回', '', '🔕');
@@ -5279,9 +5311,9 @@ function resetEmojis() {
                 {v:'4',ico:'🕐',txt:(function(){let h=new Date().getHours()%12;if(h===0)h=12;return h+':'+String(new Date().getMinutes()).padStart(2,'0')+':'+String(new Date().getSeconds()).padStart(2,'0')+' '+(new Date().getHours()>=12?'PM':'AM');})()}
             ];
             tsCards.forEach(function(c){
-                const el=document.createElement('div'); el.className='cs-timecard'+(L.chatTimeStyle===c.v?' active':'');
+                const el=document.createElement('div'); el.className='cs-timecard'+(L.chatTimeStyle===c.v?' active':''); el.style.cursor='pointer';
                 el.innerHTML=`<div class="t-ico">${c.ico}</div><div class="t-txt">${c.txt}</div>`;
-                el.onclick=function(){ L.chatTimeStyle=c.v; syncLogic(); tcWrap.querySelectorAll('.cs-timecard').forEach(function(x){x.classList.remove('active');}); el.classList.add('active'); saveAppearance(); };
+                el.addEventListener('click', function(){ L.chatTimeStyle=c.v; syncLogic(); tcWrap.querySelectorAll('.cs-timecard').forEach(function(x){x.classList.remove('active');}); el.classList.add('active'); saveAppearance(); });
                 tcWrap.appendChild(el);
             });
             // ===== Tab2 节奏 =====
@@ -5325,6 +5357,41 @@ function resetEmojis() {
             mkToggle(cS1, 'chatNotify', '通知', '', '🔔');
             // ===== Tab4 显示 =====
             const dp = document.getElementById('csDisplay'); dp.innerHTML='';
+            // 气泡板块
+            const sDB = document.createElement('div'); sDB.className='cs-section-title'; sDB.textContent='气泡'; dp.appendChild(sDB);
+            const cDB = document.createElement('div'); cDB.className='cs-card'; dp.appendChild(cDB);
+            const cs = appearance.chatSettings || {};
+            // 气泡形状（尖角=带尾巴 / 圆角=无尾巴）
+            const shapeRow = document.createElement('div'); shapeRow.className='cs-row'; shapeRow.style.cursor='pointer';
+            shapeRow.innerHTML = `<div class="cs-icon">💬</div><div class="cs-row-text"><span class="cs-row-label">气泡形状</span><span class="cs-row-desc">尖角带尾巴 / 圆角无尾巴</span></div>`;
+            const shapeSel = document.createElement('select');
+            [['sharp','尖角'],['rounded','圆角']].forEach(function(o){ const op=document.createElement('option'); op.value=o[0]; op.textContent=o[1]; if((cs.showBubbleTail?'sharp':'rounded')===o[0])op.selected=true; shapeSel.appendChild(op); });
+            shapeSel.addEventListener('change', function(){ cs.showBubbleTail = (shapeSel.value==='sharp'); applyChatSettings(cs, {save:true}); });
+            shapeRow.appendChild(shapeSel); cDB.appendChild(shapeRow);
+            // 气泡圆角大小
+            const radRow = document.createElement('div'); radRow.className='cs-row';
+            radRow.innerHTML = `<div class="cs-icon">⭕</div><div class="cs-row-text"><span class="cs-row-label">圆角大小</span></div>`;
+            const radSl = document.createElement('input'); radSl.type='range'; radSl.min=0; radSl.max=30; radSl.step=1; radSl.value=cs.bubbleRadius||16; radSl.style.flex='1';
+            const radVal = document.createElement('span'); radVal.className='cs-val'; radVal.textContent=(cs.bubbleRadius||16)+'px';
+            const radWrap = document.createElement('div'); radWrap.className='cs-row-text';
+            const radSr = document.createElement('div'); radSr.className='cs-slider-row'; radSr.appendChild(radSl);
+            const radLabel = radRow.querySelector('.cs-row-label');
+            radRow.innerHTML = `<div class="cs-icon">⭕</div>`;
+            const radTxt = document.createElement('div'); radTxt.className='cs-row-text';
+            radTxt.appendChild(radLabel); radTxt.appendChild(radSr);
+            radRow.appendChild(radTxt); radRow.appendChild(radVal);
+            radSl.addEventListener('input', function(){ cs.bubbleRadius=parseFloat(radSl.value); radVal.textContent=cs.bubbleRadius+'px'; applyChatSettings(cs, {save:false}); });
+            radSl.addEventListener('change', function(){ applyChatSettings(cs, {save:true}); });
+            cDB.appendChild(radRow);
+            // 气泡小尾巴
+            const tailRow = document.createElement('div'); tailRow.className='cs-row'; tailRow.style.cursor='pointer';
+            tailRow.innerHTML = `<div class="cs-icon">〰</div><div class="cs-row-text"><span class="cs-row-label">气泡小尾巴</span></div>`;
+            const tailTg = document.createElement('div'); tailTg.className='cs-toggle'+(cs.showBubbleTail?' on':'');
+            function tailToggle(){ cs.showBubbleTail=!cs.showBubbleTail; applyChatSettings(cs, {save:true}); tailTg.classList.toggle('on', cs.showBubbleTail); shapeSel.value = cs.showBubbleTail?'sharp':'rounded'; }
+            tailTg.addEventListener('click', function(e){ e.stopPropagation(); tailToggle(); });
+            tailRow.addEventListener('click', function(e){ if(e.target!==tailTg) tailToggle(); });
+            tailRow.appendChild(tailTg); cDB.appendChild(tailRow);
+            // 界面模式
             const cD1 = document.createElement('div'); cD1.className='cs-card'; dp.appendChild(cD1);
             mkToggle(cD1, 'chatImmersive', '沉浸式模式', '隐藏顶部栏，专注聊天', '⛶');
             mkToggle(cD1, 'chatBottomCollapse', '底部栏收纳', '收起次要按钮，保持输入区整洁', '⤡');
@@ -6459,9 +6526,29 @@ function resetEmojis() {
             saveNicknameBtn.addEventListener('click', () => {
                 userName = userNameInput.value.trim() || '我';
                 angleName = angleNameInput.value.trim() || 'ta';
+                const aci = document.getElementById('angleCallUserInput');
+                const acs = document.getElementById('angleCallChanceSlider');
+                if (aci) angleCallUser = aci.value.trim() || '亲爱的';
+                if (acs) angleCallChance = parseFloat(acs.value)/100;
                 saveFullProfile();
                 closeModal(nicknameModal);
             });
+            // 折叠"梦角对梦女的称呼"
+            const callUserToggle = document.getElementById('callUserToggle');
+            const callUserBody = document.getElementById('callUserBody');
+            const callUserArrow = document.getElementById('callUserArrow');
+            if (callUserToggle && callUserBody) {
+                callUserToggle.addEventListener('click', function(){
+                    const open = callUserBody.style.display !== 'none';
+                    callUserBody.style.display = open ? 'none' : 'block';
+                    if (callUserArrow) callUserArrow.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+                });
+            }
+            const acSlider = document.getElementById('angleCallChanceSlider');
+            const acVal = document.getElementById('angleCallChanceVal');
+            if (acSlider && acVal) {
+                acSlider.addEventListener('input', function(){ acVal.textContent = acSlider.value + '%'; });
+            }
       // 头像弹窗
             closeAvatarModal.addEventListener('click', () => closeModal(avatarModal));
             avatarModal.addEventListener('click', (e) => { if (e.target === avatarModal) closeModal(avatarModal); });
