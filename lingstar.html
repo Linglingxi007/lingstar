@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>梦语 · 传讯</title>
     <style>
-        /* ===== 主题 CSS 变量（默认：梦紫） ===== */
+        /* ===== 主题 CSS 变量（默认：月落紫樱） ===== */
         :root {
-            /* ===== 主题 CSS 变量（默认：梦紫） ===== */
             /* 强调色 */
             --accent: #c6a8de;
             --accent-2: #dcc3ed;
             --accent-deep: #9f79c2;
             --accent-soft: #efe3f7;
-            /* 背景 */
+            /* 背景：页面 / 卡片 / 聊天 / 输入框 */
             --bg-page: #e8e0ee;
             --bg-card: #ffffff;
             --bg-chat: #fcfaff;
@@ -50,6 +49,20 @@
             --opacity-input: 1;
             --opacity-bubble-user: 1;
             --opacity-bubble-angle: 1;
+            /* 板块专属色（功能面板/信封/留言板/许愿树/日历/日记）—— 随主题统一 */
+            --side-panel-bg: linear-gradient(180deg, #ffffff 0%, #faf4ff 100%);
+            --side-panel-item-bg: rgba(200, 170, 220, 0.10);
+            --side-panel-item-bg-hover: rgba(198, 168, 222, 0.22);
+            --board-bg: linear-gradient(180deg, #fff8f1 0%, #fbeef9 100%);
+            --board-note-bg: linear-gradient(135deg, #fff1d6, #ffd8e4);
+            --board-note-bg-alt: linear-gradient(135deg, #e6f2ff, #f0e5ff);
+            --board-detail-bg: rgba(255,255,255,0.95);
+            --wish-tree-bg: linear-gradient(180deg, #e6f5ff 0%, #f7efff 100%);
+            --wish-detail-bg: rgba(255,255,255,0.95);
+            --modal-header-border: rgba(200,170,220,0.18);
+            --btn-primary-bg: linear-gradient(135deg, var(--accent-2), var(--accent));
+            --btn-primary-text: #ffffff;
+            --input-focus-ring: rgba(198,168,222,0.18);
         }
 
 
@@ -177,46 +190,70 @@
         .chat-box::-webkit-scrollbar { width: 3px; }
         .chat-box::-webkit-scrollbar-thumb { background: var(--border-faint); border-radius: 12px; }
 
+        /* 消息行：头像在气泡外（左梦角 右用户） */
         .message {
-            max-width: 82%;
-            padding: 9px 15px;
-            border-radius: 18px;
+            max-width: 88%;
             word-break: break-word;
             line-height: 1.45;
             font-size: 0.9rem;
-            animation: fadeIn 0.2s ease;
+            animation: fadeIn 0.22s ease;
             display: flex;
-            align-items: flex-start;
+            align-items: flex-end;
             gap: 8px;
             position: relative;
         }
         .message .msg-avatar {
-            width: 24px;
-            height: 24px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
-            background: rgba(220, 200, 240, 0.2);
+            font-size: 0.95rem;
+            background: var(--avatar-bg-gradient, linear-gradient(135deg, #dcc3ed, #c6a8de));
             overflow: hidden;
+            box-shadow: 0 2px 6px rgba(120,80,180,0.15);
+            border: 2px solid var(--bg-card, #fff);
+            order: 0;
         }
         .message .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        /* 气泡：只包裹内容，不含头像 */
+        .message .msg-bubble {
+            padding: 9px 14px;
+            border-radius: 18px;
+            max-width: calc(100% - 40px);
+            display: flex;
+            flex-direction: column;
+        }
         .message .msg-content { flex: 1; }
+        /* 用户消息：右对齐，头像在右侧 */
         .message.user {
             align-self: flex-end;
+            flex-direction: row;
+            justify-content: flex-end;
+        }
+        .message.user .msg-bubble {
             background: color-mix(in srgb, var(--bubble-user) calc(var(--opacity-bubble-user) * 100%), transparent);
             color: var(--text-primary);
             border-bottom-right-radius: 4px;
-            flex-direction: row-reverse;
+            box-shadow: 0 2px 8px rgba(140,100,190,0.08);
         }
+        .message.user .msg-avatar {
+            order: 2;
+        }
+        /* 梦角消息：左对齐，头像在左侧 */
         .message.system {
             align-self: flex-start;
+            flex-direction: row;
+            justify-content: flex-start;
+        }
+        .message.system .msg-bubble {
             background: color-mix(in srgb, var(--bubble-angle) calc(var(--opacity-bubble-angle) * 100%), transparent);
             color: var(--text-primary);
             border-bottom-left-radius: 4px;
             border: 1px solid rgba(220, 200, 240, 0.10);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         /* 拍一拍通知（居中文字，无气泡） */
         .message.pat-notice {
@@ -1134,6 +1171,117 @@
         .env-letter.unread .env-detail, .env-letter.unread .env-quote { margin-left: 4px; }
         .env-letter .env-detail { padding-left: 10px; }
 
+        /* ===== 留言板 ===== */
+        .board-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px; margin-bottom: 12px;
+        }
+        .board-note {
+            position: relative; cursor: pointer;
+            background: var(--board-note-bg, linear-gradient(180deg, #fff9d6 0%, #fde9a8 100%));
+            border: 1px solid rgba(200,170,220,0.18); border-radius: 8px;
+            padding: 14px 12px 18px; min-height: 96px;
+            box-shadow: 0 2px 6px rgba(180,140,40,0.14);
+            transform: rotate(-1.2deg); transition: transform .18s ease, box-shadow .18s ease;
+            color: #6b4f12;
+        }
+        .board-note:nth-child(even) { transform: rotate(1deg); background: var(--board-note-bg-alt, linear-gradient(180deg,#fdeef3 0%,#fbd0dd 100%)); color:#7a3a55; }
+        .board-note:nth-child(3n) { transform: rotate(-0.6deg); }
+        .board-note:hover { transform: translateY(-2px) rotate(0deg); box-shadow: 0 6px 16px rgba(120,80,180,0.22); }
+        .board-note.unread::after { content:''; position:absolute; top:6px; right:8px; width:8px; height:8px; border-radius:50%; background:#e74c3c; box-shadow:0 0 0 2px rgba(255,255,255,0.7); }
+        .board-note .bn-fold { font-size:1.4rem; line-height:1; }
+        .board-note .bn-tip { font-size:0.62rem; opacity:0.75; margin-top:6px; }
+        .board-note .bn-time { font-size:0.58rem; opacity:0.65; position:absolute; bottom:6px; right:10px; }
+        .board-note .bn-rep { position:absolute; bottom:6px; left:10px; font-size:0.58rem; opacity:0.7; }
+        .board-detail {
+            margin-top:10px; padding:14px;
+            background: var(--board-detail-bg, #fff); border-radius:14px;
+            border: 1px solid var(--modal-header-border, rgba(200,170,220,0.2));
+            grid-column: 1 / -1;
+            box-shadow: 0 8px 24px rgba(120,80,180,0.10);
+        }
+        .board-detail .bd-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:0.66rem; color:var(--text-muted); }
+        .board-detail .bd-content { font-size:0.82rem; line-height:1.75; color:var(--text-primary); white-space:pre-wrap; }
+        .board-detail .bd-replies { margin-top:10px; border-top:1px solid rgba(200,170,220,0.2); padding-top:8px; }
+        .board-detail .bd-reply { padding:6px 8px; background:rgba(181,138,255,0.06); border-radius:8px; margin-bottom:6px; font-size:0.74rem; }
+        .board-detail .bd-reply .br-time { font-size:0.58rem; color:var(--text-muted); margin-bottom:2px; }
+        .board-detail .bd-reply.br-other { background:rgba(255,200,120,0.14); }
+        .bd-reply-area { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+        .bd-reply-area textarea { width:100%; }
+        .bd-reply-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+        .bd-reply-row input[type="datetime-local"] { font-size:0.66rem; padding:4px 6px; }
+        .bd-send-chat { display:inline-flex; align-items:center; gap:5px; font-size:0.68rem; color:var(--text-muted); cursor:pointer; user-select:none; margin-left:2px; }
+        .bd-send-chat input[type="checkbox"] { width:13px; height:13px; accent-color:var(--accent,#a87ff0); cursor:pointer; }
+
+        /* ===== 许愿树 ===== */
+        .wish-tree {
+            position: relative; padding: 18px 8px 8px;
+            background: var(--wish-tree-bg, linear-gradient(180deg, #eaf6ff 0%, #f7eeff 100%));
+            border-radius: 18px; min-height: 180px; margin-bottom: 12px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+        .wish-tree .wt-trunk { text-align:center; font-size:2.6rem; line-height:1; text-shadow:0 4px 10px rgba(120,100,80,0.18); }
+        .wish-tree .wt-trunk::after { content:''; display:block; width:80px; height:16px; margin:2px auto 0;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.12) 0%, transparent 70%); }
+        .star-grid {
+            display:grid; grid-template-columns: repeat(auto-fill, minmax(96px,1fr));
+            gap: 18px 10px; margin-top: 14px; justify-items: center;
+            perspective: 500px;
+        }
+        .star-item {
+            position:relative; cursor:pointer; border:none;
+            width: 80px; height: 80px;
+            padding: 0; border-radius: 0;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            transition: transform .25s cubic-bezier(.34,1.56,.64,1), filter .2s;
+            color:#fff; font-size:0.65rem; line-height:1.2;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            -webkit-clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            letter-spacing: 0.02em;
+            --rot: 0deg;
+            transform: rotate(var(--rot)) translateY(0);
+        }
+        .star-item:nth-child(3n+1) { --rot: -8deg; }
+        .star-item:nth-child(3n+2) { --rot:  6deg; }
+        .star-item:nth-child(3n+3) { --rot: -3deg; }
+        .star-item:nth-child(5n)   { --rot: 11deg; }
+        .star-item:hover { transform: rotate(calc(var(--rot))) translateY(-4px) scale(1.08);
+            filter: brightness(1.08) drop-shadow(0 6px 14px rgba(120,80,180,0.30)); }
+        .star-item .si-icon { font-size: 1.15rem; line-height:1; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25)); margin-top: -2px; }
+        .star-item.unread::after { content:''; position:absolute; top:14%; right:20%; width:10px; height:10px;
+            border-radius:50%; background:#e74c3c; border:1.5px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+        .star-item .si-tip { font-size:0.55rem; opacity:0.95; font-weight: 600; }
+        .star-item .si-time { font-size:0.5rem; opacity:0.85; margin-top:1px; }
+        .star-c-yellow { background: radial-gradient(circle at 35% 28%, #fff6c8 0%, #ffe066 55%, #f5b835 100%); color:#5c3e00; }
+        .star-c-pink   { background: radial-gradient(circle at 35% 28%, #ffdce8 0%, #ffa4c3 55%, #f56796 100%); color:#601a35; }
+        .star-c-blue   { background: radial-gradient(circle at 35% 28%, #d9ecff 0%, #87c1ff 55%, #4f94e0 100%); color:#0f2a48; }
+        .star-c-red    { background: radial-gradient(circle at 35% 28%, #ffd4d4 0%, #ff8080 55%, #e34646 100%); color:#501010; }
+        .star-c-green  { background: radial-gradient(circle at 35% 28%, #d6f5dc 0%, #84d89c 55%, #4aae69 100%); color:#103620; }
+        .star-c-purple { background: radial-gradient(circle at 35% 28%, #e7d9ff 0%, #b996f0 55%, #8c5cd4 100%); color:#36185d; }
+        .star-detail { grid-column: 1 / -1; }
+        .star-legend { display:flex; gap:10px; flex-wrap:wrap; font-size:0.6rem; margin-bottom:8px; align-items:center; }
+        .star-legend span { display:inline-flex; align-items:center; gap:4px; font-weight:500; color: var(--text-secondary); }
+        .star-legend i { width:14px; height:14px; display:inline-block; flex-shrink:0;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            -webkit-clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+        .star-legend i[style*="f5c542"], .star-legend i[data-c="yellow"] { background: radial-gradient(circle at 35% 28%, #fff6c8, #ffe066 60%, #f5b835); }
+        .star-legend i[style*="ff8ab3"], .star-legend i[data-c="pink"]   { background: radial-gradient(circle at 35% 28%, #ffdce8, #ffa4c3 60%, #f56796); }
+        .star-legend i[style*="5aa9ff"], .star-legend i[data-c="blue"]   { background: radial-gradient(circle at 35% 28%, #d9ecff, #87c1ff 60%, #4f94e0); }
+        .star-legend i[style*="e74c3c"], .star-legend i[data-c="red"]    { background: radial-gradient(circle at 35% 28%, #ffd4d4, #ff8080 60%, #e34646); }
+        .star-legend i[style*="5ec97a"], .star-legend i[data-c="green"]  { background: radial-gradient(circle at 35% 28%, #d6f5dc, #84d89c 60%, #4aae69); }
+        .star-legend i[style*="a87ff0"], .star-legend i[data-c="purple"] { background: radial-gradient(circle at 35% 28%, #e7d9ff, #b996f0 60%, #8c5cd4); }
+
+        /* 通用：话语管理 / 历史列表 */
+        .phrase-list { max-height: 200px; overflow-y:auto; margin: 8px 0; }
+        .phrase-item { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 8px; background:rgba(200,170,220,0.08); border-radius:8px; margin-bottom:4px; font-size:0.74rem; }
+        .phrase-item button { border:none; background:rgba(231,76,60,0.12); color:#c0392b; border-radius:6px; padding:2px 8px; font-size:0.62rem; cursor:pointer; }
+        .hist-day { font-size:0.7rem; font-weight:600; color:var(--accent-deep); margin:10px 0 6px; padding-bottom:4px; border-bottom:1px dashed rgba(200,170,220,0.3); }
+        .hist-item { padding:8px 10px; background:#fff; border-radius:8px; margin-bottom:6px; font-size:0.74rem; }
+        .hist-item .hi-c { color:var(--text-primary); white-space:pre-wrap; }
+        .hist-item .hi-r { margin-top:6px; padding-left:8px; border-left:2px solid rgba(200,170,220,0.4); font-size:0.66rem; color:var(--text-secondary); }
+
         /* 标注颜色选择器 */
         .mark-color-picker {
             display: flex; gap: 6px; padding: 6px;
@@ -1298,12 +1446,12 @@
             width: 300px;
             max-width: 80vw;
             height: 100%;
-            background: rgba(255, 252, 255, 0.98);
+            background: var(--side-panel-bg, rgba(255, 252, 255, 0.98));
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             z-index: 1000;
             transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -4px 0 40px rgba(80, 50, 110, 0.06);
+            box-shadow: -4px 0 40px rgba(80, 50, 110, 0.08);
             padding: 20px 16px 30px;
             overflow-y: auto;
             display: flex;
@@ -1316,7 +1464,7 @@
             justify-content: space-between;
             align-items: center;
             padding-bottom: 14px;
-            border-bottom: 1px solid rgba(200, 175, 220, 0.06);
+            border-bottom: 1px solid var(--modal-header-border, rgba(200, 175, 220, 0.06));
             flex-shrink: 0;
         }
         .side-header h2 { font-weight: 400; font-size: 1rem; color: var(--text-primary); letter-spacing: 0.5px; }
@@ -1341,18 +1489,18 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            background: rgba(245, 240, 250, 0.25);
+            background: var(--side-panel-item-bg, rgba(245, 240, 250, 0.25));
             border-radius: 18px;
             padding: 18px 8px;
             cursor: pointer;
-            transition: 0.15s;
-            border: 1px solid rgba(220, 200, 240, 0.06);
+            transition: 0.18s ease;
+            border: 1px solid transparent;
             text-align: center;
         }
-        .side-grid-item:hover { background: rgba(245, 240, 250, 0.5); transform: translateY(-2px); }
+        .side-grid-item:hover { background: var(--side-panel-item-bg-hover, rgba(245, 240, 250, 0.5)); transform: translateY(-2px); border-color: var(--accent-soft); }
         .side-grid-item:active { transform: scale(0.94); }
         .side-grid-item .icon { font-size: 1.8rem; }
-        .side-grid-item .label { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; font-weight: 400; letter-spacing: 0.3px; }
+        .side-grid-item .label { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.75; font-weight: 500; letter-spacing: 0.3px; }
 
         /* ===== 弹窗 (通用) ===== */
         
@@ -1368,7 +1516,7 @@
             max-height: 82vh;
             height: auto;
             padding: 20px 18px 24px;
-            box-shadow: 0 24px 64px rgba(80, 50, 110, 0.12);
+            box-shadow: 0 24px 64px var(--shadow-card, rgba(80,50,110,0.12));
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -1383,10 +1531,18 @@
             justify-content: space-between;
             align-items: center;
             padding-bottom: 12px;
-            border-bottom: 1px solid rgba(200, 175, 220, 0.06);
+            border-bottom: 1px solid var(--modal-header-border, rgba(200,175,220,0.18));
             flex-shrink: 0;
         }
         .modal-header h2 { font-weight: 500; font-size: 1rem; color: var(--text-primary); letter-spacing: 0.3px; }
+        /* 板块专属内容区统一背景 */
+        #boardModal .modal-body { background: var(--board-bg, transparent); border-radius: 16px; padding: 12px 12px 6px; }
+        #wishModal .modal-body { background: transparent; }
+        /* Star-detail (wish-tree) bg var */
+        .star-detail { background: var(--wish-detail-bg, #fff) !important; border-radius: 14px; }
+        /* Input focus consistency */
+        .mod-textarea:focus, .lib-search:focus, input.mod-input:focus, textarea:focus, select:focus {
+            outline: none; box-shadow: 0 0 0 3px var(--input-focus-ring, rgba(200,170,220,0.18)); border-color: color-mix(in srgb, var(--accent, #a87ff0) 60%, transparent); }
         .modal-close {
             background: none;
             border: none;
@@ -1508,8 +1664,10 @@
         .mod-row .btn:hover { background: var(--accent-soft); }
         .mod-row .btn-danger { background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent); color: var(--danger); }
         .mod-row .btn-danger:hover { background: color-mix(in srgb, var(--bg-input) calc(var(--opacity-input) * 100%), transparent); }
-        .mod-row .btn-primary-mod { background: var(--accent); color: white; }
-        .mod-row .btn-primary-mod:hover { background: var(--accent); }
+        .mod-row .btn-primary-mod { background: var(--btn-primary-bg, var(--accent)); color: var(--btn-primary-text, white);
+            border:none; box-shadow: 0 2px 8px rgba(120,80,180,0.15); transition: transform .15s, filter .15s; }
+        .mod-row .btn-primary-mod:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(120,80,180,0.2); }
+        .mod-row .btn-primary-mod:active { transform: translateY(0) scale(0.97); }
 
         .mod-textarea {
             width: 100%;
@@ -2101,7 +2259,7 @@
 
         .theme-quick-swatches {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
         }
         .quick-swatch {
@@ -2462,6 +2620,14 @@
         <div class="side-grid-item" id="sideEnvelopeBtn">
             <span class="icon">✉</span>
             <span class="label">信封</span>
+        </div>
+        <div class="side-grid-item" id="sideBoardBtn">
+            <span class="icon">📋</span>
+            <span class="label">留言板</span>
+        </div>
+        <div class="side-grid-item" id="sideWishBtn">
+            <span class="icon">🌳</span>
+            <span class="label">许愿树</span>
         </div>
     </div>
 </div>
@@ -3109,6 +3275,130 @@
     </div>
 </div>
 
+<!-- ===== 留言板弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="boardModal">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="modal-header">
+            <h2>📋 留言板</h2>
+            <button class="modal-close" id="closeBoardModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="mod-row" style="justify-content:space-between;margin-bottom:10px;">
+                <div style="font-size:0.7rem;color:var(--text-muted);">每天上限 5 条小纸条 · 梦角留言给梦女</div>
+                <div class="mod-row" style="gap:6px;">
+                    <button class="btn" id="boardRefreshBtn">✨ 抽取留言</button>
+                    <button class="btn" id="boardPhraseBtn">📝 话语</button>
+                    <button class="btn" id="boardHistBtn">📜 历史</button>
+                </div>
+            </div>
+            <div class="board-grid" id="boardGrid"></div>
+            <div id="boardEmpty" class="lib-empty" style="display:none;">今天还没有留言哦~ 点"抽取留言"让 ta 留下小纸条吧</div>
+        </div>
+    </div>
+</div>
+
+<!-- 留言板 · 话语管理子弹窗 -->
+<div class="modal-overlay sub-modal" id="boardPhraseModal">
+    <div class="modal-content" style="max-width:480px;">
+        <div class="modal-header">
+            <h2>📝 梦角话语库</h2>
+            <button class="modal-close" id="closeBoardPhraseModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;">梦角留言会从这里随机抽取（同时也会混入字卡/表情/颜文字/emoji）</div>
+            <div class="phrase-list" id="boardPhraseList"></div>
+            <textarea class="mod-textarea" id="boardPhraseInput" rows="2" placeholder="添加一句梦角会对梦女说的话，如：今天有没有好好吃饭？"></textarea>
+            <div class="mod-row" style="margin-top:6px;justify-content:flex-end;">
+                <button class="btn btn-primary-mod" id="boardPhraseAddBtn">➕ 添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 留言板 · 历史子弹窗 -->
+<div class="modal-overlay sub-modal" id="boardHistModal">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h2>📜 留言历史</h2>
+            <button class="modal-close" id="closeBoardHistModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="boardHistList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 许愿树弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="wishModal">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="modal-header">
+            <h2>🌳 许愿树</h2>
+            <button class="modal-close" id="closeWishModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="star-legend">
+                <span><i style="background:#f5c542;"></i>黄·日常</span>
+                <span><i style="background:#ff8ab3;"></i>粉·亲密</span>
+                <span><i style="background:#5aa9ff;"></i>蓝·求安慰</span>
+                <span><i style="background:#e74c3c;"></i>红·生气</span>
+                <span><i style="background:#5ec97a;"></i>绿·恐惧</span>
+                <span><i style="background:#a87ff0;"></i>紫·担忧</span>
+            </div>
+            <div class="mod-row" style="justify-content:space-between;margin-bottom:10px;">
+                <div style="font-size:0.7rem;color:var(--text-muted);">每天上限 5 颗小星星</div>
+                <div class="mod-row" style="gap:6px;">
+                    <button class="btn" id="wishRefreshBtn">✨ 摘取星星</button>
+                    <button class="btn" id="wishPhraseBtn">📝 愿望</button>
+                    <button class="btn" id="wishHistBtn">📜 历史</button>
+                </div>
+            </div>
+            <div class="wish-tree">
+                <div class="wt-trunk">🌳</div>
+                <div class="star-grid" id="wishGrid"></div>
+            </div>
+            <div id="wishEmpty" class="lib-empty" style="display:none;">树上还没有星星~ 点"摘取星星"看看 ta 今天的愿望</div>
+        </div>
+    </div>
+</div>
+
+<!-- 许愿树 · 愿望管理子弹窗 -->
+<div class="modal-overlay sub-modal" id="wishPhraseModal">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <h2>📝 愿望话语库</h2>
+            <button class="modal-close" id="closeWishPhraseModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="lib-tabs" style="margin-bottom:8px;" id="wishColorTabs">
+                <button class="tab-btn active" data-wish-color="yellow">🟡 日常</button>
+                <button class="tab-btn" data-wish-color="pink">💗 亲密</button>
+                <button class="tab-btn" data-wish-color="blue">🔵 求安慰</button>
+                <button class="tab-btn" data-wish-color="red">🔴 生气</button>
+                <button class="tab-btn" data-wish-color="green">🟢 恐惧</button>
+                <button class="tab-btn" data-wish-color="purple">🟣 担忧</button>
+            </div>
+            <div class="phrase-list" id="wishPhraseList"></div>
+            <textarea class="mod-textarea" id="wishPhraseInput" rows="2" placeholder="添加一条对应颜色的愿望话语"></textarea>
+            <div class="mod-row" style="margin-top:6px;justify-content:flex-end;">
+                <button class="btn btn-primary-mod" id="wishPhraseAddBtn">➕ 添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 许愿树 · 历史子弹窗 -->
+<div class="modal-overlay sub-modal" id="wishHistModal">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h2>📜 许愿历史</h2>
+            <button class="modal-close" id="closeWishHistModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="wishHistList"></div>
+        </div>
+    </div>
+</div>
+
 <!-- ===== 昵称设置弹窗 ===== -->
 <div class="modal-overlay sub-modal" id="nicknameModal">
     <div class="modal-content" style="max-width:460px;">
@@ -3550,18 +3840,15 @@
             <div class="theme-section">
                 <div class="theme-section-title">📌 快捷换肤</div>
                 <div class="theme-quick-swatches" id="themeQuickSwatches">
-                    <div class="quick-swatch active" data-quick="brown" style="background:#c9a77c;" title="琥珀棕"></div>
-                    <div class="quick-swatch" data-quick="blue" style="background:#9bbfe0;" title="夜蓝"></div>
-                    <div class="quick-swatch" data-quick="purple" style="background:#c2a8e0;" title="梦幻紫"></div>
-                    <div class="quick-swatch" data-quick="green" style="background:#9bc7ad;" title="薄荷绿"></div>
-                    <div class="quick-swatch" data-quick="pink" style="background:#e89bb5;" title="樱粉"></div>
+                    <div class="quick-swatch active" data-quick="zisakura" style="background:linear-gradient(135deg,#ece3f2 0%,#c6a8de 100%);" title="🌙 月落紫樱"></div>
+                    <div class="quick-swatch" data-quick="seasalt" style="background:linear-gradient(135deg,#e3eef0 0%,#6fb8c4 100%);" title="🌊 夏日海盐"></div>
+                    <div class="quick-swatch" data-quick="caramel" style="background:linear-gradient(135deg,#efe3d3 0%,#c49468 100%);" title="☕ 焦糖摩卡"></div>
+                    <div class="quick-swatch" data-quick="mistforest" style="background:linear-gradient(135deg,#dfe8e3 0%,#7aa694 100%);" title="🌲 森林薄雾"></div>
+                    <div class="quick-swatch" data-quick="sakura" style="background:linear-gradient(135deg,#f2e3ea 0%,#e29bb0 100%);" title="🌸 樱花乳酪"></div>
+                    <div class="quick-swatch" data-quick="amber" style="background:linear-gradient(135deg,#efe2d1 0%,#d4a162 100%);" title="✦ 星夜琥珀"></div>
                     <div class="quick-swatch custom" data-quick="custom" title="自定义">
                         <span class="custom-slash">╲</span><span class="custom-slash-slash">╱</span>
                     </div>
-                    <div class="quick-swatch gradient" data-quick="gradient" style="background:linear-gradient(135deg,#dcc3ed,#c6a8de,#9bbfe0);" title="渐变紫"></div>
-                    <div class="quick-swatch" data-quick="coral" style="background:#e89b8d;" title="珊瑚红"></div>
-                    <div class="quick-swatch" data-quick="forest" style="background:#6d8a6d;" title="深林绿"></div>
-                    <div class="quick-swatch" data-quick="royal" style="background:#8b9bc0;" title="皇家蓝"></div>
                 </div>
             </div>
 
@@ -4043,6 +4330,34 @@
             angle: { inbox: [], outbox: [] },
             space: { inbox: [] }
         };
+        // 留言板：梦角每日小纸条（上限5/天）。note: {id, content, ts, date, replies:[{id,content,ts,from:'usr'}]}
+        // phrases：梦角话语库（内置 + 用户自定义）
+        let messageBoard = { notes: [], lastDate: '', history: {}, phrases: [] };
+        const DEFAULT_BOARD_PHRASES = [
+            '今天有按时喝水吗？', '你爱我吗？', '今天干了什么呀？', '什么时候有空？',
+            '有没有好好休息？', '今天心情怎么样？', '想你了，回来看看我好吗？',
+            '记得早点睡，别熬夜。', '今天有遇到开心的事吗？', '我给你留了颗糖，甜不甜？'
+        ];
+        // 许愿树：梦角每日小星星（上限5/天）。star: {id, color, content, ts, date, replies:[...]}
+        // 6 种颜色：yellow日常 / pink亲密 / blue求安慰 / red生气 / green恐惧 / purple担忧
+        let wishTree = { stars: [], lastDate: '', history: {}, phrases: { yellow:[], pink:[], blue:[], red:[], green:[], purple:[] } };
+        const DEFAULT_WISH_PHRASES = {
+            yellow: ['希望你多喝水。', '希望你多运动走动一下。', '记得晒晒太阳。', '今天也要好好吃饭哦。'],
+            pink:  ['你陪陪我。', '你亲亲我。', '想和你吃苹果。', '想要一个拥抱。'],
+            blue:  ['好累，想要你陪陪我。', '我受伤了，想要你安慰我。', '今天有点低落，抱抱我好吗？'],
+            red:   ['你不可以熬夜了，要好好休息！', '不要在生理期吃冰的食物！严令禁止！', '怎么又不好好吃饭，生气了！'],
+            green: ['我害怕你离开我，你不要离开我好不好？', '做了个噩梦，好怕，你在吗？', '别走远，我害怕。'],
+            purple:['我看见你熬夜了，希望你好好休息。', '担心你今天太累了，歇歇吧。', '看你没回消息，有点担心你。']
+        };
+        // 颜色 → 图标/标签
+        const WISH_COLORS = {
+            yellow: { icon:'⭐', label:'日常' },
+            pink:   { icon:'🌸', label:'亲密' },
+            blue:   { icon:'💧', label:'求安慰' },
+            red:    { icon:'🔥', label:'生气' },
+            green:  { icon:'🍀', label:'恐惧' },
+            purple: { icon:'🔮', label:'担忧' }
+        };
         let bubbleShape = 'round';
         let bubbleCustomCSS = '';
         let customFontName = '';
@@ -4192,59 +4507,117 @@
         // ===== 主题外观 =====
         // 预设主题（每组是完整 CSS 变量集）
         const THEME_PRESETS = {
-            lavender: { accent:'#c6a8de', accent2:'#dcc3ed', accent_deep:'#9f79c2', accent_soft:'#efe3f7',
-                bg_page:'#e8e0ee', bubble_user:'#e8ddf2', bubble_angle:'#f3eef8',
-                bg_chat:'#fcfaff', bg_input:'#f5f0fa', text_primary:'#2d1a39', text_secondary:'#5a3d6b',
-                modal_bg:'#ffffff', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
-                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
-            brown: { accent:'#c9a77c', accent2:'#d9bb94', accent_deep:'#a08060', accent_soft:'#efe6da',
-                bg_page:'#ede4d8', bubble_user:'#f0e5d5', bubble_angle:'#f5efe6',
-                bg_chat:'#fbf8f2', bg_input:'#f2ebdf', text_primary:'#3d3020', text_secondary:'#6b5a42',
-                modal_bg:'#fdf8f0', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
-                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
-            blue: { accent:'#9bbfe0', accent2:'#b5d1eb', accent_deep:'#7aa2c9', accent_soft:'#e3eef7',
-                bg_page:'#dde8f0', bubble_user:'#d9e6f2', bubble_angle:'#eaf2f8',
-                bg_chat:'#f2f7fb', bg_input:'#e8eff5', text_primary:'#1f2d3d', text_secondary:'#4a5f73',
-                modal_bg:'#ffffff', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
-                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
-            purple: { accent:'#c2a8e0', accent2:'#d4bce9', accent_deep:'#a489c8', accent_soft:'#f0e8f7',
-                bg_page:'#e6ddf0', bubble_user:'#e3d6ee', bubble_angle:'#f2ebf8',
-                bg_chat:'#faf6fd', bg_input:'#efe6f7', text_primary:'#2a1f3d', text_secondary:'#574273',
-                modal_bg:'#fdfaff', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
-                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
-            green: { accent:'#9bc7ad', accent2:'#b8d8c6', accent_deep:'#7aa88e', accent_soft:'#e4f0e8',
-                bg_page:'#dde8e0', bubble_user:'#d3e2d7', bubble_angle:'#eaf2ec',
-                bg_chat:'#f2f7f4', bg_input:'#e6eeea', text_primary:'#1f3027', text_secondary:'#485f4f',
-                modal_bg:'#f8fbf8', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
-                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
-            pink: { accent:'#e89bb5', accent2:'#f0b6c8', accent_deep:'#cc7a98', accent_soft:'#fbe6ee',
-                bg_page:'#f0e2e8', bubble_user:'#eed0dd', bubble_angle:'#f8eaf0',
-                bg_chat:'#fdf5f8', bg_input:'#f5eaf0', text_primary:'#3d1f2c', text_secondary:'#6b4254',
-                modal_bg:'#fff5f8', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
-                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
-            gradient: { accent:'#c6a8de', accent2:'#9bbfe0', accent_deep:'#a489c8', accent_soft:'#efe3f7',
-                bg_page:'#e8e0ee', bubble_user:'#e0e8f0', bubble_angle:'#f0e8f7',
-                bg_chat:'#faf6fd', bg_input:'#f0ebf7', text_primary:'#2d1a39', text_secondary:'#5a3d6b',
-                modal_bg:'#ffffff', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
-                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
-            coral: { accent:'#e89b8d', accent2:'#f0b0a4', accent_deep:'#cc796b', accent_soft:'#fbe8e3',
-                bg_page:'#f0e2dc', bubble_user:'#e8d0c7', bubble_angle:'#f8ece6',
-                bg_chat:'#fdf5f2', bg_input:'#f5e8e3', text_primary:'#3d2520', text_secondary:'#6b453e',
-                modal_bg:'#fff7f4', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
-                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
-            forest: { accent:'#6d8a6d', accent2:'#88a588', accent_deep:'#526d52', accent_soft:'#dde5dd',
-                bg_page:'#d5dcd5', bubble_user:'#c8d2c8', bubble_angle:'#e4ebe4',
-                bg_chat:'#f0f3f0', bg_input:'#dde4dd', text_primary:'#1f2a1f', text_secondary:'#445844',
-                modal_bg:'#f4f7f4', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.40)', overlay_color:'#000000', overlay_opacity:0.40,
-                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
-            royal: { accent:'#8b9bc0', accent2:'#a4b1cf', accent_deep:'#6e7fa5', accent_soft:'#e3e7f0',
-                bg_page:'#dfe3ec', bubble_user:'#d8dee8', bubble_angle:'#eaeef5',
-                bg_chat:'#f3f5fa', bg_input:'#e7eaf2', text_primary:'#242b3d', text_secondary:'#4b5570',
-                modal_bg:'#f5f7fc', modal_opacity:1, modal_blur:4, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
-                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1 },
+            // ☽ 月落紫樱（经典梦紫）
+            zisakura: { accent:'#c6a8de', accent2:'#dcc3ed', accent_deep:'#9f79c2', accent_soft:'#efe3f7',
+                bg_page:'#ece3f2', bg_card:'#ffffff', bubble_user:'#e4d2f0', bubble_angle:'#f4eef8',
+                bg_chat:'#fbf7fe', bg_input:'#f5effa', text_primary:'#2d1a39', text_secondary:'#5a3d6b',
+                text_muted:'#7a5b8c',
+                modal_bg:'#ffffff', modal_opacity:1, modal_blur:6, overlay:'rgba(0,0,0,0.28)', overlay_color:'#000000', overlay_opacity:0.28,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1,
+                side_panel_bg:'linear-gradient(180deg, #ffffff 0%, #f7effc 50%, #f1e4f8 100%)',
+                side_panel_item_bg:'rgba(198,168,222,0.10)', side_panel_item_bg_hover:'rgba(198,168,222,0.24)',
+                board_bg:'linear-gradient(180deg, #fff7ee 0%, #fbeef9 100%)',
+                board_note_bg:'linear-gradient(135deg, #fff0c2, #ffd8e4)',
+                board_note_bg_alt:'linear-gradient(135deg, #e5efff, #f2e5ff)',
+                board_detail_bg:'rgba(255,255,255,0.96)',
+                wish_tree_bg:'linear-gradient(180deg, #e8f2ff 0%, #f6edff 60%, #fde7f5 100%)',
+                wish_detail_bg:'rgba(255,255,255,0.96)',
+                modal_header_border:'rgba(198,168,222,0.20)',
+                btn_primary_bg:'linear-gradient(135deg, #e5c9f5, #bf9ee0)', btn_primary_text:'#ffffff',
+                input_focus_ring:'rgba(198,168,222,0.22)', shadow_card:'rgba(120,70,160,0.12)' },
+            // 🌊 夏日海盐（清透蓝绿）
+            seasalt: { accent:'#6fb8c4', accent2:'#8eced6', accent_deep:'#4f98a4', accent_soft:'#e1f0f2',
+                bg_page:'#e3eef0', bg_card:'#ffffff', bubble_user:'#cfe5e8', bubble_angle:'#e7f2f4',
+                bg_chat:'#f6fbfc', bg_input:'#eaf4f5', text_primary:'#1a333a', text_secondary:'#436770',
+                text_muted:'#708e94',
+                modal_bg:'#fbfefd', modal_opacity:1, modal_blur:6, overlay:'rgba(0,0,0,0.26)', overlay_color:'#000000', overlay_opacity:0.26,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1,
+                side_panel_bg:'linear-gradient(180deg, #ffffff 0%, #f2fafb 50%, #e5f2f4 100%)',
+                side_panel_item_bg:'rgba(111,184,196,0.10)', side_panel_item_bg_hover:'rgba(111,184,196,0.24)',
+                board_bg:'linear-gradient(180deg, #f1faf8 0%, #eef5fb 100%)',
+                board_note_bg:'linear-gradient(135deg, #d6f4e7, #c3e4f7)',
+                board_note_bg_alt:'linear-gradient(135deg, #fff1d6, #cfeff3)',
+                board_detail_bg:'rgba(255,255,255,0.96)',
+                wish_tree_bg:'linear-gradient(180deg, #e0f5f0 0%, #e9f2fa 60%, #eef5ff 100%)',
+                wish_detail_bg:'rgba(255,255,255,0.96)',
+                modal_header_border:'rgba(111,184,196,0.22)',
+                btn_primary_bg:'linear-gradient(135deg, #9fd5de, #6fb8c4)', btn_primary_text:'#ffffff',
+                input_focus_ring:'rgba(111,184,196,0.22)', shadow_card:'rgba(50,110,130,0.10)' },
+            // ☕ 焦糖摩卡（暖棕复古）
+            caramel: { accent:'#c49468', accent2:'#d9b28e', accent_deep:'#9f7250', accent_soft:'#f3e6d8',
+                bg_page:'#efe3d3', bg_card:'#fffaf4', bubble_user:'#ebd5b8', bubble_angle:'#f5ead8',
+                bg_chat:'#fcf6ec', bg_input:'#f2e7d5', text_primary:'#3a2718', text_secondary:'#70543c',
+                text_muted:'#967960',
+                modal_bg:'#fffaf3', modal_opacity:1, modal_blur:6, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1,
+                side_panel_bg:'linear-gradient(180deg, #fffaf3 0%, #fbf0df 50%, #f5e4cc 100%)',
+                side_panel_item_bg:'rgba(196,148,104,0.10)', side_panel_item_bg_hover:'rgba(196,148,104,0.24)',
+                board_bg:'linear-gradient(180deg, #fdf1dd 0%, #fae2d0 100%)',
+                board_note_bg:'linear-gradient(135deg, #ffe2b8, #ffc9a0)',
+                board_note_bg_alt:'linear-gradient(135deg, #fff0c2, #f5dab6)',
+                board_detail_bg:'rgba(255,250,243,0.96)',
+                wish_tree_bg:'linear-gradient(180deg, #fff0dd 0%, #fae4ce 60%, #f5d2b4 100%)',
+                wish_detail_bg:'rgba(255,250,243,0.96)',
+                modal_header_border:'rgba(196,148,104,0.24)',
+                btn_primary_bg:'linear-gradient(135deg, #e0b288, #c49468)', btn_primary_text:'#ffffff',
+                input_focus_ring:'rgba(196,148,104,0.24)', shadow_card:'rgba(110,70,40,0.12)' },
+            // 🌲 森林薄雾（森系深绿）
+            mistforest: { accent:'#7aa694', accent2:'#9cbfb0', accent_deep:'#5b8876', accent_soft:'#e4efea',
+                bg_page:'#dfe8e3', bg_card:'#f6faf7', bubble_user:'#cfe0d8', bubble_angle:'#e6efe9',
+                bg_chat:'#f4faf6', bg_input:'#e8f0ec', text_primary:'#1d3328', text_secondary:'#476456',
+                text_muted:'#73907f',
+                modal_bg:'#f6faf7', modal_opacity:1, modal_blur:6, overlay:'rgba(0,0,0,0.34)', overlay_color:'#000000', overlay_opacity:0.34,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1,
+                side_panel_bg:'linear-gradient(180deg, #f6faf7 0%, #eef5f1 50%, #e2ede7 100%)',
+                side_panel_item_bg:'rgba(122,166,148,0.10)', side_panel_item_bg_hover:'rgba(122,166,148,0.24)',
+                board_bg:'linear-gradient(180deg, #edf5ef 0%, #e2eee6 100%)',
+                board_note_bg:'linear-gradient(135deg, #d8ecd4, #c5e3d7)',
+                board_note_bg_alt:'linear-gradient(135deg, #f0e7cf, #d8ecd4)',
+                board_detail_bg:'rgba(246,250,247,0.96)',
+                wish_tree_bg:'linear-gradient(180deg, #e3efe4 0%, #e0eae0 60%, #dae5d2 100%)',
+                wish_detail_bg:'rgba(246,250,247,0.96)',
+                modal_header_border:'rgba(122,166,148,0.24)',
+                btn_primary_bg:'linear-gradient(135deg, #9cbfb0, #7aa694)', btn_primary_text:'#ffffff',
+                input_focus_ring:'rgba(122,166,148,0.24)', shadow_card:'rgba(60,100,75,0.12)' },
+            // 🌸 樱花乳酪（粉白少女）
+            sakura: { accent:'#e29bb0', accent2:'#efb8c8', accent_deep:'#c27890', accent_soft:'#fbe4ec',
+                bg_page:'#f2e3ea', bg_card:'#fff9fb', bubble_user:'#ecd0da', bubble_angle:'#f7e6ed',
+                bg_chat:'#fdf5f8', bg_input:'#f5e8ee', text_primary:'#3e1f2a', text_secondary:'#714356',
+                text_muted:'#9a6a7e',
+                modal_bg:'#fff9fb', modal_opacity:1, modal_blur:6, overlay:'rgba(0,0,0,0.26)', overlay_color:'#000000', overlay_opacity:0.26,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1,
+                side_panel_bg:'linear-gradient(180deg, #fff9fb 0%, #fbeef3 50%, #f6dce5 100%)',
+                side_panel_item_bg:'rgba(226,155,176,0.10)', side_panel_item_bg_hover:'rgba(226,155,176,0.26)',
+                board_bg:'linear-gradient(180deg, #fff0f4 0%, #fce4ea 100%)',
+                board_note_bg:'linear-gradient(135deg, #fff0c5, #ffd1dc)',
+                board_note_bg_alt:'linear-gradient(135deg, #ffe1d5, #ffd1dc)',
+                board_detail_bg:'rgba(255,249,251,0.96)',
+                wish_tree_bg:'linear-gradient(180deg, #fff0f4 0%, #fde0ea 60%, #ffd6d6 100%)',
+                wish_detail_bg:'rgba(255,249,251,0.96)',
+                modal_header_border:'rgba(226,155,176,0.22)',
+                btn_primary_bg:'linear-gradient(135deg, #efb8c8, #e29bb0)', btn_primary_text:'#ffffff',
+                input_focus_ring:'rgba(226,155,176,0.24)', shadow_card:'rgba(140,60,85,0.10)' },
+            // ✦ 星夜琥珀（经典棕金）
+            amber: { accent:'#d4a162', accent2:'#e3b97e', accent_deep:'#ae7c45', accent_soft:'#f7ead6',
+                bg_page:'#efe2d1', bg_card:'#fff9ef', bubble_user:'#ebd2a8', bubble_angle:'#f5e8d1',
+                bg_chat:'#fcf7ed', bg_input:'#f2e6d0', text_primary:'#3b2815', text_secondary:'#715539',
+                text_muted:'#96795a',
+                modal_bg:'#fff9ef', modal_opacity:1, modal_blur:6, overlay:'rgba(0,0,0,0.30)', overlay_color:'#000000', overlay_opacity:0.30,
+                opacity_page:1, opacity_chat:1, opacity_input:1, opacity_bubble_user:1, opacity_bubble_angle:1,
+                side_panel_bg:'linear-gradient(180deg, #fff9ef 0%, #faeed6 50%, #f5dfb6 100%)',
+                side_panel_item_bg:'rgba(212,161,98,0.10)', side_panel_item_bg_hover:'rgba(212,161,98,0.26)',
+                board_bg:'linear-gradient(180deg, #fdf1d7 0%, #faedc8 100%)',
+                board_note_bg:'linear-gradient(135deg, #ffe8b4, #ffc992)',
+                board_note_bg_alt:'linear-gradient(135deg, #fff4cf, #ffe8b4)',
+                board_detail_bg:'rgba(255,249,239,0.96)',
+                wish_tree_bg:'linear-gradient(180deg, #fff0d0 0%, #fae0b5 60%, #f5cb8d 100%)',
+                wish_detail_bg:'rgba(255,249,239,0.96)',
+                modal_header_border:'rgba(212,161,98,0.24)',
+                btn_primary_bg:'linear-gradient(135deg, #e3b97e, #d4a162)', btn_primary_text:'#ffffff',
+                input_focus_ring:'rgba(212,161,98,0.24)', shadow_card:'rgba(110,70,30,0.12)' }
         };
 
-        let currentTheme = 'lavender';
+        let currentTheme = 'zisakura';
         let savedThemePresets = [];
 
         function applyThemeVariables(vars) {
@@ -4271,12 +4644,35 @@
                 const op = vars.overlay_opacity !== undefined ? vars.overlay_opacity : 0.30;
                 root.style.setProperty('--modal-overlay', hexToRgba(oc, op));
             }
+            // 文字 muted
+            if (vars.text_muted) root.style.setProperty('--text-muted', vars.text_muted);
             // 各区域透明度
             if (vars.opacity_page !== undefined) root.style.setProperty('--opacity-page', vars.opacity_page);
             if (vars.opacity_chat !== undefined) root.style.setProperty('--opacity-chat-bg', vars.opacity_chat);
             if (vars.opacity_input !== undefined) root.style.setProperty('--opacity-input', vars.opacity_input);
             if (vars.opacity_bubble_user !== undefined) root.style.setProperty('--opacity-bubble-user', vars.opacity_bubble_user);
             if (vars.opacity_bubble_angle !== undefined) root.style.setProperty('--opacity-bubble-angle', vars.opacity_bubble_angle);
+            // 背景/卡片
+            if (vars.bg_card) root.style.setProperty('--bg-card', vars.bg_card);
+            if (vars.bg_input) {
+                const foc = vars.bg_input_focus || vars.bg_input;
+                root.style.setProperty('--bg-input-focus', foc);
+            }
+            // 板块专属色
+            if (vars.side_panel_bg) root.style.setProperty('--side-panel-bg', vars.side_panel_bg);
+            if (vars.side_panel_item_bg) root.style.setProperty('--side-panel-item-bg', vars.side_panel_item_bg);
+            if (vars.side_panel_item_bg_hover) root.style.setProperty('--side-panel-item-bg-hover', vars.side_panel_item_bg_hover);
+            if (vars.board_bg) root.style.setProperty('--board-bg', vars.board_bg);
+            if (vars.board_note_bg) root.style.setProperty('--board-note-bg', vars.board_note_bg);
+            if (vars.board_note_bg_alt) root.style.setProperty('--board-note-bg-alt', vars.board_note_bg_alt);
+            if (vars.board_detail_bg) root.style.setProperty('--board-detail-bg', vars.board_detail_bg);
+            if (vars.wish_tree_bg) root.style.setProperty('--wish-tree-bg', vars.wish_tree_bg);
+            if (vars.wish_detail_bg) root.style.setProperty('--wish-detail-bg', vars.wish_detail_bg);
+            if (vars.modal_header_border) root.style.setProperty('--modal-header-border', vars.modal_header_border);
+            if (vars.btn_primary_bg) root.style.setProperty('--btn-primary-bg', vars.btn_primary_bg);
+            if (vars.btn_primary_text) root.style.setProperty('--btn-primary-text', vars.btn_primary_text);
+            if (vars.input_focus_ring) root.style.setProperty('--input-focus-ring', vars.input_focus_ring);
+            if (vars.shadow_card) root.style.setProperty('--shadow-card', vars.shadow_card);
             // 更新动态头像渐变
             if (vars.accent && vars.accent2) {
                 root.style.setProperty('--avatar-bg-gradient', 'linear-gradient(135deg, ' + vars.accent2 + ', ' + vars.accent + ')');
@@ -4349,6 +4745,7 @@
                 bg_input: root.getPropertyValue('--bg-input').trim() || '#f5f0fa',
                 text_primary: root.getPropertyValue('--text-primary').trim() || '#2d1a39',
                 text_secondary: root.getPropertyValue('--text-secondary').trim() || '#5a3d6b',
+                text_muted: root.getPropertyValue('--text-muted').trim() || '#7a5b8c',
                 modal_bg: root.getPropertyValue('--modal-bg').trim() || '#ffffff',
                 modal_opacity: modalBgOpacity,
                 modal_blur: modalBlur,
@@ -4359,6 +4756,21 @@
                 opacity_input: parseFloat(root.getPropertyValue('--opacity-input').trim()) || 1,
                 opacity_bubble_user: parseFloat(root.getPropertyValue('--opacity-bubble-user').trim()) || 1,
                 opacity_bubble_angle: parseFloat(root.getPropertyValue('--opacity-bubble-angle').trim()) || 1,
+                bg_card: root.getPropertyValue('--bg-card').trim() || '',
+                side_panel_bg: root.getPropertyValue('--side-panel-bg').trim() || '',
+                side_panel_item_bg: root.getPropertyValue('--side-panel-item-bg').trim() || '',
+                side_panel_item_bg_hover: root.getPropertyValue('--side-panel-item-bg-hover').trim() || '',
+                board_bg: root.getPropertyValue('--board-bg').trim() || '',
+                board_note_bg: root.getPropertyValue('--board-note-bg').trim() || '',
+                board_note_bg_alt: root.getPropertyValue('--board-note-bg-alt').trim() || '',
+                board_detail_bg: root.getPropertyValue('--board-detail-bg').trim() || '',
+                wish_tree_bg: root.getPropertyValue('--wish-tree-bg').trim() || '',
+                wish_detail_bg: root.getPropertyValue('--wish-detail-bg').trim() || '',
+                modal_header_border: root.getPropertyValue('--modal-header-border').trim() || '',
+                btn_primary_bg: root.getPropertyValue('--btn-primary-bg').trim() || '',
+                btn_primary_text: root.getPropertyValue('--btn-primary-text').trim() || '',
+                input_focus_ring: root.getPropertyValue('--input-focus-ring').trim() || '',
+                shadow_card: root.getPropertyValue('--shadow-card').trim() || '',
             };
         }
 
@@ -4374,9 +4786,10 @@
                 try {
                     const vars = JSON.parse(saved);
                     applyThemeVariables(vars);
-                } catch (e) { applyThemeVariables(THEME_PRESETS.lavender); }
+                    if (savedName && THEME_PRESETS[savedName]) currentTheme = savedName;
+                } catch (e) { applyThemeVariables(THEME_PRESETS.zisakura); currentTheme = 'zisakura'; }
             } else {
-                applyThemeVariables(THEME_PRESETS.lavender);
+                applyThemeVariables(THEME_PRESETS.zisakura);
             }
             if (savedName && document.querySelectorAll('#themeQuickSwatches')) {
                 document.querySelectorAll('#themeQuickSwatches .quick-swatch').forEach(el => {
@@ -4780,7 +5193,7 @@
             const senderKey = type === 'user' ? 'usr' : 'angle';
             msgDiv.dataset.sender = senderKey;
 
-            // ============ 开关：chatShowAvatar 为 true 时才渲染头像 ============
+            // ============ 开关：chatShowAvatar 为 true 时才渲染头像（头像在气泡外） ============
             if (chatShowAvatar) {
                 const avatarSpan = document.createElement('span');
                 avatarSpan.className = 'msg-avatar';
@@ -4792,7 +5205,10 @@
                 msgDiv.appendChild(avatarSpan);
             }
 
-            // body容器：content → quote → meta 垂直排列
+            // body容器：content → quote → meta 垂直包裹在 msg-bubble（气泡）内
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'msg-bubble';
+
             const bodyDiv = document.createElement('div');
             bodyDiv.className = 'msg-body';
 
@@ -4835,14 +5251,15 @@
             metaDiv.innerHTML = `<small>${whoSpan}${tsStr}${readHtml}</small>`;
             bodyDiv.appendChild(metaDiv);
 
-            msgDiv.appendChild(bodyDiv);
+            bubbleDiv.appendChild(bodyDiv);
+            msgDiv.appendChild(bubbleDiv);
 
-            // 收藏标记
+            // 收藏标记（挂在气泡外层）
             if (opts.fav) {
                 const star = document.createElement('span');
                 star.className = 'msg-fav-star';
                 star.textContent = '⭐';
-                msgDiv.appendChild(star);
+                bubbleDiv.appendChild(star);
             }
 
             // ============ 交互：点击消息什么都不做；长按 (450ms) / 右键 (桌面端回退) → 弹出悬浮工具栏 —— 全部通过 init() 里 chatBox 的委托事件监听，避免 IIFE 内 openMsgToolbar 函数作用域问题 ============
@@ -6497,32 +6914,31 @@
             let mainRadius, tailRadius, sharpExtra = '';
             if (bubbleShape === 'square') {
                 mainRadius = '0'; tailRadius = '0';
-                sharpExtra = '.message.user::after, .message.system::after, .preview-user::after, .preview-angle::after { display: none !important; }';
+                sharpExtra = '.message .msg-bubble::after, .preview-user::after, .preview-angle::after { display: none !important; }';
             } else if (bubbleShape === 'sharp') {
-                // 尖角：主体小圆角（随 bubbleRadius 变化，幅度略小） + 三角形尖尾巴
                 mainRadius = Math.max(0, Math.floor(radius * 0.4 + 2)) + 'px';
                 tailRadius = '0';
                 sharpExtra = `
-                .message.user::after { content:''; position:absolute; bottom:0; right:-7px; width:0; height:0; border-style:solid; border-width:0 0 8px 8px; border-color:transparent transparent transparent var(--bubble-user); display:block; }
-                .message.system::after { content:''; position:absolute; bottom:0; left:-7px; width:0; height:0; border-style:solid; border-width:0 8px 8px 0; border-color:transparent var(--bubble-angle) transparent transparent; display:block; }
+                .message.user .msg-bubble { position: relative; }
+                .message.system .msg-bubble { position: relative; }
+                .message.user .msg-bubble::after { content:''; position:absolute; bottom:0; right:-7px; width:0; height:0; border-style:solid; border-width:0 0 8px 8px; border-color:transparent transparent transparent var(--bubble-user); display:block; }
+                .message.system .msg-bubble::after { content:''; position:absolute; bottom:0; left:-7px; width:0; height:0; border-style:solid; border-width:0 8px 8px 0; border-color:transparent var(--bubble-angle) transparent transparent; display:block; }
                 .preview-user::after { content:''; position:absolute; bottom:0; right:-6px; width:0; height:0; border-style:solid; border-width:0 0 7px 7px; border-color:transparent transparent transparent var(--bubble-user); display:block; }
                 .preview-angle::after { content:''; position:absolute; bottom:0; left:-6px; width:0; height:0; border-style:solid; border-width:0 7px 7px 0; border-color:transparent var(--bubble-angle) transparent transparent; display:block; }
                 .preview-bubble { position: relative; }
                 `;
             } else {
                 mainRadius = radius + 'px'; tailRadius = Math.max(2, Math.floor(radius/4)) + 'px';
-                sharpExtra = '.message.user::after, .message.system::after, .preview-user::after, .preview-angle::after { display: none !important; }';
+                sharpExtra = '.message .msg-bubble::after, .preview-user::after, .preview-angle::after { display: none !important; }';
             }
             const css = `
-                .message.user {
+                .message.user .msg-bubble {
                     border-radius: ${mainRadius};
                     border-bottom-right-radius: ${tailRadius};
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
                 }
-                .message.system {
+                .message.system .msg-bubble {
                     border-radius: ${mainRadius};
                     border-bottom-left-radius: ${tailRadius};
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
                 }
                 ${sharpExtra}
                 .chat-box { background:${bgImage ? 'transparent' : 'var(--bg-chat)'}; ${bgImage ? `background-image:url('${bgImage}'); background-size:cover; background-position:center; background-attachment:fixed;` : ''} }
@@ -6625,8 +7041,40 @@
                         if (!letterBox.angle.outbox) letterBox.angle.outbox = [];
                         if (!letterBox.space.inbox) letterBox.space.inbox = [];
                     }
+                    // 留言板
+                    if (a.messageBoard && typeof a.messageBoard === 'object') {
+                        messageBoard.notes = Array.isArray(a.messageBoard.notes) ? a.messageBoard.notes : [];
+                        messageBoard.lastDate = a.messageBoard.lastDate || '';
+                        messageBoard.history = (a.messageBoard.history && typeof a.messageBoard.history === 'object') ? a.messageBoard.history : {};
+                        messageBoard.phrases = Array.isArray(a.messageBoard.phrases) && a.messageBoard.phrases.length ? a.messageBoard.phrases : [...DEFAULT_BOARD_PHRASES];
+                    } else {
+                        messageBoard.phrases = [...DEFAULT_BOARD_PHRASES];
+                    }
+                    // 许愿树
+                    if (a.wishTree && typeof a.wishTree === 'object') {
+                        wishTree.stars = Array.isArray(a.wishTree.stars) ? a.wishTree.stars : [];
+                        wishTree.lastDate = a.wishTree.lastDate || '';
+                        wishTree.history = (a.wishTree.history && typeof a.wishTree.history === 'object') ? a.wishTree.history : {};
+                        var _wp = a.wishTree.phrases && typeof a.wishTree.phrases === 'object' ? a.wishTree.phrases : {};
+                        ['yellow','pink','blue','red','green','purple'].forEach(function(c){
+                            wishTree.phrases[c] = (Array.isArray(_wp[c]) && _wp[c].length) ? _wp[c] : [...DEFAULT_WISH_PHRASES[c]];
+                        });
+                    } else {
+                        ['yellow','pink','blue','red','green','purple'].forEach(function(c){
+                            wishTree.phrases[c] = [...DEFAULT_WISH_PHRASES[c]];
+                        });
+                    }
                 } catch (e) {}
             }
+            // 首次加载（无存档）或异常时，确保默认话语库已注入
+            if (!Array.isArray(messageBoard.phrases) || !messageBoard.phrases.length) {
+                messageBoard.phrases = [...DEFAULT_BOARD_PHRASES];
+            }
+            ['yellow','pink','blue','red','green','purple'].forEach(function(c){
+                if (!Array.isArray(wishTree.phrases[c]) || !wishTree.phrases[c].length) {
+                    wishTree.phrases[c] = [...DEFAULT_WISH_PHRASES[c]];
+                }
+            });
             // 同步表单
             bubbleShapeSelect.value = bubbleShape;
             bubbleUserColorInput.value = bubbleUserColor;
@@ -6752,7 +7200,8 @@
                 favorites, marks, recalledCache, moodDiaries,
                 kaomojiGroups, kaomojiGroupList,
                 emojiImgGroups, emojiImgGroupList,
-                letterBox
+                letterBox,
+                messageBoard, wishTree
             };
             localStorage.setItem('dream_appearance', JSON.stringify(data));
             applyBubbleStyle();
@@ -8642,26 +9091,29 @@
             function angleAutoSpaceLetterRandom() {
                 if (Math.random() > 0.06) return;  // 6%
                 if (!cardLibrary.length) return;
+                const _pid = genPairId();
                 const letter = makeLetter({
                     from: 'space', to: 'usr', title: '',
                     content: cardLibrary[Math.floor(Math.random()*cardLibrary.length)],
-                    sourceBox: 'space', parentId: null
+                    sourceBox: 'space', parentId: null, pairId: _pid
                 });
                 letterBox.space.inbox.unshift(letter);
-                // 同步出现在"我的信箱"收件箱（时空来信）
-                const mirror = {...letter, id: letter.id + '-m', mirrorOf: letter.id, sourceBox: 'mine'};
+                // 同步出现在"我的信箱"收件箱（时空来信）—— 与时空原件共享 pairId，便于已读联动
+                const mirror = {...letter, id: letter.id + '-m', mirrorOf: letter.id, sourceBox: 'mine', pairId: _pid};
                 letterBox.mine.inbox.unshift(mirror);
                 saveAppearance();
                 showToast(`${angleName} 给你发了一封时空来信 ✉`);
                 if (envelopeModal && envelopeModal.classList.contains('active')) renderEnvList();
             }
 
-            function makeLetter({from,to,title,content,sourceBox,parentId,replyTargetId,sourceLetterBox}) {
+            function makeLetter({from,to,title,content,sourceBox,parentId,replyTargetId,sourceLetterBox,pairId}) {
                 return {
                     id: 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
                     parentId: parentId || null,
                     replyTargetId: replyTargetId || null,
                     sourceLetterBox: sourceLetterBox || null,
+                    // pairId：把"同一封信在不同信箱中的镜像/收发对"绑定在一起，便于已读状态同步
+                    pairId: pairId || null,
                     title: title || '',
                     content: content || '',
                     from, to,
@@ -8670,6 +9122,9 @@
                     replied: false,
                     sourceBox
                 };
+            }
+            function genPairId() {
+                return 'P' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
             }
             function getBox(box, inner) {
                 if (box === 'space') return letterBox.space.inbox;
@@ -8685,6 +9140,43 @@
                     }
                 }
                 return null;
+            }
+            // 找到"本质上同一封信"的全部副本（时空镜像 / 收发对），用于已读状态联动
+            function findLetterPeers(letter) {
+                const peers = [];
+                if (!letter) return peers;
+                // ① 时空镜像：本封是镜像（mirrorOf 指向时空原件）
+                if (letter.mirrorOf) {
+                    const orig = (letterBox.space.inbox||[]).find(x => x.id === letter.mirrorOf);
+                    if (orig && orig !== letter) peers.push(orig);
+                }
+                // ① 反向：本封是时空原件 → 找 mine.inbox 里的镜像
+                if (letter.sourceBox === 'space' || letter.from === 'space') {
+                    (letterBox.mine.inbox||[]).forEach(m => { if (m.mirrorOf === letter.id && m !== letter) peers.push(m); });
+                }
+                // ②③ 收发对：靠 pairId 绑定 outbox↔inbox 的同一封信
+                if (letter.pairId) {
+                    for (const bk of ['mine','angle']) {
+                        for (const ik of ['inbox','outbox']) {
+                            (letterBox[bk]?.[ik]||[]).forEach(x => {
+                                if (x !== letter && x.pairId === letter.pairId) peers.push(x);
+                            });
+                        }
+                    }
+                    // 时空信箱 inbox 也参与 pairId 联动
+                    (letterBox.space.inbox||[]).forEach(x => {
+                        if (x !== letter && x.pairId === letter.pairId) peers.push(x);
+                    });
+                }
+                return peers;
+            }
+            // 把一封信（及其所有镜像/收发对副本）标记为已读
+            function markLetterRead(letter) {
+                if (!letter) return;
+                let changed = false;
+                if (!letter.read) { letter.read = true; changed = true; }
+                findLetterPeers(letter).forEach(p => { if (!p.read) { p.read = true; changed = true; } });
+                return changed;
             }
 
             function renderEnvList() {
@@ -8756,13 +9248,13 @@
 
                     // 点击卡片 = 展开详情 + 标记已读（按 box 类型区分：梦角收件箱不自动已读）
                     d.addEventListener('click', (e) => {
-                        if (e.target.closest('.env-jump,.env-quote,.env-delete-btn,.env-reply-btn')) return;
+                        if (e.target.closest('.env-jump,.env-quote,.env-delete-btn,.env-reply-btn,.env-angle-read-btn')) return;
                         toggleLetterDetail(d, letter);
-                        // 只有"我的收信箱" 和 "时空信箱"里的信，梦女点查看才算已读；
-                        // "梦角收件箱"(angle.inbox) 梦女点查看 ≠ 梦角已读 —— 梦角读信需另一条独立逻辑，不能在这里改
+                        // 梦女在我的收信箱/时空信箱收信箱点查看 = 已读，
+                        // 同时联动"本质上同一封信"的其它副本（时空原件/镜像、回信收发对）一并已读
                         const box = envState.box;
                         if ((box === 'mine' || box === 'space') && envState.inner === 'inbox') {
-                            if (!letter.read) { letter.read = true; saveAppearance(); renderEnvList(); }
+                            if (markLetterRead(letter)) { saveAppearance(); renderEnvList(); }
                         }
                     });
                     envList.appendChild(d);
@@ -8798,6 +9290,17 @@
                 // 跳转按钮
                 const jumpWrap = document.createElement('div');
                 jumpWrap.className = 'env-jump';
+                // 梦角收信箱：提供"梦角已读"按钮（梦女点查看不算梦角已读，需梦角本人读信）
+                // 标记后联动同一封信在"我的回信箱"等其它信箱里的副本一并已读
+                if (envState.box === 'angle' && envState.inner === 'inbox') {
+                    const arb = document.createElement('button');
+                    arb.className = 'env-angle-read-btn';
+                    arb.textContent = letter.read ? '✓ 梦角已读' : '👁 标记梦角已读';
+                    arb.addEventListener('click', () => {
+                        if (markLetterRead(letter)) { saveAppearance(); renderEnvList(); showToast('梦角已读 ✉'); }
+                    });
+                    jumpWrap.appendChild(arb);
+                }
                 // 收件箱可点"回信"
                 if (envState.inner === 'inbox') {
                     const rb = document.createElement('button');
@@ -8879,12 +9382,14 @@
                 const peer = me === 'usr' ? 'angle' : 'usr';
                 const meBox = envState.box;  // 'mine' or 'angle'
                 const peerBox = meBox === 'mine' ? 'angle' : 'mine';
+                // 回信的 out/in 对共享同一个 pairId，便于已读联动
+                const _rpid = genPairId();
                 // 我的回信进入"当前大板块.outbox"
                 const outLetter = makeLetter({
                     from: me, to: peer, title, content,
                     sourceBox: meBox,
                     parentId: origin.id, replyTargetId: origin.id,
-                    sourceLetterBox: target.bk
+                    sourceLetterBox: target.bk, pairId: _rpid
                 });
                 letterBox[meBox].outbox.unshift(outLetter);
                 // 对方收信箱增加一封收信（引用同内容，新id）
@@ -8892,7 +9397,7 @@
                     from: me, to: peer, title, content,
                     sourceBox: peerBox,
                     parentId: origin.id, replyTargetId: origin.id,
-                    sourceLetterBox: target.bk
+                    sourceLetterBox: target.bk, pairId: _rpid
                 });
                 inLetter.id = 'R' + Date.now().toString(36) + Math.random().toString(36).slice(2,4);
                 letterBox[peerBox].inbox.unshift(inLetter);
@@ -8937,6 +9442,7 @@
                 if (envWritingLetterState === 'reply' && envState.replyingToId) {
                     var origin = findLetter(envState.replyingToId);
                     if (!origin) { showToast('原信已丢失'); closeNewLetter(); return; }
+                    var _nrid = genPairId();
                     var letter = makeLetter({
                         from: envState.box === 'mine' ? 'usr' : 'angle',
                         to: envState.box === 'mine' ? 'angle' : 'usr',
@@ -8944,20 +9450,18 @@
                         sourceBox: envState.box === 'mine' ? 'mine' : 'angle',
                         parentId: origin.letter.id,
                         replyTargetId: origin.letter.id,
-                        replied: true
+                        replied: true, pairId: _nrid
                     });
                     // 进入双方 outbox/inbox（时空信 不受影响，只进正常收发）
                     var rMe = letter.from, rPeer = letter.to;
                     var rMeBox = rMe === 'usr' ? 'mine' : 'angle';
                     var rPeerBox = rMe === 'usr' ? 'angle' : 'mine';
                     letterBox[rMeBox].outbox.unshift(letter);
-                    var inc2 = makeLetter({ from: rMe, to: rPeer, title, content, sourceBox: rPeerBox, parentId: origin.letter.id, replyTargetId: origin.letter.id, replied: true });
+                    var inc2 = makeLetter({ from: rMe, to: rPeer, title, content, sourceBox: rPeerBox, parentId: origin.letter.id, replyTargetId: origin.letter.id, replied: true, pairId: _nrid });
                     letterBox[rPeerBox].inbox.unshift(inc2);
                     // 原信标记已被回信
                     var originLetter = origin.letter;
-                    var originPool = getBox(origin.source, origin.inner);
-                    var idx = originPool.findIndex(x => x.id === originLetter.id);
-                    if (idx >= 0) originPool[idx].replied = true;
+                    originLetter.replied = true;
                     saveAppearance(); closeNewLetter();
                     showToast('回信已寄出 ✉'); renderEnvList();
                     return;
@@ -8967,9 +9471,10 @@
                 const peer = me === 'usr' ? 'angle' : 'usr';
                 const meBox = me === 'usr' ? 'mine' : 'angle';
                 const peerBox = me === 'usr' ? 'angle' : 'mine';
-                const out = makeLetter({ from:me, to:peer, title, content, sourceBox:meBox, parentId:null, replyTargetId:null });
+                const _npid = genPairId();
+                const out = makeLetter({ from:me, to:peer, title, content, sourceBox:meBox, parentId:null, replyTargetId:null, pairId: _npid });
                 letterBox[meBox].outbox.unshift(out);
-                const inc = makeLetter({ from:me, to:peer, title, content, sourceBox:peerBox, parentId:null, replyTargetId:null });
+                const inc = makeLetter({ from:me, to:peer, title, content, sourceBox:peerBox, parentId:null, replyTargetId:null, pairId: _npid });
                 inc.id = 'R' + Date.now().toString(36) + Math.random().toString(36).slice(2,4);
                 letterBox[peerBox].inbox.unshift(inc);
                 saveAppearance(); closeNewLetter();
@@ -9023,6 +9528,446 @@
                 document.querySelectorAll('[data-env-inner]').forEach(b => b.classList.toggle('active', b.dataset.envInner === 'inbox'));
                 renderEnvList();
                 openModal(envelopeModal);
+            });
+
+            // ========== 留言板 + 许愿树 ==========
+            const boardModal = document.getElementById('boardModal');
+            const closeBoardModal = document.getElementById('closeBoardModal');
+            const boardGrid = document.getElementById('boardGrid');
+            const boardRefreshBtn = document.getElementById('boardRefreshBtn');
+            const boardPhraseBtn = document.getElementById('boardPhraseBtn');
+            const boardHistBtn = document.getElementById('boardHistBtn');
+            const boardPhraseModal = document.getElementById('boardPhraseModal');
+            const closeBoardPhraseModal = document.getElementById('closeBoardPhraseModal');
+            const boardPhraseList = document.getElementById('boardPhraseList');
+            const boardPhraseInput = document.getElementById('boardPhraseInput');
+            const boardPhraseAddBtn = document.getElementById('boardPhraseAddBtn');
+            const boardHistModal = document.getElementById('boardHistModal');
+            const closeBoardHistModal = document.getElementById('closeBoardHistModal');
+            const boardHistList = document.getElementById('boardHistList');
+
+            const wishModal = document.getElementById('wishModal');
+            const closeWishModal = document.getElementById('closeWishModal');
+            const wishGrid = document.getElementById('wishGrid');
+            const wishRefreshBtn = document.getElementById('wishRefreshBtn');
+            const wishPhraseBtn = document.getElementById('wishPhraseBtn');
+            const wishHistBtn = document.getElementById('wishHistBtn');
+            const wishPhraseModal = document.getElementById('wishPhraseModal');
+            const closeWishPhraseModal = document.getElementById('closeWishPhraseModal');
+            const wishPhraseList = document.getElementById('wishPhraseList');
+            const wishPhraseInput = document.getElementById('wishPhraseInput');
+            const wishPhraseAddBtn = document.getElementById('wishPhraseAddBtn');
+            const wishHistModal = document.getElementById('wishHistModal');
+            const closeWishHistModal = document.getElementById('closeWishHistModal');
+            const wishHistList = document.getElementById('wishHistList');
+
+            // 本地时间 → datetime-local 字符串 YYYY-MM-DDTHH:MM
+            function toLocalDTInput(ts) {
+                const d = new Date(ts || Date.now());
+                const p = n => String(n).padStart(2,'0');
+                return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+            }
+            // 从 datetime-local 字符串取时间戳
+            function fromLocalDTInput(s) {
+                const t = new Date(s).getTime();
+                return isNaN(t) ? Date.now() : t;
+            }
+
+            // ---- 留言板 ----
+            function boardPickAngleContent() {
+                // 55% 概率从内置/自定义话语库抽；否则混入字卡/emoji/颜文字
+                const phrases = messageBoard.phrases || [];
+                if (phrases.length && Math.random() < 0.55) return phrases[Math.floor(Math.random()*phrases.length)];
+                const pool = [];
+                try { if (cardLibrary && cardLibrary.length) pool.push.apply(pool, cardLibrary); } catch(e){}
+                try { var f=[]; for (var g in emojiGroups) f.push.apply(f,(emojiGroups[g]||[])); if (f.length) pool.push.apply(pool,f); } catch(e){}
+                try { var k=[]; for (var g2 in kaomojiGroups) k.push.apply(k,(kaomojiGroups[g2]||[])); if (k.length) pool.push.apply(pool,k); } catch(e){}
+                if (phrases.length) pool.push.apply(pool, phrases);
+                if (!pool.length) return '今天也想和你说说话。';
+                return pool[Math.floor(Math.random()*pool.length)];
+            }
+            function boardRolloverDay() {
+                const today = formatDateKey(Date.now());
+                if (messageBoard.lastDate && messageBoard.lastDate !== today) {
+                    if (messageBoard.notes && messageBoard.notes.length) {
+                        messageBoard.history[messageBoard.lastDate] = JSON.parse(JSON.stringify(messageBoard.notes));
+                    }
+                    messageBoard.notes = [];
+                    messageBoard.lastDate = today;
+                    saveAppearance();
+                } else if (!messageBoard.lastDate) {
+                    messageBoard.lastDate = today;
+                    saveAppearance();
+                }
+            }
+            function boardFillToday(n) {
+                boardRolloverDay();
+                let added = 0;
+                while (messageBoard.notes.length < 5 && added < n) {
+                    messageBoard.notes.push({
+                        id: 'BN' + Date.now().toString(36) + Math.floor(Math.random()*10000),
+                        content: boardPickAngleContent(),
+                        ts: Date.now(),
+                        date: formatDateKey(Date.now()),
+                        read: false,
+                        replies: []
+                    });
+                    added++;
+                }
+                saveAppearance();
+            }
+            function renderBoard() {
+                if (!boardGrid) return;
+                boardGrid.innerHTML = '';
+                boardRolloverDay();
+                const empty = document.getElementById('boardEmpty');
+                if (!messageBoard.notes.length) { if (empty) empty.style.display=''; return; }
+                if (empty) empty.style.display='none';
+                messageBoard.notes.forEach(note => {
+                    const d = document.createElement('div');
+                    d.className = 'board-note' + (note.read ? '' : ' unread');
+                    d.innerHTML = '<div class="bn-fold">💌</div>'
+                        + '<div class="bn-tip">点击查看留言</div>'
+                        + '<div class="bn-rep">' + (note.replies.length ? '↪ '+note.replies.length : '') + '</div>'
+                        + '<div class="bn-time">' + formatTimeHMS(note.ts) + '</div>';
+                    d.addEventListener('click', () => {
+                        let changed = false;
+                        if (!note.read) { note.read = true; changed = true; d.classList.remove('unread'); }
+                        if (changed) saveAppearance();
+                        try { toggleBoardDetail(d, note); } catch(err){ console.error('boardDetail', err); }
+                    });
+                    boardGrid.appendChild(d);
+                });
+            }
+            function toggleBoardDetail(cardEl, note) {
+                const others = boardGrid.querySelectorAll('.board-detail');
+                others.forEach(o => o.remove());
+                boardGrid.querySelectorAll('.board-note').forEach(c => { c.dataset.open=''; });
+                if (cardEl.dataset.open === '1') { cardEl.dataset.open=''; return; }
+                cardEl.dataset.open = '1';
+                const det = document.createElement('div');
+                det.className = 'board-detail';
+                let reps = '';
+                (note.replies||[]).forEach(r => {
+                    reps += '<div class="bd-reply"><div class="br-time">'+formatDateCN(r.ts)+' '+formatTimeHMS(r.ts)+'</div><div class="br-content"></div></div>';
+                });
+                det.innerHTML = '<div class="bd-head"><span>来自 <b>'+angleName+'</b></span><span>'+formatDateCN(note.ts)+' '+formatTimeHMS(note.ts)+'</span></div>'
+                    + '<div class="bd-content"></div>'
+                    + (reps ? '<div class="bd-replies">'+reps+'</div>' : '')
+                    + '<div class="bd-reply-area">'
+                    + '<textarea class="mod-textarea" placeholder="写下你的回复..."></textarea>'
+                    + '<div class="bd-reply-row">'
+                    + '<label class="bd-send-chat"><input type="checkbox" class="bd-chat-cb" /> 同时发送到聊天界面</label>'
+                    + '</div>'
+                    + '<div class="bd-reply-row">'
+                    + '<button class="btn btn-primary-mod" data-act="now">💬 立即回复</button>'
+                    + '<input type="datetime-local" />'
+                    + '<button class="btn" data-act="custom">⏰ 定时回复</button>'
+                    + '</div></div>';
+                det.querySelector('.bd-content').textContent = note.content;
+                // 回填已渲染回复内容（防 XSS）
+                det.querySelectorAll('.bd-reply').forEach((node, i) => { node.querySelector('.br-content').textContent = note.replies[i].content; });
+                const ta = det.querySelector('textarea');
+                const dt = det.querySelector('input[type="datetime-local"]');
+                const cb = det.querySelector('.bd-chat-cb');
+                dt.value = toLocalDTInput(Date.now());
+                // 将回复发送到聊天界面（含梦角自动回复）
+                function sendReplyToChat(content, replyTs) {
+                    if (!content) return;
+                    // 先关闭留言板/许愿树弹窗，切到聊天
+                    try { closeModal(boardModal); } catch(e){}
+                    try { closeModal(wishModal); } catch(e){}
+                    const now = Date.now();
+                    const delta = replyTs ? Math.max(0, replyTs - now) : 0;
+                    function doSend() {
+                        addChatMessage(content, 'user');
+                        if (chatSoundMsg) try { playSfx('send'); } catch(e){}
+                        // 触发梦角回复
+                        if (!(chatReadNoReply && Math.random() < 0.45)) {
+                            const minD = Math.max(100, Math.floor(Math.min(replyDelayMin || 0, replyDelayMax || 0)));
+                            const maxD = Math.max(minD + 200, Math.floor(Math.max(replyDelayMin || 0, replyDelayMax || 0)));
+                            const baseSpeed = isNaN(chatReplySpeed) ? 0 : Math.max(0, Math.floor(chatReplySpeed));
+                            const delay = baseSpeed + minD + Math.floor(Math.random() * Math.max(1, (maxD - minD)));
+                            if (replyTimer) { clearTimeout(replyTimer); replyTimer = null; }
+                            try { showTyping(); } catch(e){}
+                            replyTimer = setTimeout(() => { try { replyWithRandomCard(); } catch(e){} }, delay);
+                        }
+                    }
+                    if (delta <= 0) doSend();
+                    // 定时回复若时间差 ≤ 24h 则安排发送；超过则仅保留在留言板/许愿树内
+                    else if (delta <= 24 * 3600 * 1000) setTimeout(doSend, delta);
+                }
+                det.querySelector('[data-act="now"]').addEventListener('click', () => {
+                    const c = (ta.value||'').trim();
+                    if (!c) { showToast('写点什么再回复吧'); return; }
+                    const now = Date.now();
+                    note.replies.push({ id:'BR'+now, content:c, ts:now, from:'usr' });
+                    saveAppearance(); renderBoard(); showToast('回复已留下 ✿');
+                    if (cb && cb.checked) sendReplyToChat(c, now);
+                });
+                det.querySelector('[data-act="custom"]').addEventListener('click', () => {
+                    const c = (ta.value||'').trim();
+                    if (!c) { showToast('写点什么再回复吧'); return; }
+                    const customTs = fromLocalDTInput(dt.value);
+                    note.replies.push({ id:'BR'+Date.now(), content:c, ts:customTs, from:'usr' });
+                    saveAppearance(); renderBoard(); showToast('定时回复已留下 ✿');
+                    if (cb && cb.checked) sendReplyToChat(c, customTs);
+                });
+                cardEl.after(det);
+            }
+            function renderBoardPhrases() {
+                if (!boardPhraseList) return;
+                boardPhraseList.innerHTML = '';
+                const list = messageBoard.phrases || [];
+                if (!list.length) { boardPhraseList.innerHTML = '<div class="lib-empty">还没有自定义话语</div>'; return; }
+                list.forEach((p, i) => {
+                    const it = document.createElement('div');
+                    it.className = 'phrase-item';
+                    const sp = document.createElement('span'); sp.textContent = p; it.appendChild(sp);
+                    const b = document.createElement('button'); b.textContent='删除';
+                    b.addEventListener('click', () => { messageBoard.phrases.splice(i,1); saveAppearance(); renderBoardPhrases(); });
+                    it.appendChild(b);
+                    boardPhraseList.appendChild(it);
+                });
+            }
+            function renderBoardHistory() {
+                if (!boardHistList) return;
+                boardHistList.innerHTML = '';
+                const days = Object.keys(messageBoard.history||{}).sort((a,b)=> b.localeCompare(a));
+                if (!days.length) { boardHistList.innerHTML = '<div class="lib-empty">还没有历史留言</div>'; return; }
+                days.forEach(day => {
+                    const dh = document.createElement('div'); dh.className='hist-day'; dh.textContent = day; boardHistList.appendChild(dh);
+                    (messageBoard.history[day]||[]).forEach(note => {
+                        const it = document.createElement('div'); it.className='hist-item';
+                        let reps = '';
+                        (note.replies||[]).forEach(r => { reps += '<div class="hi-r"><b>'+userName+'</b> · '+formatDateCN(r.ts)+' '+formatTimeHMS(r.ts)+'：<span></span></div>'; });
+                        it.innerHTML = '<div class="hi-head" style="font-size:0.6rem;color:var(--text-muted);margin-bottom:4px;">'+angleName+' · '+formatTimeHMS(note.ts)+'</div><div class="hi-c"></div>'+reps;
+                        it.querySelector('.hi-c').textContent = note.content;
+                        const spans = it.querySelectorAll('.hi-r span');
+                        (note.replies||[]).forEach((r, idx) => { if (spans[idx]) spans[idx].textContent = r.content; });
+                        boardHistList.appendChild(it);
+                    });
+                });
+            }
+
+            // ---- 许愿树 ----
+            function wishPickContent(color) {
+                const pool = (wishTree.phrases[color] || []).slice();
+                if (!pool.length) return '想和你说说话。';
+                return pool[Math.floor(Math.random()*pool.length)];
+            }
+            function wishRolloverDay() {
+                const today = formatDateKey(Date.now());
+                if (wishTree.lastDate && wishTree.lastDate !== today) {
+                    if (wishTree.stars && wishTree.stars.length) {
+                        wishTree.history[wishTree.lastDate] = JSON.parse(JSON.stringify(wishTree.stars));
+                    }
+                    wishTree.stars = [];
+                    wishTree.lastDate = today;
+                    saveAppearance();
+                } else if (!wishTree.lastDate) {
+                    wishTree.lastDate = today;
+                    saveAppearance();
+                }
+            }
+            function wishFillToday(n) {
+                wishRolloverDay();
+                const colors = ['yellow','pink','blue','red','green','purple'];
+                let added = 0;
+                while (wishTree.stars.length < 5 && added < n) {
+                    const color = colors[Math.floor(Math.random()*colors.length)];
+                    wishTree.stars.push({
+                        id: 'WS' + Date.now().toString(36) + Math.floor(Math.random()*10000),
+                        color: color,
+                        content: wishPickContent(color),
+                        ts: Date.now(),
+                        date: formatDateKey(Date.now()),
+                        read: false,
+                        replies: []
+                    });
+                    added++;
+                }
+                saveAppearance();
+            }
+            function renderWish() {
+                if (!wishGrid) return;
+                wishGrid.innerHTML = '';
+                wishRolloverDay();
+                const empty = document.getElementById('wishEmpty');
+                if (!wishTree.stars.length) { if (empty) empty.style.display=''; return; }
+                if (empty) empty.style.display='none';
+                wishTree.stars.forEach(star => {
+                    const d = document.createElement('button');
+                    d.className = 'star-item star-c-'+star.color + (star.read ? '' : ' unread');
+                    d.innerHTML = '<span class="si-icon">'+WISH_COLORS[star.color].icon+'</span>'
+                        + '<span class="si-tip">'+WISH_COLORS[star.color].label+'</span>'
+                        + '<span class="si-time">'+formatTimeHMS(star.ts)+'</span>';
+                    d.addEventListener('click', () => {
+                        let changed = false;
+                        if (!star.read) { star.read = true; changed = true; d.classList.remove('unread'); }
+                        if (changed) saveAppearance();
+                        try { toggleWishDetail(d, star); } catch(err){ console.error('wishDetail', err); }
+                    });
+                    wishGrid.appendChild(d);
+                });
+            }
+            function toggleWishDetail(cardEl, star) {
+                const others = wishGrid.querySelectorAll('.star-detail');
+                others.forEach(o => o.remove());
+                wishGrid.querySelectorAll('.star-item').forEach(c => { c.dataset.open=''; });
+                if (cardEl.dataset.open === '1') { cardEl.dataset.open=''; return; }
+                cardEl.dataset.open = '1';
+                const det = document.createElement('div');
+                det.className = 'star-detail board-detail';
+                let reps = '';
+                (star.replies||[]).forEach(r => {
+                    reps += '<div class="bd-reply"><div class="br-time">'+formatDateCN(r.ts)+' '+formatTimeHMS(r.ts)+'</div><div class="br-content"></div></div>';
+                });
+                det.innerHTML = '<div class="bd-head"><span><b style="color:#a87ff0;">'+WISH_COLORS[star.color].icon+' '+WISH_COLORS[star.color].label+'</b></span><span>'+formatDateCN(star.ts)+' '+formatTimeHMS(star.ts)+'</span></div>'
+                    + '<div class="bd-content"></div>'
+                    + (reps ? '<div class="bd-replies">'+reps+'</div>' : '')
+                    + '<div class="bd-reply-area">'
+                    + '<textarea class="mod-textarea" placeholder="回应 ta 的愿望..."></textarea>'
+                    + '<div class="bd-reply-row">'
+                    + '<label class="bd-send-chat"><input type="checkbox" class="bd-chat-cb" /> 同时发送到聊天界面</label>'
+                    + '</div>'
+                    + '<div class="bd-reply-row">'
+                    + '<button class="btn btn-primary-mod" data-act="now">💬 立即回应</button>'
+                    + '<input type="datetime-local" />'
+                    + '<button class="btn" data-act="custom">⏰ 定时回应</button>'
+                    + '</div></div>';
+                det.querySelector('.bd-content').textContent = star.content;
+                det.querySelectorAll('.bd-reply').forEach((node, i) => { node.querySelector('.br-content').textContent = star.replies[i].content; });
+                const ta = det.querySelector('textarea');
+                const dt = det.querySelector('input[type="datetime-local"]');
+                const cb = det.querySelector('.bd-chat-cb');
+                dt.value = toLocalDTInput(Date.now());
+                // 将回应发送到聊天界面（含梦角自动回复）- 复用留言板的 sendReplyToChat 思路
+                function sendWishReplyToChat(content, replyTs) {
+                    if (!content) return;
+                    try { closeModal(boardModal); } catch(e){}
+                    try { closeModal(wishModal); } catch(e){}
+                    const now = Date.now();
+                    const delta = replyTs ? Math.max(0, replyTs - now) : 0;
+                    function doSend() {
+                        addChatMessage(content, 'user');
+                        if (chatSoundMsg) try { playSfx('send'); } catch(e){}
+                        if (!(chatReadNoReply && Math.random() < 0.45)) {
+                            const minD = Math.max(100, Math.floor(Math.min(replyDelayMin || 0, replyDelayMax || 0)));
+                            const maxD = Math.max(minD + 200, Math.floor(Math.max(replyDelayMin || 0, replyDelayMax || 0)));
+                            const baseSpeed = isNaN(chatReplySpeed) ? 0 : Math.max(0, Math.floor(chatReplySpeed));
+                            const delay = baseSpeed + minD + Math.floor(Math.random() * Math.max(1, (maxD - minD)));
+                            if (replyTimer) { clearTimeout(replyTimer); replyTimer = null; }
+                            try { showTyping(); } catch(e){}
+                            replyTimer = setTimeout(() => { try { replyWithRandomCard(); } catch(e){} }, delay);
+                        }
+                    }
+                    if (delta <= 0) doSend();
+                    else if (delta <= 24 * 3600 * 1000) setTimeout(doSend, delta);
+                }
+                det.querySelector('[data-act="now"]').addEventListener('click', () => {
+                    const c = (ta.value||'').trim();
+                    if (!c) { showToast('写点什么再回应吧'); return; }
+                    const now = Date.now();
+                    star.replies.push({ id:'WR'+now, content:c, ts:now, from:'usr' });
+                    saveAppearance(); renderWish(); showToast('回应已留下 ✿');
+                    if (cb && cb.checked) sendWishReplyToChat(c, now);
+                });
+                det.querySelector('[data-act="custom"]').addEventListener('click', () => {
+                    const c = (ta.value||'').trim();
+                    if (!c) { showToast('写点什么再回应吧'); return; }
+                    const customTs = fromLocalDTInput(dt.value);
+                    star.replies.push({ id:'WR'+Date.now(), content:c, ts:customTs, from:'usr' });
+                    saveAppearance(); renderWish(); showToast('定时回应已留下 ✿');
+                    if (cb && cb.checked) sendWishReplyToChat(c, customTs);
+                });
+                cardEl.after(det);
+            }
+            let wishCurColor = 'yellow';
+            function renderWishPhrases() {
+                if (!wishPhraseList) return;
+                wishPhraseList.innerHTML = '';
+                const list = wishTree.phrases[wishCurColor] || [];
+                if (!list.length) { wishPhraseList.innerHTML = '<div class="lib-empty">还没有该颜色的愿望</div>'; return; }
+                list.forEach((p, i) => {
+                    const it = document.createElement('div');
+                    it.className = 'phrase-item';
+                    const sp = document.createElement('span'); sp.textContent = p; it.appendChild(sp);
+                    const b = document.createElement('button'); b.textContent='删除';
+                    b.addEventListener('click', () => { wishTree.phrases[wishCurColor].splice(i,1); saveAppearance(); renderWishPhrases(); });
+                    it.appendChild(b);
+                    wishPhraseList.appendChild(it);
+                });
+            }
+            function renderWishHistory() {
+                if (!wishHistList) return;
+                wishHistList.innerHTML = '';
+                const days = Object.keys(wishTree.history||{}).sort((a,b)=> b.localeCompare(a));
+                if (!days.length) { wishHistList.innerHTML = '<div class="lib-empty">还没有历史愿望</div>'; return; }
+                days.forEach(day => {
+                    const dh = document.createElement('div'); dh.className='hist-day'; dh.textContent = day; wishHistList.appendChild(dh);
+                    (wishTree.history[day]||[]).forEach(star => {
+                        const it = document.createElement('div'); it.className='hist-item';
+                        let reps = '';
+                        (star.replies||[]).forEach(r => { reps += '<div class="hi-r"><b>'+userName+'</b> · '+formatDateCN(r.ts)+' '+formatTimeHMS(r.ts)+'：<span></span></div>'; });
+                        it.innerHTML = '<div class="hi-head" style="font-size:0.6rem;color:var(--text-muted);margin-bottom:4px;">'+WISH_COLORS[star.color].icon+' '+WISH_COLORS[star.color].label+' · '+formatTimeHMS(star.ts)+'</div><div class="hi-c"></div>'+reps;
+                        it.querySelector('.hi-c').textContent = star.content;
+                        const spans = it.querySelectorAll('.hi-r span');
+                        (star.replies||[]).forEach((r, idx) => { if (spans[idx]) spans[idx].textContent = r.content; });
+                        wishHistList.appendChild(it);
+                    });
+                });
+            }
+
+            // 留言板 绑定
+            if (sideBoardBtn) sideBoardBtn.addEventListener('click', () => { closeSidePanel(); renderBoard(); openModal(boardModal); });
+            if (closeBoardModal) closeBoardModal.addEventListener('click', () => closeModal(boardModal));
+            if (boardRefreshBtn) boardRefreshBtn.addEventListener('click', () => {
+                boardRolloverDay();
+                if (messageBoard.notes.length >= 5) { showToast('今天的留言已经满 5 条啦~'); return; }
+                const need = 5 - messageBoard.notes.length;
+                boardFillToday(need);
+                renderBoard();
+                showToast('梦角留下了 '+need+' 条留言 💌');
+            });
+            if (boardPhraseBtn) boardPhraseBtn.addEventListener('click', () => { renderBoardPhrases(); openModal(boardPhraseModal); });
+            if (closeBoardPhraseModal) closeBoardPhraseModal.addEventListener('click', () => closeModal(boardPhraseModal));
+            if (boardPhraseAddBtn) boardPhraseAddBtn.addEventListener('click', () => {
+                const v = (boardPhraseInput.value||'').trim();
+                if (!v) { showToast('写一句再添加'); return; }
+                messageBoard.phrases.push(v); saveAppearance(); boardPhraseInput.value='';
+                renderBoardPhrases(); showToast('已加入话语库 ✿');
+            });
+            if (boardHistBtn) boardHistBtn.addEventListener('click', () => { renderBoardHistory(); openModal(boardHistModal); });
+            if (closeBoardHistModal) closeBoardHistModal.addEventListener('click', () => closeModal(boardHistModal));
+
+            // 许愿树 绑定
+            if (sideWishBtn) sideWishBtn.addEventListener('click', () => { closeSidePanel(); renderWish(); openModal(wishModal); });
+            if (closeWishModal) closeWishModal.addEventListener('click', () => closeModal(wishModal));
+            if (wishRefreshBtn) wishRefreshBtn.addEventListener('click', () => {
+                wishRolloverDay();
+                if (wishTree.stars.length >= 5) { showToast('今天的星星已经满 5 颗啦~'); return; }
+                const need = 5 - wishTree.stars.length;
+                wishFillToday(need);
+                renderWish();
+                showToast('树上多了 '+need+' 颗星星 ✨');
+            });
+            if (wishPhraseBtn) wishPhraseBtn.addEventListener('click', () => { renderWishPhrases(); openModal(wishPhraseModal); });
+            if (closeWishPhraseModal) closeWishPhraseModal.addEventListener('click', () => closeModal(wishPhraseModal));
+            if (wishPhraseAddBtn) wishPhraseAddBtn.addEventListener('click', () => {
+                const v = (wishPhraseInput.value||'').trim();
+                if (!v) { showToast('写一句再添加'); return; }
+                wishTree.phrases[wishCurColor].push(v); saveAppearance(); wishPhraseInput.value='';
+                renderWishPhrases(); showToast('已加入'+WISH_COLORS[wishCurColor].label+'愿望 ✿');
+            });
+            if (wishHistBtn) wishHistBtn.addEventListener('click', () => { renderWishHistory(); openModal(wishHistModal); });
+            if (closeWishHistModal) closeWishHistModal.addEventListener('click', () => closeModal(wishHistModal));
+            document.querySelectorAll('[data-wish-color]').forEach(b => {
+                b.addEventListener('click', () => {
+                    wishCurColor = b.dataset.wishColor;
+                    document.querySelectorAll('[data-wish-color]').forEach(x => x.classList.toggle('active', x === b));
+                    renderWishPhrases();
+                });
             });
 
             // ========== 日历 + 跳转日期 + 心情日记 ==========
