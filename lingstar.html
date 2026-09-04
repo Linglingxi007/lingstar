@@ -1526,6 +1526,40 @@
             transition: 0.15s;
         }
         .mod-textarea:focus { border-color: var(--accent-deep); box-shadow: 0 0 0 2px rgba(190, 150, 220, 0.08); }
+        /* ===== 大信纸 Modal & 折叠原信 ===== */
+        .env-letter-full { border-radius: 24px; }
+        .env-letter-body { padding: 18px 24px; }
+        .env-letter-textarea {
+            width: 100%; resize: vertical; min-height: 220px; font-size: 0.92rem; line-height: 1.7;
+            border-radius: 16px; padding: 16px 18px;
+            background: linear-gradient(180deg, #fffdfc 0%, #faf3ff 100%);
+            border: 1px solid rgba(200, 170, 230, 0.18);
+        }
+        .env-reply-fold {
+            margin-bottom: 14px; border-radius: 14px; overflow: hidden;
+            border: 1px solid rgba(200, 170, 230, 0.22);
+            background: linear-gradient(135deg, rgba(238,226,253,0.35) 0%, rgba(255,224,243,0.35) 100%);
+        }
+        .env-reply-fold[open] .env-reply-summary::before { transform: rotate(90deg); }
+        .env-reply-summary {
+            cursor: pointer; padding: 10px 16px; font-size: 0.78rem; font-weight: 600;
+            color: var(--accent-deep); list-style: none; user-select: none;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .env-reply-summary::-webkit-details-marker { display: none; }
+        .env-reply-summary::before {
+            content: '▶'; display: inline-block; transition: transform 0.2s;
+            font-size: 0.55rem; color: var(--accent-deep);
+        }
+        .env-reply-quote { padding: 0 18px 14px; font-size: 0.78rem; color: var(--text-secondary); }
+        .env-rq-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; opacity: 0.7; }
+        .env-rq-sender b { color: var(--accent-deep); }
+        .env-rq-time { font-size: 0.66rem; }
+        .env-rq-title { font-size: 0.84rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+        .env-rq-content {
+            white-space: pre-wrap; max-height: 180px; overflow-y: auto; line-height: 1.6;
+            padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.5);
+        }
         .mod-hint { font-size: 0.58rem; color: var(--text-hint); opacity: 0.4; margin-top: 2px; }
         .mod-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
         .mod-actions .btn { padding: 4px 12px; font-size: 0.66rem; border-radius: 30px; }
@@ -2638,9 +2672,15 @@
                         <span class="switch-icon">✦</span>
                         <div class="switch-info">
                             <div class="switch-label">拼字卡</div>
-                            <div class="switch-desc">开启后，系统会随机将字卡拼接合并发送</div>
+                            <div class="switch-desc">开启后，梦角会随机把多条字卡拼成一句话发出</div>
                         </div>
                         <label class="chat-switch"><input type="checkbox" id="chatMergeCards"><span></span></label>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">拼卡条数</div>
+                        <input type="range" id="chatMergeCountSlider" min="2" max="10" step="1" value="3">
+                        <span class="slider-value" id="chatMergeCountVal">3 条</span>
+                        <div class="slider-note">梦角从字卡库选择，最少 2 条最多 10 条</div>
                     </div>
 
                     <div class="chat-section-title">字卡抽取方式</div>
@@ -2778,8 +2818,8 @@
                     <div class="chat-switch-row">
                         <span class="switch-icon">😊</span>
                         <div class="switch-info">
-                            <div class="switch-label">表情混入消息</div>
-                            <div class="switch-desc">开启后表情与文字同条发送</div>
+                            <div class="switch-label">emoji表情混入消息</div>
+                            <div class="switch-desc">开启后，随机 emoji 会混入字卡前后或中间</div>
                         </div>
                         <label class="chat-switch"><input type="checkbox" id="chatEmojiMix"><span></span></label>
                     </div>
@@ -3038,16 +3078,29 @@
 
 <!-- 新建/写信子弹窗 -->
 <div class="modal-overlay sub-modal" id="envLetterModal">
-    <div class="modal-content" style="max-width:500px;">
+    <div class="modal-content env-letter-full" style="max-width:720px;">
         <div class="modal-header">
             <h2 id="envLetterTitle">✍ 写一封信</h2>
             <button class="modal-close" id="closeLetterModal">✕</button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body env-letter-body">
+            <!-- 回信场景时显示：梦角寄来的原信折叠窗（默认折叠，点标题展开） -->
+            <details id="envReplyFold" class="env-reply-fold" style="display:none;">
+                <summary class="env-reply-summary">📜 梦角寄来的原信（点击展开对照）</summary>
+                <div class="env-reply-quote">
+                    <div class="env-rq-head">
+                        <span class="env-rq-sender">来自 <b id="envRqSender">ta</b></span>
+                        <span class="env-rq-time" id="envRqTime"></span>
+                    </div>
+                    <div class="env-rq-title" id="envRqTitle"></div>
+                    <div class="env-rq-content" id="envRqContent"></div>
+                </div>
+            </details>
+
             <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;">标题</div>
             <input type="text" id="envLetterTitleInput" class="lib-search" placeholder="给这封信起个标题（可选）" style="margin-bottom:12px;">
             <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;">内容</div>
-            <textarea class="mod-textarea" id="envLetterContentInput" rows="8" placeholder="写下你的心里话..."></textarea>
+            <textarea class="mod-textarea env-letter-textarea" id="envLetterContentInput" rows="14" placeholder="写下你的心里话..."></textarea>
             <div class="mod-row" style="margin-top:10px;justify-content:flex-end;">
                 <button class="btn" id="envLetterCancelBtn">取消</button>
                 <button class="btn btn-primary-mod" id="envLetterSendBtn">📤 发送</button>
@@ -3861,7 +3914,11 @@
             "你是我未完成的诗",
             "梦境的碎片闪烁"
         ];
-        const DEFAULT_EMOJIS = ['😊','🌹','🌙','✨','💕','🥺','😴','🌸','💫','🤍','🍀','🎀','🍃','🌙','🌌','🕊️'];
+        const DEFAULT_EMOJIS = ['😊','🌹','🌙','✨','💕','🥺','😴','🌸','💫','🤍','🍀','🎀','🍃','🌌','🕊️'];
+        // 真正的颜文字（Kaomoji）默认组 —— 之前误放了 emoji 导致"颜文字"板块内容和 emoji 重复
+        const DEFAULT_KAOMOJIS = ['(´･ω･`)','(◕ᴗ◕✿)','≧∇≦','ฅ^•ﻌ•^ฅ','(๑˃̵ᴗ˂̵)و','(｡･ω･｡)','(ﾉ´ヮ`)ﾉ*: ・ﾟ✧','(^▽^)','(｡•ᴗ-)✧','(´-ω-`)','ヾ(≧▽≦*)o','(◍•ᴗ•◍)','(づ｡◕‿‿◕｡)づ','(•̀ᴗ•́)و','٩(ˊᗜˋ*)و','╰(⸝⸝⸝´꒳`⸝⸝⸝)╯','(｡･ω･｡)ﾉ♡','(｣°ﾛ°)｣','<(￣︶￣)>','(╥﹏╥)','(T_T)','┭┮﹏┭┮','(´；ω；`)','༼ つ ◕_◕ ༽つ','( ´･ω･)ﾉ( ´･ω･)ﾉ','( ˘ ³˘)♥'];
+        // Emoji 符号（😣😌🌸 这类 Unicode 字符表情）
+        const DEFAULT_EMOJI_SYMBOLS = ['😌','😘','🥰','😭','😤','🤗','😎','🙃','🥺','😇','🤩','😴','🤔','😏','🤤','😱','🤯','🥳','🤫','😬','🙄','😈','🤓','😽','💪','🙌','🤝','👌','✌️','🤞','💖','💜','💙','💚','💛','🧡','❤️','💘','💞','💗','✨','🌟','⭐','🌙','☀️','🌸','🌹','🌺','🌷','🌼','🌻','🍀','🍃','🌊','🌈','🎀','🎀','🎀','🍰','🧁','🍡','🍜','🍙','🍫','🍬','🍭','🍩','🍪','🎁','🎈','🎉','🎊','🏮','🎆','🎇','🧨','🔥','⚡','❄️','🌨','☁️','⛅','⛈','🌤','🌥','🌦','🌧','⛈','🌩','🌪','🌫','🌬','🌀','🌈','🌂','☂️','☔','⛱','⚡','🌡','☀️','🌤','🌥','🌦','🌧','⛈','🌩','🌪','🌫','🌬','🌀'];
         const DEFAULT_PATS = [
             "拍了拍肩膀",
             "揉了揉头发",
@@ -3883,15 +3940,15 @@
         let cardSelected = new Set();
 
         // 默认表情原来的 emojiGroups 保存在 "颜文字" 分组（kaomojiGroups）中
-        let kaomojiGroups = { default: [...DEFAULT_EMOJIS] };
+        let kaomojiGroups = { default: [...DEFAULT_KAOMOJIS] };
         let kaomojiGroupList = ['default'];
         let kaoCurrentGroup = 'all';
         let kaoSearch = '';
         let kaoSelectMode = false;
         let kaoSelected = new Set();
 
-        // Emoji 符号（😣😌🌸 这类 Unicode 字符表情）— 之前拆分三分类时漏声明，导致心情日记 renderQuickRow 引用时报 ReferenceError
-        let emojiGroups = { default: [...DEFAULT_EMOJIS] };
+        // Emoji 符号（😣😌🌸 这类 Unicode 字符表情）
+        let emojiGroups = { default: [...DEFAULT_EMOJI_SYMBOLS] };
         let emojiGroupList = ['default'];
         let emojiCurrentGroup = 'all';
         let emojiSearch = '';
@@ -3952,6 +4009,7 @@
         let chatLetterEnabled = true;   // 主动写信
         let chatCustomReplyRule = false;
         let chatMergeCards = false;
+        let chatMergeCount = 3;      // 拼字卡条数自定义：2-10，梦角从字卡库抽
         let chatEmojiMix = false;
         let chatKaomojiMix = false;
         let chatSoundMsg = false;
@@ -5469,7 +5527,7 @@
         }
         function resetEmojis() {
             if (Object.values(emojiGroups).reduce((a, b) => a + b.length, 0) && !confirm('恢复默认表情？')) return;
-            emojiGroups = { default: [...DEFAULT_EMOJIS] };
+            emojiGroups = { default: [...DEFAULT_KAOMOJIS] };
             emojiGroupList = ['default'];
             emojiCurrentGroup = 'all';
             emojiSelected.clear();
@@ -5818,7 +5876,9 @@
 
             let msg;
             if (effMerge) {
-                const count = 2 + Math.floor(Math.random() * 4); // 2–5 张
+                // 拼卡条数：chatMergeCount（用户滑块设的 2-10）±1 随机浮动，防止每次都精准到同一数值
+                const baseCount = Math.max(2, Math.min(10, chatMergeCount || 3));
+                const count = Math.max(2, Math.min(10, baseCount + (Math.random() < 0.5 ? 0 : (Math.random() < 0.5 ? -1 : 1))));
                 const parts = [];
                 for (let j = 0; j < count; j++) parts.push(pickOne());
                 // 50% 逗号，50% 换行拼接
@@ -6518,6 +6578,7 @@
                     chatLetterEnabled = a.chatLetterEnabled != null ? a.chatLetterEnabled : chatLetterEnabled;
                     chatCustomReplyRule = a.chatCustomReplyRule != null ? a.chatCustomReplyRule : chatCustomReplyRule;
                     chatMergeCards = a.chatMergeCards != null ? a.chatMergeCards : chatMergeCards;
+                    chatMergeCount = (a.chatMergeCount != null && a.chatMergeCount >= 2 && a.chatMergeCount <= 10) ? a.chatMergeCount : chatMergeCount;
                     chatEmojiMix = a.chatEmojiMix != null ? a.chatEmojiMix : chatEmojiMix;
                     chatKaomojiMix = a.chatKaomojiMix != null ? a.chatKaomojiMix : chatKaomojiMix;
                     chatSoundMsg = a.chatSoundMsg != null ? a.chatSoundMsg : chatSoundMsg;
@@ -6540,7 +6601,17 @@
                     if (!marks.usr) marks.usr = []; if (!marks.angle) marks.angle = [];
                     recalledCache = a.recalledCache && typeof a.recalledCache === 'object' ? a.recalledCache : {};
                     moodDiaries = a.moodDiaries && typeof a.moodDiaries === 'object' ? a.moodDiaries : {};
-                    kaomojiGroups = a.kaomojiGroups && typeof a.kaomojiGroups === 'object' ? a.kaomojiGroups : { default: [...DEFAULT_EMOJIS] };
+                    kaomojiGroups = a.kaomojiGroups && typeof a.kaomojiGroups === 'object' ? a.kaomojiGroups : { default: [...DEFAULT_KAOMOJIS] };
+                    // 一次性迁移：之前错误地把 DEFAULT_EMOJIS（全 emoji）存进了 kaomojiGroups.default，
+                    // 检测到第一个元素不含颜文字特征（无括号/≧/T_T）就自动替换，刷新一次即可生效
+                    try {
+                        var kdef = kaomojiGroups.default || [];
+                        var looksLikeEmoji = kdef.length && /^[^\(\)≧≦_T].{0,10}$/.test(kdef[0]) && !/\(/.test(kdef[0]);
+                        if (looksLikeEmoji) {
+                            kaomojiGroups = { default: [...DEFAULT_KAOMOJIS] };
+                            saveAppearance();
+                        }
+                    } catch(_e) {}
                     kaomojiGroupList = Array.isArray(a.kaomojiGroupList) ? a.kaomojiGroupList : ['default'];
                     emojiImgGroups = a.emojiImgGroups && typeof a.emojiImgGroups === 'object' ? a.emojiImgGroups : { default: [] };
                     emojiImgGroupList = Array.isArray(a.emojiImgGroupList) ? a.emojiImgGroupList : ['default'];
@@ -6673,7 +6744,7 @@
                 userCallsAngle, angleCallsUser,
                 chatShowNickname, chatQuoteEnabled, chatReadReceipt, chatReadStyle, chatReadNoReply,
                 chatEnterSend, chatTimestampStyle, chatCallEnabled, chatLetterEnabled, chatCustomReplyRule,
-                chatMergeCards, chatEmojiMix, chatKaomojiMix, chatSoundMsg, chatSoundCall, chatVolume,
+                chatMergeCards, chatMergeCount, chatEmojiMix, chatKaomojiMix, chatSoundMsg, chatSoundCall, chatVolume,
                 angleCallChance,
                 chatLetterMin, chatLetterMinUnit, chatLetterMax, chatLetterMaxUnit,
                 chatReplyMin, chatReplyMinUnit, chatReplyMax, chatReplyMaxUnit,
@@ -6721,7 +6792,7 @@
                     cardLibrary = payload.cards.cardLibrary || (() => { let a = []; for (const g in groups) a = a.concat(groups[g]); return a; })();
                 }
                 if (payload.emojis) {
-                    emojiGroups = payload.emojis.groups || { default: [...DEFAULT_EMOJIS] };
+                    emojiGroups = payload.emojis.groups || { default: [...DEFAULT_KAOMOJIS] };
                     emojiGroupList = payload.emojis.groupList || ['default'];
                 }
                 if (payload.pats) {
@@ -6748,7 +6819,7 @@
             cardSelected.clear();
             cardSelectMode = false;
 
-            emojiGroups = { default: [...DEFAULT_EMOJIS] };
+            emojiGroups = { default: [...DEFAULT_KAOMOJIS] };
             emojiGroupList = ['default'];
             emojiCurrentGroup = 'all';
             emojiSelected.clear();
@@ -6775,7 +6846,7 @@
             chatReadReceipt = true; chatReadStyle = 'graphic'; chatReadNoReply = true;
             chatEnterSend = false; chatTimestampStyle = 'HH:MM';
             chatCallEnabled = true; chatLetterEnabled = true; chatCustomReplyRule = false;
-            chatMergeCards = false; chatEmojiMix = false; chatKaomojiMix = false;
+            chatMergeCards = false; chatMergeCount = 3; chatEmojiMix = false; chatKaomojiMix = false;
             chatSoundMsg = false; chatSoundCall = false; chatVolume = 70;
             angleCallChance = 30;
             chatLetterMin = 15; chatLetterMinUnit = 'minute';
@@ -6788,7 +6859,7 @@
             marks = { usr: [], angle: [] };
             recalledCache = {};
             moodDiaries = {};
-            kaomojiGroups = { default: [...DEFAULT_EMOJIS] };
+            kaomojiGroups = { default: [...DEFAULT_KAOMOJIS] };
             kaomojiGroupList = ['default']; kaoCurrentGroup = 'all'; kaoSelected = new Set(); kaoSelectMode = false; kaoSearch = '';
             emojiImgGroups = { default: [] };
             emojiImgGroupList = ['default']; emImgCurrentGroup = 'all'; emImgSelected = new Set(); emImgSelectMode = false; emImgSearch = '';
@@ -7858,17 +7929,46 @@
                 if (m) m.addEventListener('click', (e) => { if (e.target === m) closeModal(m); });
             });
 
-            // ========== 聊天设置功能 tab 状态同步 ==========
-            const chatQuoteEnabledEl = document.getElementById('chatQuoteEnabled');
-            if (chatQuoteEnabledEl) { chatQuoteEnabledEl.checked = chatQuoteEnabled; chatQuoteEnabledEl.addEventListener('change', () => { chatQuoteEnabled = chatQuoteEnabledEl.checked; saveAppearance(); if (!chatQuoteEnabled) { quoteMsg = null; clearQuoteBar(); } }); }
-            const chatReadReceiptEl = document.getElementById('chatReadReceipt');
-            if (chatReadReceiptEl) { chatReadReceiptEl.checked = chatReadReceipt; chatReadReceiptEl.addEventListener('change', () => { chatReadReceipt = chatReadReceiptEl.checked; saveAppearance(); }); }
-            const chatReadNoReplyEl = document.getElementById('chatReadNoReply');
-            if (chatReadNoReplyEl) { chatReadNoReplyEl.checked = chatReadNoReply; chatReadNoReplyEl.addEventListener('change', () => { chatReadNoReply = chatReadNoReplyEl.checked; saveAppearance(); }); }
-            const chatShowNicknameEl = document.getElementById('chatShowNickname');
-            if (chatShowNicknameEl) { chatShowNicknameEl.checked = chatShowNickname; chatShowNicknameEl.addEventListener('change', () => { chatShowNickname = chatShowNicknameEl.checked; saveAppearance(); }); }
-            const chatEnterSendToggle = document.getElementById('chatEnterSend');
-            if (chatEnterSendToggle) { chatEnterSendToggle.checked = chatEnterSend; chatEnterSendToggle.addEventListener('change', () => { chatEnterSend = chatEnterSendToggle.checked; saveAppearance(); }); }
+            // ========== 聊天设置功能 tab 状态同步 —— 所有开关统一双向绑定 ==========
+            function bindChatSwitch(cbId, varName, onChange) {
+                const el = document.getElementById(cbId);
+                if (!el) return;
+                el.checked = eval(varName); // 初始化 UI
+                el.addEventListener('change', () => {
+                    eval(varName + ' = el.checked;');
+                    saveAppearance();
+                    if (typeof onChange === 'function') onChange(el.checked);
+                });
+            }
+            // 已有特殊逻辑的开关：quoteEnabled（关了要清 quoteBar）
+            bindChatSwitch('chatQuoteEnabled', 'chatQuoteEnabled', (v) => { if (!v) { quoteMsg = null; clearQuoteBar(); } });
+            // 下面 11 个开关之前**完全没绑定 change 事件**，用户改 UI 无效 —— 现在统一绑定
+            bindChatSwitch('chatReadReceipt', 'chatReadReceipt');
+            bindChatSwitch('chatReadNoReply', 'chatReadNoReply');
+            bindChatSwitch('chatShowNickname', 'chatShowNickname');
+            bindChatSwitch('chatEnterSend', 'chatEnterSend');
+            bindChatSwitch('chatShowAvatar', 'chatShowAvatar');
+            bindChatSwitch('chatShowTimestamp', 'chatShowTimestamp');
+            bindChatSwitch('chatCallEnabled', 'chatCallEnabled');
+            bindChatSwitch('chatLetterEnabled', 'chatLetterEnabled');
+            bindChatSwitch('chatCustomReplyRule', 'chatCustomReplyRule');
+            bindChatSwitch('chatMergeCards', 'chatMergeCards');
+            bindChatSwitch('chatEmojiMix', 'chatEmojiMix');
+            bindChatSwitch('chatKaomojiMix', 'chatKaomojiMix');
+            bindChatSwitch('chatSoundMsg', 'chatSoundMsg');
+            bindChatSwitch('chatSoundCall', 'chatSoundCall');
+            // chatMergeCountSlider：拼字卡条数滑块同步
+            const mcs = document.getElementById('chatMergeCountSlider');
+            const mcval = document.getElementById('chatMergeCountVal');
+            if (mcs) {
+                mcs.value = chatMergeCount;
+                if (mcval) mcval.textContent = chatMergeCount + ' 条';
+                mcs.addEventListener('input', () => {
+                    chatMergeCount = parseInt(mcs.value, 10) || 3;
+                    if (mcval) mcval.textContent = chatMergeCount + ' 条';
+                    saveAppearance();
+                });
+            }
             // time-stamp options 点击同步
             document.querySelectorAll('#chatTimestampOptions .ts-option').forEach(opt => {
                 const v = opt.dataset.val;
@@ -8093,7 +8193,7 @@
             });
             if (resetKaoBtn) resetKaoBtn.addEventListener('click', () => {
                 if (!confirm('恢复默认颜文字？（覆盖当前）')) return;
-                kaomojiGroups = { default: [...DEFAULT_EMOJIS] };
+                kaomojiGroups = { default: [...DEFAULT_KAOMOJIS] };
                 kaomojiGroupList = ['default']; kaoCurrentGroup = 'all'; kaoSelected.clear(); kaoSelectMode = false;
                 saveAppearance(); renderKaos(); showToast('已恢复默认');
             });
@@ -8286,7 +8386,7 @@
             if (resetEmSymBtn) resetEmSymBtn.addEventListener('click', () => {
                 const curCnt = Object.values(emojiGroups).reduce((a,b)=>a+b.length,0);
                 if (curCnt && !confirm('恢复默认 Emoji 符号？当前自定义内容将丢失。')) return;
-                emojiGroups = { default: [...DEFAULT_EMOJIS] };
+                emojiGroups = { default: [...DEFAULT_KAOMOJIS] };
                 emojiGroupList = ['default'];
                 emojiCurrentGroup = 'all';
                 emojiSelected.clear(); emSymSelectMode = false;
@@ -8654,11 +8754,16 @@
                         saveAppearance(); renderEnvList();
                     });
 
-                    // 点击卡片 = 展开详情 + 标记已读
+                    // 点击卡片 = 展开详情 + 标记已读（按 box 类型区分：梦角收件箱不自动已读）
                     d.addEventListener('click', (e) => {
                         if (e.target.closest('.env-jump,.env-quote,.env-delete-btn,.env-reply-btn')) return;
                         toggleLetterDetail(d, letter);
-                        if (!letter.read) { letter.read = true; saveAppearance(); renderEnvList(); }
+                        // 只有"我的收信箱" 和 "时空信箱"里的信，梦女点查看才算已读；
+                        // "梦角收件箱"(angle.inbox) 梦女点查看 ≠ 梦角已读 —— 梦角读信需另一条独立逻辑，不能在这里改
+                        const box = envState.box;
+                        if ((box === 'mine' || box === 'space') && envState.inner === 'inbox') {
+                            if (!letter.read) { letter.read = true; saveAppearance(); renderEnvList(); }
+                        }
                     });
                     envList.appendChild(d);
                 });
@@ -8739,12 +8844,25 @@
 
             // 点收信箱某信 = 进入回信模式
             function startReply(letter) {
+                // 回信改走大信纸 Modal（envLetterModal），让用户在大信纸上撰写回信 + 折叠对照原信
+                envWritingLetterState = 'reply';
                 envState.replyingToId = letter.id;
-                envReplyArea.style.display = '';
-                envReplyHint.textContent = `给 ${letter.from === 'usr' ? userName : angleName} 回信（回复：${letter.title || letter.content.slice(0,20)}…）：`;
-                envReplyInput.value = '';
-                setTimeout(() => envReplyInput.focus(), 50);
-                envReplyInput.scrollIntoView({behavior:'smooth', block:'nearest'});
+                envLetterTitle.textContent = '✍ 回信给 ' + (letter.from === 'usr' ? userName : angleName);
+                // 折叠窗注入梦角原信内容
+                var fold = document.getElementById('envReplyFold');
+                if (fold) {
+                    fold.style.display = '';
+                    fold.open = false; // 默认折叠
+                }
+                var rq = document.getElementById('envRqSender');  if (rq) rq.textContent = (letter.from === 'usr' ? userName : angleName);
+                var rt = document.getElementById('envRqTime');    if (rt) rt.textContent = formatDateCN(letter.ts) + ' ' + formatTimeHMS(letter.ts);
+                var rtt = document.getElementById('envRqTitle');  if (rtt) rtt.textContent = letter.title || '(无标题)';
+                var rc = document.getElementById('envRqContent'); if (rc) rc.textContent = letter.content;
+                // 预填回信标题 & 正文（可选预填）
+                envLetterTitleInput.value = 'Re：' + (letter.title || '梦角来信');
+                envLetterContentInput.value = '';
+                openModal(envLetterModal);
+                setTimeout(() => envLetterContentInput.focus(), 80);
             }
 
             // 发送回信：我的信箱.outbox（回信） → 他的信箱.inbox（收信）；反之对称
@@ -8797,22 +8915,60 @@
                 envState.writingFrom = writeAs;
                 envLetterTitleInput.value = '';
                 envLetterContentInput.value = '';
+                // 新建模式隐藏原信折叠窗
+                var fold = document.getElementById('envReplyFold');
+                if (fold) fold.style.display = 'none';
                 openModal(envLetterModal);
                 setTimeout(() => envLetterTitleInput.focus(), 50);
             }
-            function closeNewLetter() { closeModal(envLetterModal); }
+            function closeNewLetter() {
+                // 关闭时把折叠窗 reset
+                var fold = document.getElementById('envReplyFold');
+                if (fold) { fold.style.display = 'none'; fold.open = false; }
+                envWritingLetterState = 'new';
+                envState.replyingToId = null;
+                closeModal(envLetterModal);
+            }
             function sendNewLetter() {
                 const content = (envLetterContentInput?.value||'').trim();
                 const title = (envLetterTitleInput?.value||'').trim();
                 if (!content) { showToast('信的内容不能为空'); return; }
+                // 回信模式 —— 调 sendReply 原有逻辑
+                if (envWritingLetterState === 'reply' && envState.replyingToId) {
+                    var origin = findLetter(envState.replyingToId);
+                    if (!origin) { showToast('原信已丢失'); closeNewLetter(); return; }
+                    var letter = makeLetter({
+                        from: envState.box === 'mine' ? 'usr' : 'angle',
+                        to: envState.box === 'mine' ? 'angle' : 'usr',
+                        title: title, content: content,
+                        sourceBox: envState.box === 'mine' ? 'mine' : 'angle',
+                        parentId: origin.letter.id,
+                        replyTargetId: origin.letter.id,
+                        replied: true
+                    });
+                    // 进入双方 outbox/inbox（时空信 不受影响，只进正常收发）
+                    var rMe = letter.from, rPeer = letter.to;
+                    var rMeBox = rMe === 'usr' ? 'mine' : 'angle';
+                    var rPeerBox = rMe === 'usr' ? 'angle' : 'mine';
+                    letterBox[rMeBox].outbox.unshift(letter);
+                    var inc2 = makeLetter({ from: rMe, to: rPeer, title, content, sourceBox: rPeerBox, parentId: origin.letter.id, replyTargetId: origin.letter.id, replied: true });
+                    letterBox[rPeerBox].inbox.unshift(inc2);
+                    // 原信标记已被回信
+                    var originLetter = origin.letter;
+                    var originPool = getBox(origin.source, origin.inner);
+                    var idx = originPool.findIndex(x => x.id === originLetter.id);
+                    if (idx >= 0) originPool[idx].replied = true;
+                    saveAppearance(); closeNewLetter();
+                    showToast('回信已寄出 ✉'); renderEnvList();
+                    return;
+                }
+                // 新建模式
                 const me = envState.writingFrom || (envState.box === 'mine' ? 'usr' : 'angle');
                 const peer = me === 'usr' ? 'angle' : 'usr';
                 const meBox = me === 'usr' ? 'mine' : 'angle';
                 const peerBox = me === 'usr' ? 'angle' : 'mine';
-                // 我的 outbox
                 const out = makeLetter({ from:me, to:peer, title, content, sourceBox:meBox, parentId:null, replyTargetId:null });
                 letterBox[meBox].outbox.unshift(out);
-                // 对方 inbox
                 const inc = makeLetter({ from:me, to:peer, title, content, sourceBox:peerBox, parentId:null, replyTargetId:null });
                 inc.id = 'R' + Date.now().toString(36) + Math.random().toString(36).slice(2,4);
                 letterBox[peerBox].inbox.unshift(inc);
