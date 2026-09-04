@@ -71,6 +71,16 @@
             height: 100%;
             object-fit: cover;
         }
+        .dreamer-avatar-display {
+            width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: white; flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(255, 150, 180, 0.2);
+            background: linear-gradient(135deg, #ffd1dc, #ffb3c6);
+            object-fit: cover; overflow: hidden; transition: 0.2s; cursor: pointer;
+        }
+        .dreamer-avatar-display img { width: 100%; height: 100%; object-fit: cover; }
+        .dreamer-avatar-display:hover { transform: scale(1.08); }
         .angle-avatar:hover {
             transform: scale(1.05);
         }
@@ -2488,7 +2498,9 @@ textarea.input,
                 <span class="angle-status">· 在线</span>
             </div>
         </div>
+        <div class="dreamer-avatar-display" id="dreamerAvatarDisplay" title="我">🌸</div>
         <div class="top-actions">
+            <button class="icon-btn" id="roleSwitchBtn" title="角色切换">👥</button>
             <button class="icon-btn" id="openSidePanelBtn" title="功能面板">📚</button>
             <button class="icon-btn" id="openSettingsBtn" title="设置">⚙</button>
         </div>
@@ -3390,6 +3402,35 @@ textarea.input,
     </div>
 </div>
 
+<!-- ===== 角色切换 / 管理弹窗 ===== -->
+<div class="modal-overlay" id="roleSwitcherModal">
+    <div class="modal-content" style="max-width:440px;">
+        <div class="modal-header">
+            <h2>👥 角色与群聊</h2>
+            <button class="modal-close" id="closeRoleSwitcher">✕</button>
+        </div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
+            <div id="roleList" style="display:flex;flex-direction:column;gap:8px;"></div>
+            <!-- 新建角色表单 -->
+            <div id="newRoleForm" style="display:none;padding:10px;border-radius:12px;background:var(--bg_card);border:1px solid var(--bg_border);">
+                <div style="font-size:0.8rem;font-weight:600;margin-bottom:8px;" id="newRoleTitle">➕ 新建角色</div>
+                <div style="display:flex;gap:8px;margin-bottom:8px;">
+                    <input type="text" id="newRoleName" placeholder="名称" style="flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--bg_border);font-size:0.8rem;">
+                    <input type="text" id="newRoleAvatar" placeholder="头像emoji" style="width:70px;padding:6px 10px;border-radius:8px;border:1px solid var(--bg_border);font-size:0.8rem;text-align:center;">
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-primary-mod" id="confirmNewRole" style="flex:1;font-size:0.78rem;">创建</button>
+                    <button class="btn" id="cancelNewRole" style="flex:1;font-size:0.78rem;">取消</button>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+                <button class="btn btn-primary-mod" id="addRoleBtn" style="flex:1;font-size:0.78rem;">➕ 新建角色</button>
+                <button class="btn" id="addGroupBtn" style="flex:1;font-size:0.78rem;background:linear-gradient(135deg,#a8d8ea,#b5ead7);">👥 新建群聊</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 缺失元素占位 (给旧 DOM 引用避免 getElementById(null)) -->
 <div style="display:none;">
     <span id="bgFontModal"></span>
@@ -3546,7 +3587,15 @@ textarea.input,
     },
     board_boardStyle:'lines',
     messageBoard: { phrases: {}, notes: [], todayDate:'', todayCount:0 },
-    wishTree:     { phrases: {}, stars: [], todayDate:'', todayCount:0 }
+    wishTree:     { phrases: {}, stars: [], todayDate:'', todayCount:0 },
+    // ===== 多角色 / 群聊 =====
+    roles: [
+      { id:'role_default', name:'ta', avatar:'🌙', callUser:'亲爱的', callChance:0.3,
+        chatHistory:[], isGroup:false, memberIds:[], color:'#c6a8de' }
+    ],
+    currentRoleId: 'role_default',
+    groups: {},
+    groupList: []
   };
   const LOGIC_SETTINGS_DEFAULT = JSON.parse(JSON.stringify({
     chatQuoteReply:true, chatReadReceipt:true, chatReceiptStyle:'graphic', chatReadNoReply:false,
@@ -3608,6 +3657,21 @@ textarea.input,
     });
     if (!appearance.messageBoard.phrases || !Object.keys(appearance.messageBoard.phrases).length) appearance.messageBoard.phrases = JSON.parse(JSON.stringify(DEFAULT_BOARD_PHRASES));
     if (!appearance.wishTree.phrases || !Object.keys(appearance.wishTree.phrases).length) appearance.wishTree.phrases = JSON.parse(JSON.stringify(DEFAULT_WISH_PHRASES));
+    // 确保多角色结构存在
+    if (!appearance.roles || !appearance.roles.length) {
+      appearance.roles = [{
+        id:'role_default', name: angleName||'ta', avatar: angleAvatar||'🌙',
+        callUser:'亲爱的', callChance:0.3, chatHistory:[], isGroup:false, memberIds:[], color:'#c6a8de'
+      }];
+    }
+    if (!appearance.currentRoleId) appearance.currentRoleId = appearance.roles[0].id;
+    // 确保每个角色有必要字段
+    appearance.roles.forEach(function(r){
+      if (!r.chatHistory) r.chatHistory = [];
+      if (r.isGroup === undefined) r.isGroup = false;
+      if (!r.memberIds) r.memberIds = [];
+      if (!r.color) r.color = '#c6a8de';
+    });
     // 颜文字分组清理：移除纯 emoji（emoji 已在 emoji 板块管理）
     if (appearance.kaomojiGroups) {
       const isPureEmoji = function(k){
@@ -4034,36 +4098,50 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             if (st==='3') return h12+':'+m+' '+ap;
             return h12+':'+m+':'+s+' '+ap;
         }
-        function addChatMessage(text, type, extraClass) {
-            addChatMessageHtml((text || '').replace(/\n/g, '<br>'), type || 'system', extraClass);
+        function addChatMessage(text, type, extraClass, opts) {
+            addChatMessageHtml((text || '').replace(/\n/g, '<br>'), type || 'system', extraClass, opts);
         }
-        function addChatMessageHtml(html, type, extraClass) {
+        // 获取当前角色对象
+        function getCurrentRole() {
+            if (!appearance.roles || !appearance.roles.length) return null;
+            return appearance.roles.find(function(r){ return r.id === appearance.currentRoleId; }) || appearance.roles[0];
+        }
+        // opts: {senderName, senderAvatar} 用于群聊指定发言者
+        function addChatMessageHtml(html, type, extraClass, opts) {
             type = type || 'system';
+            opts = opts || {};
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message ' + type + (extraClass ? ' ' + extraClass : '');
             const msgId = 'M' + Date.now() + Math.floor(Math.random()*100000);
             msgDiv.dataset.msgId = msgId;
+            // 确定发送者名称/头像
+            const sName = opts.senderName || (type === 'user' ? userName : angleName);
+            const sAvatar = opts.senderAvatar || (type === 'user' ? userAvatar : angleAvatar);
+            // 存入当前角色聊天历史（用于角色切换恢复）
+            try {
+                const cur = getCurrentRole();
+                if (cur) {
+                    if (!cur.chatHistory) cur.chatHistory = [];
+                    cur.chatHistory.push({ html:html||'', type:type, extraClass:extraClass||'', ts:Date.now(), senderName:sName, senderAvatar:sAvatar });
+                    if (cur.chatHistory.length > 500) cur.chatHistory.shift();
+                }
+            } catch(e) {}
             // 头像：chatShowAvatar 关闭则完全不创建
             const showAvatar = (type === 'user' || type === 'angle') ? !!chatShowAvatar : true;
             let avatarSpan = null;
             if (showAvatar) {
                 avatarSpan = document.createElement('span');
                 avatarSpan.className = 'msg-avatar';
-                if (type === 'user') {
-                    avatarSpan.innerHTML = isImageUrl(userAvatar) ? `<img src="${userAvatar}">` : userAvatar;
-                } else {
-                    avatarSpan.innerHTML = isImageUrl(angleAvatar) ? `<img src="${angleAvatar}">` : angleAvatar;
-                }
+                avatarSpan.innerHTML = isImageUrl(sAvatar) ? `<img src="${sAvatar}">` : sAvatar;
                 // 双击头像拍一拍
                 avatarSpan.addEventListener('dblclick', function(ev){
                     ev.stopPropagation();
-                    // 从拍一拍库 + 梦女快捷回复中随机选一条
                     const allPats = [];
                     for (const g in patGroups) allPats.push(...patGroups[g]);
                     allPats.push(...patQuickReplies);
                     const pat = allPats.length ? allPats[Math.floor(Math.random()*allPats.length)] : '';
-                    const me = type === 'user' ? userName : angleName;
-                    const other = type === 'user' ? angleName : userName;
+                    const me = type === 'user' ? userName : sName;
+                    const other = type === 'user' ? sName : userName;
                     const sym = chatPokeSymbol === '五角星' ? '★' : chatPokeSymbol === '爱心' ? '♥' : chatPokeSymbol === '圆点' ? '●' : '✦';
                     const text = pat ? `${me}拍了拍${other} ${pat}` : `${me}拍了拍${other}`;
                     // 在聊天中间显示拍一拍文字
@@ -4092,7 +4170,7 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             bubble.appendChild(content);
             // meta 行：发送者 + 时间 + 已读回执
             const small = document.createElement('small');
-            const sender = type === 'user' ? userName : angleName;
+            const sender = sName;
             small.textContent = sender + ' · ' + formatTs();
             // 已读回执（仅用户消息）
             if (type === 'user' && chatReadReceipt) {
@@ -4546,6 +4624,14 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                     noteBox = p.noteBox || { user: [], angle: [] };
                     patQuickReplies = p.patQuickReplies || [];
                     if (p.moodDiary) Object.assign(moodDiary, p.moodDiary);
+                    // 同步到默认角色（向后兼容）
+                    if (appearance.roles && appearance.roles[0]) {
+                        const def = appearance.roles[0];
+                        def.name = angleName;
+                        def.avatar = angleAvatar;
+                        def.callUser = angleCallUser;
+                        def.callChance = angleCallChance;
+                    }
                 } catch (e) {}
             }
             applyProfile();
@@ -4557,8 +4643,20 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                 avatarEl.innerHTML = `<img src="${angleAvatar}">`;
                 avatarEl.style.background = 'none';
             } else {
-                avatarEl.textContent = angleAvatar;
+                avatarEl.innerHTML = '';
+                avatarEl.textContent = angleAvatar || '🌙';
                 avatarEl.style.background = 'linear-gradient(135deg, #dcc3ed, #c6a8de)';
+            }
+            // 梦女头像（顶栏）
+            const dreamerAv = document.getElementById('dreamerAvatarDisplay');
+            if (dreamerAv) {
+                if (isImageUrl(userAvatar)) {
+                    dreamerAv.innerHTML = `<img src="${userAvatar}">`;
+                    dreamerAv.style.background = 'none';
+                } else {
+                    dreamerAv.textContent = userAvatar;
+                    dreamerAv.style.background = 'linear-gradient(135deg, #ffd1dc, #ffb3c6)';
+                }
             }
  if (userNameInput) userNameInput.value = userName;
             if (angleNameInput) angleNameInput.value = angleName;
@@ -4618,6 +4716,15 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                 moodDiary
             };
             localStorage.setItem('dream_profile', JSON.stringify(data));
+            // 同步当前角色数据到 appearance.roles
+            const cur = getCurrentRole();
+            if (cur && !cur.isGroup) {
+                cur.name = angleName;
+                cur.avatar = angleAvatar;
+                cur.callUser = angleCallUser;
+                cur.callChance = angleCallChance;
+                saveAppearance();
+            }
             applyProfile();
             showToast('已保存');
         }
@@ -5427,7 +5534,265 @@ function resetEmojis() {
                 if (k) final = final + '\n' + k;
             }
             // 仅主动回复（梦角自发）时添加 ✦ 标志
-            addChatMessage((isProactive ? '✦ ' : '') + final, 'angle');
+            const cur = getCurrentRole();
+            let replyOpts = {};
+            // 群聊：从成员中随机选一个发言者
+            if (cur && cur.isGroup && cur.memberIds && cur.memberIds.length) {
+                const memberRole = appearance.roles.find(function(r){ return r.id === cur.memberIds[Math.floor(Math.random()*cur.memberIds.length)]; });
+                if (memberRole) {
+                    replyOpts = { senderName: memberRole.name, senderAvatar: memberRole.avatar };
+                }
+            }
+            addChatMessage((isProactive ? '✦ ' : '') + final, 'angle', '', replyOpts);
+        }
+        // ===== 多角色 / 群聊 核心函数 =====
+        // 从历史渲染聊天区（不写入 history，避免重复）
+        function renderChatHistory(role) {
+            const chatBox = document.getElementById('chatBox');
+            if (!chatBox) return;
+            // 保留 pokeCenter 和 typingIndicator，清空消息
+            const poke = document.getElementById('pokeCenter');
+            const typing = document.getElementById('typingIndicator');
+            chatBox.innerHTML = '';
+            if (poke) chatBox.appendChild(poke);
+            if (typing) chatBox.appendChild(typing);
+            if (!role || !role.chatHistory || !role.chatHistory.length) return;
+            role.chatHistory.forEach(function(m){
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message ' + m.type + (m.extraClass ? ' ' + m.extraClass : '');
+                const msgId = 'M' + (m.ts||Date.now()) + Math.floor(Math.random()*1000);
+                msgDiv.dataset.msgId = msgId;
+                const sName = m.senderName || (m.type === 'user' ? userName : role.name);
+                const sAvatar = m.senderAvatar || (m.type === 'user' ? userAvatar : role.avatar);
+                // 头像
+                const showAvatar = (m.type === 'user' || m.type === 'angle') ? !!chatShowAvatar : true;
+                let avatarSpan = null;
+                if (showAvatar) {
+                    avatarSpan = document.createElement('span');
+                    avatarSpan.className = 'msg-avatar';
+                    avatarSpan.innerHTML = isImageUrl(sAvatar) ? `<img src="${sAvatar}">` : sAvatar;
+                }
+                const bubble = document.createElement('div');
+                bubble.className = 'msg-bubble';
+                const content = document.createElement('div');
+                content.className = 'msg-content';
+                content.innerHTML = m.html || '';
+                bubble.appendChild(content);
+                const small = document.createElement('small');
+                const d = new Date(m.ts||Date.now());
+                small.textContent = sName + ' · ' + d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+                if (m.type === 'user' && chatReadReceipt) {
+                    const rd = document.createElement('span');
+                    rd.className = 'msg-read read';
+                    rd.dataset.read = '1';
+                    rd.textContent = (chatReceiptStyle === 'graphic') ? '✓✓' : '已读';
+                    small.appendChild(rd);
+                }
+                bubble.appendChild(small);
+                if (m.type === 'user') {
+                    msgDiv.appendChild(bubble);
+                    if (avatarSpan) msgDiv.appendChild(avatarSpan);
+                } else {
+                    if (avatarSpan) msgDiv.appendChild(avatarSpan);
+                    msgDiv.appendChild(bubble);
+                }
+                chatBox.appendChild(msgDiv);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        // 切换角色
+        function switchRole(roleId) {
+            const role = appearance.roles.find(function(r){ return r.id === roleId; });
+            if (!role) return;
+            appearance.currentRoleId = roleId;
+            // 更新全局变量
+            angleName = role.name;
+            angleAvatar = role.avatar;
+            angleCallUser = role.callUser || '亲爱的';
+            angleCallChance = role.callChance !== undefined ? role.callChance : 0.3;
+            // 更新UI
+            applyProfile();
+            // 渲染该角色聊天历史
+            renderChatHistory(role);
+            // 重建字卡库（如果角色有独立字卡）
+            rebuildCardLibraryForRole(role);
+            saveAppearance();
+            showToast('已切换到 ' + role.name);
+            if (typeof renderRoleSwitcher === 'function') renderRoleSwitcher();
+        }
+        // 为角色重建字卡库（优先用角色独立字卡，否则用全局 groups）
+        function rebuildCardLibraryForRole(role) {
+            if (role && role.cards && Object.keys(role.cards).length) {
+                groups = role.cards;
+                groupList = Object.keys(groups);
+            } else {
+                loadGroupsFromAppearance();
+            }
+            cardLibrary = [];
+            for (const g in groups) cardLibrary = cardLibrary.concat(groups[g] || []);
+            if (!cardLibrary.length) cardLibrary = [...DEFAULT_CARDS];
+        }
+        function loadGroupsFromAppearance() {
+            if (appearance.cards && appearance.cards.groups) {
+                groups = JSON.parse(JSON.stringify(appearance.cards.groups));
+                groupList = appearance.cards.groupList ? appearance.cards.groupList.slice() : Object.keys(groups);
+            } else {
+                groups = {};
+                groupList = [];
+            }
+        }
+        // 新增角色
+        function addRole(name, avatar) {
+            const id = 'role_' + Date.now() + Math.floor(Math.random()*1000);
+            const colors = ['#c6a8de','#ffb3c6','#a8d8ea','#b5ead7','#ffdac1','#e0bbff','#ffc9de','#c7ceea'];
+            const role = {
+                id: id,
+                name: name || '新角色',
+                avatar: avatar || '🌟',
+                callUser: '亲爱的',
+                callChance: 0.3,
+                chatHistory: [],
+                isGroup: false,
+                memberIds: [],
+                color: colors[Math.floor(Math.random()*colors.length)]
+            };
+            appearance.roles.push(role);
+            saveAppearance();
+            return role;
+        }
+        // 删除角色
+        function deleteRole(roleId) {
+            if (roleId === 'role_default') { showToast('默认角色不可删除'); return; }
+            const idx = appearance.roles.findIndex(function(r){ return r.id === roleId; });
+            if (idx < 0) return;
+            appearance.roles.splice(idx, 1);
+            // 群聊中移除该成员
+            appearance.roles.forEach(function(r){
+                if (r.isGroup && r.memberIds) {
+                    r.memberIds = r.memberIds.filter(function(m){ return m !== roleId; });
+                }
+            });
+            if (appearance.currentRoleId === roleId) {
+                appearance.currentRoleId = 'role_default';
+                switchRole('role_default');
+            }
+            saveAppearance();
+        }
+        // 新增群聊
+        function addGroupChat(name, avatar, memberIds) {
+            const id = 'group_' + Date.now() + Math.floor(Math.random()*1000);
+            const role = {
+                id: id,
+                name: name || '群聊',
+                avatar: avatar || '👥',
+                callUser: '',
+                callChance: 0,
+                chatHistory: [],
+                isGroup: true,
+                memberIds: memberIds || [],
+                color: '#a8d8ea'
+            };
+            appearance.roles.push(role);
+            saveAppearance();
+            return role;
+        }
+        // 渲染角色切换列表
+        function renderRoleSwitcher() {
+            const list = document.getElementById('roleList');
+            if (!list) return;
+            list.innerHTML = '';
+            if (!appearance.roles) appearance.roles = [];
+            appearance.roles.forEach(function(role){
+                const item = document.createElement('div');
+                item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg_card);border:1px solid var(--bg_border);cursor:pointer;transition:0.15s;';
+                item.onmouseenter = function(){ item.style.transform='scale(1.01)'; };
+                item.onmouseleave = function(){ item.style.transform='scale(1)'; };
+                const isCurrent = role.id === appearance.currentRoleId;
+                if (isCurrent) item.style.borderColor = 'var(--accent)';
+                // 头像
+                const av = document.createElement('div');
+                av.style.cssText = 'width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#fff;flex-shrink:0;background:'+(role.color||'#c6a8de')+';';
+                av.innerHTML = isImageUrl(role.avatar) ? `<img src="${role.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : role.avatar;
+                item.appendChild(av);
+                // 名称 + 类型
+                const info = document.createElement('div');
+                info.style.flex = '1';
+                const nm = document.createElement('div');
+                nm.style.cssText = 'font-size:0.85rem;font-weight:600;color:var(--text_primary);';
+                nm.textContent = role.name + (role.isGroup ? ' 👥' : '');
+                info.appendChild(nm);
+                const sub = document.createElement('div');
+                sub.style.cssText = 'font-size:0.68rem;color:var(--text_muted);';
+                if (role.isGroup) {
+                    const memberNames = (role.memberIds||[]).map(function(mid){
+                        const mr = appearance.roles.find(function(x){ return x.id===mid; });
+                        return mr ? mr.name : '?';
+                    }).join('、');
+                    sub.textContent = '群聊 · ' + (memberNames || '无成员') + (isCurrent ? ' · 当前' : '');
+                } else {
+                    sub.textContent = (role.chatHistory?role.chatHistory.length:0) + ' 条消息' + (isCurrent ? ' · 当前' : '');
+                }
+                info.appendChild(sub);
+                item.appendChild(info);
+                // 操作按钮
+                const actions = document.createElement('div');
+                actions.style.cssText = 'display:flex;gap:4px;';
+                if (role.isGroup) {
+                    const memBtn = document.createElement('button');
+                    memBtn.textContent = '👤';
+                    memBtn.title = '管理成员';
+                    memBtn.style.cssText = 'width:28px;height:28px;border-radius:8px;border:none;cursor:pointer;font-size:0.8rem;background:var(--bg_hover);';
+                    memBtn.onclick = function(e){ e.stopPropagation(); openGroupMemberManager(role.id); };
+                    actions.appendChild(memBtn);
+                }
+                const delBtn = document.createElement('button');
+                delBtn.textContent = '🗑';
+                delBtn.title = '删除';
+                delBtn.style.cssText = 'width:28px;height:28px;border-radius:8px;border:none;cursor:pointer;font-size:0.8rem;background:var(--bg_hover);opacity:'+(role.id==='role_default'?'0.3':'1')+';';
+                delBtn.onclick = function(e){
+                    e.stopPropagation();
+                    if (role.id === 'role_default') { showToast('默认角色不可删除'); return; }
+                    if (confirm('确定删除「'+role.name+'」？聊天记录也会一并清除。')) {
+                        deleteRole(role.id);
+                        renderRoleSwitcher();
+                    }
+                };
+                actions.appendChild(delBtn);
+                item.appendChild(actions);
+                // 点击切换
+                item.onclick = function(){
+                    if (role.id !== appearance.currentRoleId) {
+                        switchRole(role.id);
+                    }
+                    closeModal(document.getElementById('roleSwitcherModal'));
+                };
+                list.appendChild(item);
+            });
+        }
+        // 群聊成员管理
+        function openGroupMemberManager(groupId) {
+            const group = appearance.roles.find(function(r){ return r.id === groupId; });
+            if (!group) return;
+            const nonGroupRoles = appearance.roles.filter(function(r){ return !r.isGroup; });
+            let html = '<div style="font-size:0.82rem;font-weight:600;margin-bottom:10px;">管理「'+group.name+'」的成员</div>';
+            nonGroupRoles.forEach(function(r){
+                const checked = (group.memberIds||[]).indexOf(r.id) >= 0;
+                html += '<label style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer;font-size:0.8rem;">'
+                    + '<input type="checkbox" data-roleid="'+r.id+'" '+(checked?'checked':'')+'>'
+                    + '<span>'+r.avatar+' '+r.name+'</span></label>';
+            });
+            html += '<div style="margin-top:12px;display:flex;gap:8px;"><button id="saveMembersBtn" class="btn btn-primary-mod" style="flex:1;">保存</button></div>';
+            const list = document.getElementById('roleList');
+            list.innerHTML = html;
+            document.getElementById('saveMembersBtn').onclick = function(){
+                const checks = list.querySelectorAll('input[type=checkbox]');
+                const newMembers = [];
+                checks.forEach(function(c){ if (c.checked) newMembers.push(c.dataset.roleid); });
+                group.memberIds = newMembers;
+                saveAppearance();
+                renderRoleSwitcher();
+                showToast('已更新群成员');
+            };
         }
         function handleSend() {
             const text = userInput.value.trim();
@@ -7222,6 +7587,14 @@ function resetEmojis() {
         function init() {
             loadProfile();
             loadAppearance();
+            // 加载当前角色数据到全局变量
+            const curRole = getCurrentRole();
+            if (curRole) {
+                angleName = curRole.name || angleName;
+                angleAvatar = curRole.avatar || angleAvatar;
+                angleCallUser = curRole.callUser || angleCallUser;
+                angleCallChance = (curRole.callChance !== undefined) ? curRole.callChance : angleCallChance;
+            }
             applyProfile();
             applyChatSettings(appearance.chatSettings || {}, {save:false});
             applyMiscClass();
@@ -7541,6 +7914,53 @@ function resetEmojis() {
                 openModal(patModal); });
             // 设置主弹窗
             openSettingsBtn.addEventListener('click', () => openModal(settingsModal));
+            // 角色切换弹窗
+            const roleSwitchBtn = document.getElementById('roleSwitchBtn');
+            const roleSwitcherModal = document.getElementById('roleSwitcherModal');
+            if (roleSwitchBtn) roleSwitchBtn.addEventListener('click', function(){ renderRoleSwitcher(); openModal(roleSwitcherModal); });
+            const closeRoleSwitcher = document.getElementById('closeRoleSwitcher');
+            if (closeRoleSwitcher) closeRoleSwitcher.addEventListener('click', function(){ closeModal(roleSwitcherModal); });
+            if (roleSwitcherModal) roleSwitcherModal.addEventListener('click', function(e){ if (e.target === roleSwitcherModal) closeModal(roleSwitcherModal); });
+            const addRoleBtn = document.getElementById('addRoleBtn');
+            const newRoleForm = document.getElementById('newRoleForm');
+            const newRoleName = document.getElementById('newRoleName');
+            const newRoleAvatar = document.getElementById('newRoleAvatar');
+            const confirmNewRole = document.getElementById('confirmNewRole');
+            const cancelNewRole = document.getElementById('cancelNewRole');
+            const newRoleTitle = document.getElementById('newRoleTitle');
+            let newRoleMode = 'role'; // 'role' or 'group'
+            if (addRoleBtn) addRoleBtn.addEventListener('click', function(){
+                newRoleMode = 'role';
+                newRoleTitle.textContent = '➕ 新建角色';
+                newRoleName.value = '';
+                newRoleAvatar.value = '🌟';
+                newRoleForm.style.display = 'block';
+                newRoleName.focus();
+            });
+            const addGroupBtn = document.getElementById('addGroupBtn');
+            if (addGroupBtn) addGroupBtn.addEventListener('click', function(){
+                newRoleMode = 'group';
+                newRoleTitle.textContent = '👥 新建群聊';
+                newRoleName.value = '';
+                newRoleAvatar.value = '👥';
+                newRoleForm.style.display = 'block';
+                newRoleName.focus();
+            });
+            if (cancelNewRole) cancelNewRole.addEventListener('click', function(){ newRoleForm.style.display = 'none'; });
+            if (confirmNewRole) confirmNewRole.addEventListener('click', function(){
+                const name = newRoleName.value.trim();
+                const avatar = newRoleAvatar.value.trim() || (newRoleMode==='group'?'👥':'🌟');
+                if (!name) { showToast('请输入名称'); return; }
+                if (newRoleMode === 'group') {
+                    const g = addGroupChat(name, avatar, []);
+                    showToast('已创建群聊 '+g.name);
+                } else {
+                    const r = addRole(name, avatar);
+                    showToast('已创建角色 '+r.name);
+                }
+                newRoleForm.style.display = 'none';
+                renderRoleSwitcher();
+            });
             closeSettingsBtn.addEventListener('click', () => closeModal(settingsModal));
             settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeModal(settingsModal); });
             // 外观设置子板块
