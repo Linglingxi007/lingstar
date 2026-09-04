@@ -1134,6 +1134,87 @@
         .env-letter.unread .env-detail, .env-letter.unread .env-quote { margin-left: 4px; }
         .env-letter .env-detail { padding-left: 10px; }
 
+        /* ===== 留言板 ===== */
+        .board-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px; margin-bottom: 12px;
+        }
+        .board-note {
+            position: relative; cursor: pointer;
+            background: linear-gradient(180deg, #fff9d6 0%, #fde9a8 100%);
+            border: 1px solid #e8c96a; border-radius: 6px;
+            padding: 14px 12px 18px; min-height: 96px;
+            box-shadow: 0 2px 6px rgba(180,140,40,0.18);
+            transform: rotate(-1.2deg); transition: transform .15s, box-shadow .15s;
+            color: #6b4f12;
+        }
+        .board-note:nth-child(even) { transform: rotate(1deg); background: linear-gradient(180deg,#fdeef3 0%,#fbd0dd 100%); border-color:#e89bb4; color:#7a3a55; }
+        .board-note:nth-child(3n) { transform: rotate(-0.6deg); }
+        .board-note:hover { transform: translateY(-2px) rotate(0deg); box-shadow: 0 5px 14px rgba(180,140,40,0.28); }
+        .board-note.unread::after { content:''; position:absolute; top:6px; right:8px; width:8px; height:8px; border-radius:50%; background:#e74c3c; box-shadow:0 0 0 2px rgba(255,255,255,0.7); }
+        .board-note .bn-fold { font-size:1.4rem; line-height:1; }
+        .board-note .bn-tip { font-size:0.62rem; opacity:0.7; margin-top:6px; }
+        .board-note .bn-time { font-size:0.58rem; opacity:0.6; position:absolute; bottom:6px; right:10px; }
+        .board-note .bn-rep { position:absolute; bottom:6px; left:10px; font-size:0.58rem; opacity:0.7; }
+        .board-detail {
+            margin-top:10px; padding:12px;
+            background:#fff; border-radius:10px; border:1px dashed rgba(200,170,220,0.35);
+            grid-column: 1 / -1;
+        }
+        .board-detail .bd-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:0.66rem; color:var(--text-muted); }
+        .board-detail .bd-content { font-size:0.82rem; line-height:1.75; color:var(--text-primary); white-space:pre-wrap; }
+        .board-detail .bd-replies { margin-top:10px; border-top:1px solid rgba(200,170,220,0.2); padding-top:8px; }
+        .board-detail .bd-reply { padding:6px 8px; background:rgba(181,138,255,0.06); border-radius:8px; margin-bottom:6px; font-size:0.74rem; }
+        .board-detail .bd-reply .br-time { font-size:0.58rem; color:var(--text-muted); margin-bottom:2px; }
+        .board-detail .bd-reply.br-other { background:rgba(255,200,120,0.14); }
+        .bd-reply-area { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+        .bd-reply-area textarea { width:100%; }
+        .bd-reply-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+        .bd-reply-row input[type="datetime-local"] { font-size:0.66rem; padding:4px 6px; }
+
+        /* ===== 许愿树 ===== */
+        .wish-tree {
+            position: relative; padding: 18px 8px 8px;
+            background: linear-gradient(180deg, #eaf6ff 0%, #f7eeff 100%);
+            border-radius: 14px; min-height: 180px; margin-bottom: 12px;
+        }
+        .wish-tree .wt-trunk { text-align:center; font-size:2.4rem; line-height:1; }
+        .star-grid {
+            display:grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr));
+            gap: 10px; margin-top: 10px;
+        }
+        .star-item {
+            position:relative; cursor:pointer; border:none;
+            padding: 14px 10px 16px; border-radius: 50px 50px 14px 14px;
+            display:flex; flex-direction:column; align-items:center; gap:4px;
+            transition: transform .15s, box-shadow .15s;
+            color:#3a2d55; font-size:0.7rem;
+        }
+        .star-item:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(120,80,180,0.22); }
+        .star-item .si-icon { font-size:1.8rem; line-height:1; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15)); }
+        .star-item.unread::after { content:''; position:absolute; top:8px; right:10px; width:8px; height:8px; border-radius:50%; background:#e74c3c; }
+        .star-item .si-tip { font-size:0.58rem; opacity:0.75; }
+        .star-item .si-time { font-size:0.54rem; opacity:0.6; }
+        .star-c-yellow { background: linear-gradient(180deg,#fff4bf,#ffe27a); }
+        .star-c-pink   { background: linear-gradient(180deg,#ffe3ee,#ffb3cf); }
+        .star-c-blue   { background: linear-gradient(180deg,#d9ecff,#a9d4ff); }
+        .star-c-red    { background: linear-gradient(180deg,#ffd6d6,#ff9a9a); }
+        .star-c-green  { background: linear-gradient(180deg,#d6f5dc,#9be8af); }
+        .star-c-purple { background: linear-gradient(180deg,#e6d9ff,#c5a9ff); }
+        .star-detail { grid-column: 1 / -1; }
+        .star-legend { display:flex; gap:8px; flex-wrap:wrap; font-size:0.6rem; margin-bottom:8px; }
+        .star-legend span { display:inline-flex; align-items:center; gap:3px; }
+        .star-legend i { width:9px; height:9px; border-radius:50%; display:inline-block; }
+
+        /* 通用：话语管理 / 历史列表 */
+        .phrase-list { max-height: 200px; overflow-y:auto; margin: 8px 0; }
+        .phrase-item { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 8px; background:rgba(200,170,220,0.08); border-radius:8px; margin-bottom:4px; font-size:0.74rem; }
+        .phrase-item button { border:none; background:rgba(231,76,60,0.12); color:#c0392b; border-radius:6px; padding:2px 8px; font-size:0.62rem; cursor:pointer; }
+        .hist-day { font-size:0.7rem; font-weight:600; color:var(--accent-deep); margin:10px 0 6px; padding-bottom:4px; border-bottom:1px dashed rgba(200,170,220,0.3); }
+        .hist-item { padding:8px 10px; background:#fff; border-radius:8px; margin-bottom:6px; font-size:0.74rem; }
+        .hist-item .hi-c { color:var(--text-primary); white-space:pre-wrap; }
+        .hist-item .hi-r { margin-top:6px; padding-left:8px; border-left:2px solid rgba(200,170,220,0.4); font-size:0.66rem; color:var(--text-secondary); }
+
         /* 标注颜色选择器 */
         .mark-color-picker {
             display: flex; gap: 6px; padding: 6px;
@@ -2463,6 +2544,14 @@
             <span class="icon">✉</span>
             <span class="label">信封</span>
         </div>
+        <div class="side-grid-item" id="sideBoardBtn">
+            <span class="icon">📋</span>
+            <span class="label">留言板</span>
+        </div>
+        <div class="side-grid-item" id="sideWishBtn">
+            <span class="icon">🌳</span>
+            <span class="label">许愿树</span>
+        </div>
     </div>
 </div>
 
@@ -3105,6 +3194,130 @@
                 <button class="btn" id="envLetterCancelBtn">取消</button>
                 <button class="btn btn-primary-mod" id="envLetterSendBtn">📤 发送</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 留言板弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="boardModal">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="modal-header">
+            <h2>📋 留言板</h2>
+            <button class="modal-close" id="closeBoardModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="mod-row" style="justify-content:space-between;margin-bottom:10px;">
+                <div style="font-size:0.7rem;color:var(--text-muted);">每天上限 5 条小纸条 · 梦角留言给梦女</div>
+                <div class="mod-row" style="gap:6px;">
+                    <button class="btn" id="boardRefreshBtn">✨ 抽取留言</button>
+                    <button class="btn" id="boardPhraseBtn">📝 话语</button>
+                    <button class="btn" id="boardHistBtn">📜 历史</button>
+                </div>
+            </div>
+            <div class="board-grid" id="boardGrid"></div>
+            <div id="boardEmpty" class="lib-empty" style="display:none;">今天还没有留言哦~ 点"抽取留言"让 ta 留下小纸条吧</div>
+        </div>
+    </div>
+</div>
+
+<!-- 留言板 · 话语管理子弹窗 -->
+<div class="modal-overlay sub-modal" id="boardPhraseModal">
+    <div class="modal-content" style="max-width:480px;">
+        <div class="modal-header">
+            <h2>📝 梦角话语库</h2>
+            <button class="modal-close" id="closeBoardPhraseModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;">梦角留言会从这里随机抽取（同时也会混入字卡/表情/颜文字/emoji）</div>
+            <div class="phrase-list" id="boardPhraseList"></div>
+            <textarea class="mod-textarea" id="boardPhraseInput" rows="2" placeholder="添加一句梦角会对梦女说的话，如：今天有没有好好吃饭？"></textarea>
+            <div class="mod-row" style="margin-top:6px;justify-content:flex-end;">
+                <button class="btn btn-primary-mod" id="boardPhraseAddBtn">➕ 添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 留言板 · 历史子弹窗 -->
+<div class="modal-overlay sub-modal" id="boardHistModal">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h2>📜 留言历史</h2>
+            <button class="modal-close" id="closeBoardHistModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="boardHistList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 许愿树弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="wishModal">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="modal-header">
+            <h2>🌳 许愿树</h2>
+            <button class="modal-close" id="closeWishModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="star-legend">
+                <span><i style="background:#f5c542;"></i>黄·日常</span>
+                <span><i style="background:#ff8ab3;"></i>粉·亲密</span>
+                <span><i style="background:#5aa9ff;"></i>蓝·求安慰</span>
+                <span><i style="background:#e74c3c;"></i>红·生气</span>
+                <span><i style="background:#5ec97a;"></i>绿·恐惧</span>
+                <span><i style="background:#a87ff0;"></i>紫·担忧</span>
+            </div>
+            <div class="mod-row" style="justify-content:space-between;margin-bottom:10px;">
+                <div style="font-size:0.7rem;color:var(--text-muted);">每天上限 5 颗小星星</div>
+                <div class="mod-row" style="gap:6px;">
+                    <button class="btn" id="wishRefreshBtn">✨ 摘取星星</button>
+                    <button class="btn" id="wishPhraseBtn">📝 愿望</button>
+                    <button class="btn" id="wishHistBtn">📜 历史</button>
+                </div>
+            </div>
+            <div class="wish-tree">
+                <div class="wt-trunk">🌳</div>
+                <div class="star-grid" id="wishGrid"></div>
+            </div>
+            <div id="wishEmpty" class="lib-empty" style="display:none;">树上还没有星星~ 点"摘取星星"看看 ta 今天的愿望</div>
+        </div>
+    </div>
+</div>
+
+<!-- 许愿树 · 愿望管理子弹窗 -->
+<div class="modal-overlay sub-modal" id="wishPhraseModal">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <h2>📝 愿望话语库</h2>
+            <button class="modal-close" id="closeWishPhraseModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="lib-tabs" style="margin-bottom:8px;" id="wishColorTabs">
+                <button class="tab-btn active" data-wish-color="yellow">🟡 日常</button>
+                <button class="tab-btn" data-wish-color="pink">💗 亲密</button>
+                <button class="tab-btn" data-wish-color="blue">🔵 求安慰</button>
+                <button class="tab-btn" data-wish-color="red">🔴 生气</button>
+                <button class="tab-btn" data-wish-color="green">🟢 恐惧</button>
+                <button class="tab-btn" data-wish-color="purple">🟣 担忧</button>
+            </div>
+            <div class="phrase-list" id="wishPhraseList"></div>
+            <textarea class="mod-textarea" id="wishPhraseInput" rows="2" placeholder="添加一条对应颜色的愿望话语"></textarea>
+            <div class="mod-row" style="margin-top:6px;justify-content:flex-end;">
+                <button class="btn btn-primary-mod" id="wishPhraseAddBtn">➕ 添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 许愿树 · 历史子弹窗 -->
+<div class="modal-overlay sub-modal" id="wishHistModal">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h2>📜 许愿历史</h2>
+            <button class="modal-close" id="closeWishHistModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="wishHistList"></div>
         </div>
     </div>
 </div>
@@ -4042,6 +4255,34 @@
             mine:  { inbox: [], outbox: [] },
             angle: { inbox: [], outbox: [] },
             space: { inbox: [] }
+        };
+        // 留言板：梦角每日小纸条（上限5/天）。note: {id, content, ts, date, replies:[{id,content,ts,from:'usr'}]}
+        // phrases：梦角话语库（内置 + 用户自定义）
+        let messageBoard = { notes: [], lastDate: '', history: {}, phrases: [] };
+        const DEFAULT_BOARD_PHRASES = [
+            '今天有按时喝水吗？', '你爱我吗？', '今天干了什么呀？', '什么时候有空？',
+            '有没有好好休息？', '今天心情怎么样？', '想你了，回来看看我好吗？',
+            '记得早点睡，别熬夜。', '今天有遇到开心的事吗？', '我给你留了颗糖，甜不甜？'
+        ];
+        // 许愿树：梦角每日小星星（上限5/天）。star: {id, color, content, ts, date, replies:[...]}
+        // 6 种颜色：yellow日常 / pink亲密 / blue求安慰 / red生气 / green恐惧 / purple担忧
+        let wishTree = { stars: [], lastDate: '', history: {}, phrases: { yellow:[], pink:[], blue:[], red:[], green:[], purple:[] } };
+        const DEFAULT_WISH_PHRASES = {
+            yellow: ['希望你多喝水。', '希望你多运动走动一下。', '记得晒晒太阳。', '今天也要好好吃饭哦。'],
+            pink:  ['你陪陪我。', '你亲亲我。', '想和你吃苹果。', '想要一个拥抱。'],
+            blue:  ['好累，想要你陪陪我。', '我受伤了，想要你安慰我。', '今天有点低落，抱抱我好吗？'],
+            red:   ['你不可以熬夜了，要好好休息！', '不要在生理期吃冰的食物！严令禁止！', '怎么又不好好吃饭，生气了！'],
+            green: ['我害怕你离开我，你不要离开我好不好？', '做了个噩梦，好怕，你在吗？', '别走远，我害怕。'],
+            purple:['我看见你熬夜了，希望你好好休息。', '担心你今天太累了，歇歇吧。', '看你没回消息，有点担心你。']
+        };
+        // 颜色 → 图标/标签
+        const WISH_COLORS = {
+            yellow: { icon:'⭐', label:'日常' },
+            pink:   { icon:'🌸', label:'亲密' },
+            blue:   { icon:'💧', label:'求安慰' },
+            red:    { icon:'🔥', label:'生气' },
+            green:  { icon:'🍀', label:'恐惧' },
+            purple: { icon:'🔮', label:'担忧' }
         };
         let bubbleShape = 'round';
         let bubbleCustomCSS = '';
@@ -6625,8 +6866,40 @@
                         if (!letterBox.angle.outbox) letterBox.angle.outbox = [];
                         if (!letterBox.space.inbox) letterBox.space.inbox = [];
                     }
+                    // 留言板
+                    if (a.messageBoard && typeof a.messageBoard === 'object') {
+                        messageBoard.notes = Array.isArray(a.messageBoard.notes) ? a.messageBoard.notes : [];
+                        messageBoard.lastDate = a.messageBoard.lastDate || '';
+                        messageBoard.history = (a.messageBoard.history && typeof a.messageBoard.history === 'object') ? a.messageBoard.history : {};
+                        messageBoard.phrases = Array.isArray(a.messageBoard.phrases) && a.messageBoard.phrases.length ? a.messageBoard.phrases : [...DEFAULT_BOARD_PHRASES];
+                    } else {
+                        messageBoard.phrases = [...DEFAULT_BOARD_PHRASES];
+                    }
+                    // 许愿树
+                    if (a.wishTree && typeof a.wishTree === 'object') {
+                        wishTree.stars = Array.isArray(a.wishTree.stars) ? a.wishTree.stars : [];
+                        wishTree.lastDate = a.wishTree.lastDate || '';
+                        wishTree.history = (a.wishTree.history && typeof a.wishTree.history === 'object') ? a.wishTree.history : {};
+                        var _wp = a.wishTree.phrases && typeof a.wishTree.phrases === 'object' ? a.wishTree.phrases : {};
+                        ['yellow','pink','blue','red','green','purple'].forEach(function(c){
+                            wishTree.phrases[c] = (Array.isArray(_wp[c]) && _wp[c].length) ? _wp[c] : [...DEFAULT_WISH_PHRASES[c]];
+                        });
+                    } else {
+                        ['yellow','pink','blue','red','green','purple'].forEach(function(c){
+                            wishTree.phrases[c] = [...DEFAULT_WISH_PHRASES[c]];
+                        });
+                    }
                 } catch (e) {}
             }
+            // 首次加载（无存档）或异常时，确保默认话语库已注入
+            if (!Array.isArray(messageBoard.phrases) || !messageBoard.phrases.length) {
+                messageBoard.phrases = [...DEFAULT_BOARD_PHRASES];
+            }
+            ['yellow','pink','blue','red','green','purple'].forEach(function(c){
+                if (!Array.isArray(wishTree.phrases[c]) || !wishTree.phrases[c].length) {
+                    wishTree.phrases[c] = [...DEFAULT_WISH_PHRASES[c]];
+                }
+            });
             // 同步表单
             bubbleShapeSelect.value = bubbleShape;
             bubbleUserColorInput.value = bubbleUserColor;
@@ -6752,7 +7025,8 @@
                 favorites, marks, recalledCache, moodDiaries,
                 kaomojiGroups, kaomojiGroupList,
                 emojiImgGroups, emojiImgGroupList,
-                letterBox
+                letterBox,
+                messageBoard, wishTree
             };
             localStorage.setItem('dream_appearance', JSON.stringify(data));
             applyBubbleStyle();
@@ -8642,26 +8916,29 @@
             function angleAutoSpaceLetterRandom() {
                 if (Math.random() > 0.06) return;  // 6%
                 if (!cardLibrary.length) return;
+                const _pid = genPairId();
                 const letter = makeLetter({
                     from: 'space', to: 'usr', title: '',
                     content: cardLibrary[Math.floor(Math.random()*cardLibrary.length)],
-                    sourceBox: 'space', parentId: null
+                    sourceBox: 'space', parentId: null, pairId: _pid
                 });
                 letterBox.space.inbox.unshift(letter);
-                // 同步出现在"我的信箱"收件箱（时空来信）
-                const mirror = {...letter, id: letter.id + '-m', mirrorOf: letter.id, sourceBox: 'mine'};
+                // 同步出现在"我的信箱"收件箱（时空来信）—— 与时空原件共享 pairId，便于已读联动
+                const mirror = {...letter, id: letter.id + '-m', mirrorOf: letter.id, sourceBox: 'mine', pairId: _pid};
                 letterBox.mine.inbox.unshift(mirror);
                 saveAppearance();
                 showToast(`${angleName} 给你发了一封时空来信 ✉`);
                 if (envelopeModal && envelopeModal.classList.contains('active')) renderEnvList();
             }
 
-            function makeLetter({from,to,title,content,sourceBox,parentId,replyTargetId,sourceLetterBox}) {
+            function makeLetter({from,to,title,content,sourceBox,parentId,replyTargetId,sourceLetterBox,pairId}) {
                 return {
                     id: 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
                     parentId: parentId || null,
                     replyTargetId: replyTargetId || null,
                     sourceLetterBox: sourceLetterBox || null,
+                    // pairId：把"同一封信在不同信箱中的镜像/收发对"绑定在一起，便于已读状态同步
+                    pairId: pairId || null,
                     title: title || '',
                     content: content || '',
                     from, to,
@@ -8670,6 +8947,9 @@
                     replied: false,
                     sourceBox
                 };
+            }
+            function genPairId() {
+                return 'P' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
             }
             function getBox(box, inner) {
                 if (box === 'space') return letterBox.space.inbox;
@@ -8685,6 +8965,43 @@
                     }
                 }
                 return null;
+            }
+            // 找到"本质上同一封信"的全部副本（时空镜像 / 收发对），用于已读状态联动
+            function findLetterPeers(letter) {
+                const peers = [];
+                if (!letter) return peers;
+                // ① 时空镜像：本封是镜像（mirrorOf 指向时空原件）
+                if (letter.mirrorOf) {
+                    const orig = (letterBox.space.inbox||[]).find(x => x.id === letter.mirrorOf);
+                    if (orig && orig !== letter) peers.push(orig);
+                }
+                // ① 反向：本封是时空原件 → 找 mine.inbox 里的镜像
+                if (letter.sourceBox === 'space' || letter.from === 'space') {
+                    (letterBox.mine.inbox||[]).forEach(m => { if (m.mirrorOf === letter.id && m !== letter) peers.push(m); });
+                }
+                // ②③ 收发对：靠 pairId 绑定 outbox↔inbox 的同一封信
+                if (letter.pairId) {
+                    for (const bk of ['mine','angle']) {
+                        for (const ik of ['inbox','outbox']) {
+                            (letterBox[bk]?.[ik]||[]).forEach(x => {
+                                if (x !== letter && x.pairId === letter.pairId) peers.push(x);
+                            });
+                        }
+                    }
+                    // 时空信箱 inbox 也参与 pairId 联动
+                    (letterBox.space.inbox||[]).forEach(x => {
+                        if (x !== letter && x.pairId === letter.pairId) peers.push(x);
+                    });
+                }
+                return peers;
+            }
+            // 把一封信（及其所有镜像/收发对副本）标记为已读
+            function markLetterRead(letter) {
+                if (!letter) return;
+                let changed = false;
+                if (!letter.read) { letter.read = true; changed = true; }
+                findLetterPeers(letter).forEach(p => { if (!p.read) { p.read = true; changed = true; } });
+                return changed;
             }
 
             function renderEnvList() {
@@ -8756,13 +9073,13 @@
 
                     // 点击卡片 = 展开详情 + 标记已读（按 box 类型区分：梦角收件箱不自动已读）
                     d.addEventListener('click', (e) => {
-                        if (e.target.closest('.env-jump,.env-quote,.env-delete-btn,.env-reply-btn')) return;
+                        if (e.target.closest('.env-jump,.env-quote,.env-delete-btn,.env-reply-btn,.env-angle-read-btn')) return;
                         toggleLetterDetail(d, letter);
-                        // 只有"我的收信箱" 和 "时空信箱"里的信，梦女点查看才算已读；
-                        // "梦角收件箱"(angle.inbox) 梦女点查看 ≠ 梦角已读 —— 梦角读信需另一条独立逻辑，不能在这里改
+                        // 梦女在我的收信箱/时空信箱收信箱点查看 = 已读，
+                        // 同时联动"本质上同一封信"的其它副本（时空原件/镜像、回信收发对）一并已读
                         const box = envState.box;
                         if ((box === 'mine' || box === 'space') && envState.inner === 'inbox') {
-                            if (!letter.read) { letter.read = true; saveAppearance(); renderEnvList(); }
+                            if (markLetterRead(letter)) { saveAppearance(); renderEnvList(); }
                         }
                     });
                     envList.appendChild(d);
@@ -8798,6 +9115,17 @@
                 // 跳转按钮
                 const jumpWrap = document.createElement('div');
                 jumpWrap.className = 'env-jump';
+                // 梦角收信箱：提供"梦角已读"按钮（梦女点查看不算梦角已读，需梦角本人读信）
+                // 标记后联动同一封信在"我的回信箱"等其它信箱里的副本一并已读
+                if (envState.box === 'angle' && envState.inner === 'inbox') {
+                    const arb = document.createElement('button');
+                    arb.className = 'env-angle-read-btn';
+                    arb.textContent = letter.read ? '✓ 梦角已读' : '👁 标记梦角已读';
+                    arb.addEventListener('click', () => {
+                        if (markLetterRead(letter)) { saveAppearance(); renderEnvList(); showToast('梦角已读 ✉'); }
+                    });
+                    jumpWrap.appendChild(arb);
+                }
                 // 收件箱可点"回信"
                 if (envState.inner === 'inbox') {
                     const rb = document.createElement('button');
@@ -8879,12 +9207,14 @@
                 const peer = me === 'usr' ? 'angle' : 'usr';
                 const meBox = envState.box;  // 'mine' or 'angle'
                 const peerBox = meBox === 'mine' ? 'angle' : 'mine';
+                // 回信的 out/in 对共享同一个 pairId，便于已读联动
+                const _rpid = genPairId();
                 // 我的回信进入"当前大板块.outbox"
                 const outLetter = makeLetter({
                     from: me, to: peer, title, content,
                     sourceBox: meBox,
                     parentId: origin.id, replyTargetId: origin.id,
-                    sourceLetterBox: target.bk
+                    sourceLetterBox: target.bk, pairId: _rpid
                 });
                 letterBox[meBox].outbox.unshift(outLetter);
                 // 对方收信箱增加一封收信（引用同内容，新id）
@@ -8892,7 +9222,7 @@
                     from: me, to: peer, title, content,
                     sourceBox: peerBox,
                     parentId: origin.id, replyTargetId: origin.id,
-                    sourceLetterBox: target.bk
+                    sourceLetterBox: target.bk, pairId: _rpid
                 });
                 inLetter.id = 'R' + Date.now().toString(36) + Math.random().toString(36).slice(2,4);
                 letterBox[peerBox].inbox.unshift(inLetter);
@@ -8937,6 +9267,7 @@
                 if (envWritingLetterState === 'reply' && envState.replyingToId) {
                     var origin = findLetter(envState.replyingToId);
                     if (!origin) { showToast('原信已丢失'); closeNewLetter(); return; }
+                    var _nrid = genPairId();
                     var letter = makeLetter({
                         from: envState.box === 'mine' ? 'usr' : 'angle',
                         to: envState.box === 'mine' ? 'angle' : 'usr',
@@ -8944,20 +9275,18 @@
                         sourceBox: envState.box === 'mine' ? 'mine' : 'angle',
                         parentId: origin.letter.id,
                         replyTargetId: origin.letter.id,
-                        replied: true
+                        replied: true, pairId: _nrid
                     });
                     // 进入双方 outbox/inbox（时空信 不受影响，只进正常收发）
                     var rMe = letter.from, rPeer = letter.to;
                     var rMeBox = rMe === 'usr' ? 'mine' : 'angle';
                     var rPeerBox = rMe === 'usr' ? 'angle' : 'mine';
                     letterBox[rMeBox].outbox.unshift(letter);
-                    var inc2 = makeLetter({ from: rMe, to: rPeer, title, content, sourceBox: rPeerBox, parentId: origin.letter.id, replyTargetId: origin.letter.id, replied: true });
+                    var inc2 = makeLetter({ from: rMe, to: rPeer, title, content, sourceBox: rPeerBox, parentId: origin.letter.id, replyTargetId: origin.letter.id, replied: true, pairId: _nrid });
                     letterBox[rPeerBox].inbox.unshift(inc2);
                     // 原信标记已被回信
                     var originLetter = origin.letter;
-                    var originPool = getBox(origin.source, origin.inner);
-                    var idx = originPool.findIndex(x => x.id === originLetter.id);
-                    if (idx >= 0) originPool[idx].replied = true;
+                    originLetter.replied = true;
                     saveAppearance(); closeNewLetter();
                     showToast('回信已寄出 ✉'); renderEnvList();
                     return;
@@ -8967,9 +9296,10 @@
                 const peer = me === 'usr' ? 'angle' : 'usr';
                 const meBox = me === 'usr' ? 'mine' : 'angle';
                 const peerBox = me === 'usr' ? 'angle' : 'mine';
-                const out = makeLetter({ from:me, to:peer, title, content, sourceBox:meBox, parentId:null, replyTargetId:null });
+                const _npid = genPairId();
+                const out = makeLetter({ from:me, to:peer, title, content, sourceBox:meBox, parentId:null, replyTargetId:null, pairId: _npid });
                 letterBox[meBox].outbox.unshift(out);
-                const inc = makeLetter({ from:me, to:peer, title, content, sourceBox:peerBox, parentId:null, replyTargetId:null });
+                const inc = makeLetter({ from:me, to:peer, title, content, sourceBox:peerBox, parentId:null, replyTargetId:null, pairId: _npid });
                 inc.id = 'R' + Date.now().toString(36) + Math.random().toString(36).slice(2,4);
                 letterBox[peerBox].inbox.unshift(inc);
                 saveAppearance(); closeNewLetter();
@@ -9023,6 +9353,381 @@
                 document.querySelectorAll('[data-env-inner]').forEach(b => b.classList.toggle('active', b.dataset.envInner === 'inbox'));
                 renderEnvList();
                 openModal(envelopeModal);
+            });
+
+            // ========== 留言板 + 许愿树 ==========
+            const boardModal = document.getElementById('boardModal');
+            const closeBoardModal = document.getElementById('closeBoardModal');
+            const boardGrid = document.getElementById('boardGrid');
+            const boardRefreshBtn = document.getElementById('boardRefreshBtn');
+            const boardPhraseBtn = document.getElementById('boardPhraseBtn');
+            const boardHistBtn = document.getElementById('boardHistBtn');
+            const boardPhraseModal = document.getElementById('boardPhraseModal');
+            const closeBoardPhraseModal = document.getElementById('closeBoardPhraseModal');
+            const boardPhraseList = document.getElementById('boardPhraseList');
+            const boardPhraseInput = document.getElementById('boardPhraseInput');
+            const boardPhraseAddBtn = document.getElementById('boardPhraseAddBtn');
+            const boardHistModal = document.getElementById('boardHistModal');
+            const closeBoardHistModal = document.getElementById('closeBoardHistModal');
+            const boardHistList = document.getElementById('boardHistList');
+
+            const wishModal = document.getElementById('wishModal');
+            const closeWishModal = document.getElementById('closeWishModal');
+            const wishGrid = document.getElementById('wishGrid');
+            const wishRefreshBtn = document.getElementById('wishRefreshBtn');
+            const wishPhraseBtn = document.getElementById('wishPhraseBtn');
+            const wishHistBtn = document.getElementById('wishHistBtn');
+            const wishPhraseModal = document.getElementById('wishPhraseModal');
+            const closeWishPhraseModal = document.getElementById('closeWishPhraseModal');
+            const wishPhraseList = document.getElementById('wishPhraseList');
+            const wishPhraseInput = document.getElementById('wishPhraseInput');
+            const wishPhraseAddBtn = document.getElementById('wishPhraseAddBtn');
+            const wishHistModal = document.getElementById('wishHistModal');
+            const closeWishHistModal = document.getElementById('closeWishHistModal');
+            const wishHistList = document.getElementById('wishHistList');
+
+            // 本地时间 → datetime-local 字符串 YYYY-MM-DDTHH:MM
+            function toLocalDTInput(ts) {
+                const d = new Date(ts || Date.now());
+                const p = n => String(n).padStart(2,'0');
+                return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+            }
+            // 从 datetime-local 字符串取时间戳
+            function fromLocalDTInput(s) {
+                const t = new Date(s).getTime();
+                return isNaN(t) ? Date.now() : t;
+            }
+
+            // ---- 留言板 ----
+            function boardPickAngleContent() {
+                // 55% 概率从内置/自定义话语库抽；否则混入字卡/emoji/颜文字
+                const phrases = messageBoard.phrases || [];
+                if (phrases.length && Math.random() < 0.55) return phrases[Math.floor(Math.random()*phrases.length)];
+                const pool = [];
+                try { if (cardLibrary && cardLibrary.length) pool.push.apply(pool, cardLibrary); } catch(e){}
+                try { var f=[]; for (var g in emojiGroups) f.push.apply(f,(emojiGroups[g]||[])); if (f.length) pool.push.apply(pool,f); } catch(e){}
+                try { var k=[]; for (var g2 in kaomojiGroups) k.push.apply(k,(kaomojiGroups[g2]||[])); if (k.length) pool.push.apply(pool,k); } catch(e){}
+                if (phrases.length) pool.push.apply(pool, phrases);
+                if (!pool.length) return '今天也想和你说说话。';
+                return pool[Math.floor(Math.random()*pool.length)];
+            }
+            function boardRolloverDay() {
+                const today = formatDateKey(Date.now());
+                if (messageBoard.lastDate && messageBoard.lastDate !== today) {
+                    if (messageBoard.notes && messageBoard.notes.length) {
+                        messageBoard.history[messageBoard.lastDate] = JSON.parse(JSON.stringify(messageBoard.notes));
+                    }
+                    messageBoard.notes = [];
+                    messageBoard.lastDate = today;
+                    saveAppearance();
+                } else if (!messageBoard.lastDate) {
+                    messageBoard.lastDate = today;
+                    saveAppearance();
+                }
+            }
+            function boardFillToday(n) {
+                boardRolloverDay();
+                let added = 0;
+                while (messageBoard.notes.length < 5 && added < n) {
+                    messageBoard.notes.push({
+                        id: 'BN' + Date.now().toString(36) + Math.floor(Math.random()*10000),
+                        content: boardPickAngleContent(),
+                        ts: Date.now(),
+                        date: formatDateKey(Date.now()),
+                        read: false,
+                        replies: []
+                    });
+                    added++;
+                }
+                saveAppearance();
+            }
+            function renderBoard() {
+                if (!boardGrid) return;
+                boardGrid.innerHTML = '';
+                boardRolloverDay();
+                const empty = document.getElementById('boardEmpty');
+                if (!messageBoard.notes.length) { if (empty) empty.style.display=''; return; }
+                if (empty) empty.style.display='none';
+                messageBoard.notes.forEach(note => {
+                    const d = document.createElement('div');
+                    d.className = 'board-note' + (note.read ? '' : ' unread');
+                    d.innerHTML = '<div class="bn-fold">💌</div>'
+                        + '<div class="bn-tip">点击查看留言</div>'
+                        + '<div class="bn-rep">' + (note.replies.length ? '↪ '+note.replies.length : '') + '</div>'
+                        + '<div class="bn-time">' + formatTimeHMS(note.ts) + '</div>';
+                    d.addEventListener('click', () => {
+                        let changed = false;
+                        if (!note.read) { note.read = true; changed = true; d.classList.remove('unread'); }
+                        if (changed) saveAppearance();
+                        try { toggleBoardDetail(d, note); } catch(err){ console.error('boardDetail', err); }
+                    });
+                    boardGrid.appendChild(d);
+                });
+            }
+            function toggleBoardDetail(cardEl, note) {
+                const others = boardGrid.querySelectorAll('.board-detail');
+                others.forEach(o => o.remove());
+                boardGrid.querySelectorAll('.board-note').forEach(c => { c.dataset.open=''; });
+                if (cardEl.dataset.open === '1') { cardEl.dataset.open=''; return; }
+                cardEl.dataset.open = '1';
+                const det = document.createElement('div');
+                det.className = 'board-detail';
+                let reps = '';
+                (note.replies||[]).forEach(r => {
+                    reps += '<div class="bd-reply"><div class="br-time">'+formatDateCN(r.ts)+' '+formatTimeHMS(r.ts)+'</div><div class="br-content"></div></div>';
+                });
+                det.innerHTML = '<div class="bd-head"><span>来自 <b>'+angleName+'</b></span><span>'+formatDateCN(note.ts)+' '+formatTimeHMS(note.ts)+'</span></div>'
+                    + '<div class="bd-content"></div>'
+                    + (reps ? '<div class="bd-replies">'+reps+'</div>' : '')
+                    + '<div class="bd-reply-area">'
+                    + '<textarea class="mod-textarea" placeholder="写下你的回复..."></textarea>'
+                    + '<div class="bd-reply-row">'
+                    + '<button class="btn btn-primary-mod" data-act="now">💬 立即回复</button>'
+                    + '<input type="datetime-local" />'
+                    + '<button class="btn" data-act="custom">⏰ 定时回复</button>'
+                    + '</div></div>';
+                det.querySelector('.bd-content').textContent = note.content;
+                // 回填已渲染回复内容（防 XSS）
+                det.querySelectorAll('.bd-reply').forEach((node, i) => { node.querySelector('.br-content').textContent = note.replies[i].content; });
+                const ta = det.querySelector('textarea');
+                const dt = det.querySelector('input[type="datetime-local"]');
+                dt.value = toLocalDTInput(Date.now());
+                det.querySelector('[data-act="now"]').addEventListener('click', () => {
+                    const c = (ta.value||'').trim();
+                    if (!c) { showToast('写点什么再回复吧'); return; }
+                    note.replies.push({ id:'BR'+Date.now(), content:c, ts:Date.now(), from:'usr' });
+                    saveAppearance(); renderBoard(); showToast('回复已留下 ✿');
+                });
+                det.querySelector('[data-act="custom"]').addEventListener('click', () => {
+                    const c = (ta.value||'').trim();
+                    if (!c) { showToast('写点什么再回复吧'); return; }
+                    note.replies.push({ id:'BR'+Date.now(), content:c, ts:fromLocalDTInput(dt.value), from:'usr' });
+                    saveAppearance(); renderBoard(); showToast('定时回复已留下 ✿');
+                });
+                cardEl.after(det);
+            }
+            function renderBoardPhrases() {
+                if (!boardPhraseList) return;
+                boardPhraseList.innerHTML = '';
+                const list = messageBoard.phrases || [];
+                if (!list.length) { boardPhraseList.innerHTML = '<div class="lib-empty">还没有自定义话语</div>'; return; }
+                list.forEach((p, i) => {
+                    const it = document.createElement('div');
+                    it.className = 'phrase-item';
+                    const sp = document.createElement('span'); sp.textContent = p; it.appendChild(sp);
+                    const b = document.createElement('button'); b.textContent='删除';
+                    b.addEventListener('click', () => { messageBoard.phrases.splice(i,1); saveAppearance(); renderBoardPhrases(); });
+                    it.appendChild(b);
+                    boardPhraseList.appendChild(it);
+                });
+            }
+            function renderBoardHistory() {
+                if (!boardHistList) return;
+                boardHistList.innerHTML = '';
+                const days = Object.keys(messageBoard.history||{}).sort((a,b)=> b.localeCompare(a));
+                if (!days.length) { boardHistList.innerHTML = '<div class="lib-empty">还没有历史留言</div>'; return; }
+                days.forEach(day => {
+                    const dh = document.createElement('div'); dh.className='hist-day'; dh.textContent = day; boardHistList.appendChild(dh);
+                    (messageBoard.history[day]||[]).forEach(note => {
+                        const it = document.createElement('div'); it.className='hist-item';
+                        let reps = '';
+                        (note.replies||[]).forEach(r => { reps += '<div class="hi-r"><b>'+userName+'</b> · '+formatDateCN(r.ts)+' '+formatTimeHMS(r.ts)+'：<span></span></div>'; });
+                        it.innerHTML = '<div class="hi-head" style="font-size:0.6rem;color:var(--text-muted);margin-bottom:4px;">'+angleName+' · '+formatTimeHMS(note.ts)+'</div><div class="hi-c"></div>'+reps;
+                        it.querySelector('.hi-c').textContent = note.content;
+                        const spans = it.querySelectorAll('.hi-r span');
+                        (note.replies||[]).forEach((r, idx) => { if (spans[idx]) spans[idx].textContent = r.content; });
+                        boardHistList.appendChild(it);
+                    });
+                });
+            }
+
+            // ---- 许愿树 ----
+            function wishPickContent(color) {
+                const pool = (wishTree.phrases[color] || []).slice();
+                if (!pool.length) return '想和你说说话。';
+                return pool[Math.floor(Math.random()*pool.length)];
+            }
+            function wishRolloverDay() {
+                const today = formatDateKey(Date.now());
+                if (wishTree.lastDate && wishTree.lastDate !== today) {
+                    if (wishTree.stars && wishTree.stars.length) {
+                        wishTree.history[wishTree.lastDate] = JSON.parse(JSON.stringify(wishTree.stars));
+                    }
+                    wishTree.stars = [];
+                    wishTree.lastDate = today;
+                    saveAppearance();
+                } else if (!wishTree.lastDate) {
+                    wishTree.lastDate = today;
+                    saveAppearance();
+                }
+            }
+            function wishFillToday(n) {
+                wishRolloverDay();
+                const colors = ['yellow','pink','blue','red','green','purple'];
+                let added = 0;
+                while (wishTree.stars.length < 5 && added < n) {
+                    const color = colors[Math.floor(Math.random()*colors.length)];
+                    wishTree.stars.push({
+                        id: 'WS' + Date.now().toString(36) + Math.floor(Math.random()*10000),
+                        color: color,
+                        content: wishPickContent(color),
+                        ts: Date.now(),
+                        date: formatDateKey(Date.now()),
+                        read: false,
+                        replies: []
+                    });
+                    added++;
+                }
+                saveAppearance();
+            }
+            function renderWish() {
+                if (!wishGrid) return;
+                wishGrid.innerHTML = '';
+                wishRolloverDay();
+                const empty = document.getElementById('wishEmpty');
+                if (!wishTree.stars.length) { if (empty) empty.style.display=''; return; }
+                if (empty) empty.style.display='none';
+                wishTree.stars.forEach(star => {
+                    const d = document.createElement('button');
+                    d.className = 'star-item star-c-'+star.color + (star.read ? '' : ' unread');
+                    d.innerHTML = '<span class="si-icon">'+WISH_COLORS[star.color].icon+'</span>'
+                        + '<span class="si-tip">'+WISH_COLORS[star.color].label+'</span>'
+                        + '<span class="si-time">'+formatTimeHMS(star.ts)+'</span>';
+                    d.addEventListener('click', () => {
+                        let changed = false;
+                        if (!star.read) { star.read = true; changed = true; d.classList.remove('unread'); }
+                        if (changed) saveAppearance();
+                        try { toggleWishDetail(d, star); } catch(err){ console.error('wishDetail', err); }
+                    });
+                    wishGrid.appendChild(d);
+                });
+            }
+            function toggleWishDetail(cardEl, star) {
+                const others = wishGrid.querySelectorAll('.star-detail');
+                others.forEach(o => o.remove());
+                wishGrid.querySelectorAll('.star-item').forEach(c => { c.dataset.open=''; });
+                if (cardEl.dataset.open === '1') { cardEl.dataset.open=''; return; }
+                cardEl.dataset.open = '1';
+                const det = document.createElement('div');
+                det.className = 'star-detail board-detail';
+                let reps = '';
+                (star.replies||[]).forEach(r => {
+                    reps += '<div class="bd-reply"><div class="br-time">'+formatDateCN(r.ts)+' '+formatTimeHMS(r.ts)+'</div><div class="br-content"></div></div>';
+                });
+                det.innerHTML = '<div class="bd-head"><span><b style="color:#a87ff0;">'+WISH_COLORS[star.color].icon+' '+WISH_COLORS[star.color].label+'</b></span><span>'+formatDateCN(star.ts)+' '+formatTimeHMS(star.ts)+'</span></div>'
+                    + '<div class="bd-content"></div>'
+                    + (reps ? '<div class="bd-replies">'+reps+'</div>' : '')
+                    + '<div class="bd-reply-area">'
+                    + '<textarea class="mod-textarea" placeholder="回应 ta 的愿望..."></textarea>'
+                    + '<div class="bd-reply-row">'
+                    + '<button class="btn btn-primary-mod" data-act="now">💬 立即回应</button>'
+                    + '<input type="datetime-local" />'
+                    + '<button class="btn" data-act="custom">⏰ 定时回应</button>'
+                    + '</div></div>';
+                det.querySelector('.bd-content').textContent = star.content;
+                det.querySelectorAll('.bd-reply').forEach((node, i) => { node.querySelector('.br-content').textContent = star.replies[i].content; });
+                const ta = det.querySelector('textarea');
+                const dt = det.querySelector('input[type="datetime-local"]');
+                dt.value = toLocalDTInput(Date.now());
+                det.querySelector('[data-act="now"]').addEventListener('click', () => {
+                    const c = (ta.value||'').trim();
+                    if (!c) { showToast('写点什么再回应吧'); return; }
+                    star.replies.push({ id:'WR'+Date.now(), content:c, ts:Date.now(), from:'usr' });
+                    saveAppearance(); renderWish(); showToast('回应已留下 ✿');
+                });
+                det.querySelector('[data-act="custom"]').addEventListener('click', () => {
+                    const c = (ta.value||'').trim();
+                    if (!c) { showToast('写点什么再回应吧'); return; }
+                    star.replies.push({ id:'WR'+Date.now(), content:c, ts:fromLocalDTInput(dt.value), from:'usr' });
+                    saveAppearance(); renderWish(); showToast('定时回应已留下 ✿');
+                });
+                cardEl.after(det);
+            }
+            let wishCurColor = 'yellow';
+            function renderWishPhrases() {
+                if (!wishPhraseList) return;
+                wishPhraseList.innerHTML = '';
+                const list = wishTree.phrases[wishCurColor] || [];
+                if (!list.length) { wishPhraseList.innerHTML = '<div class="lib-empty">还没有该颜色的愿望</div>'; return; }
+                list.forEach((p, i) => {
+                    const it = document.createElement('div');
+                    it.className = 'phrase-item';
+                    const sp = document.createElement('span'); sp.textContent = p; it.appendChild(sp);
+                    const b = document.createElement('button'); b.textContent='删除';
+                    b.addEventListener('click', () => { wishTree.phrases[wishCurColor].splice(i,1); saveAppearance(); renderWishPhrases(); });
+                    it.appendChild(b);
+                    wishPhraseList.appendChild(it);
+                });
+            }
+            function renderWishHistory() {
+                if (!wishHistList) return;
+                wishHistList.innerHTML = '';
+                const days = Object.keys(wishTree.history||{}).sort((a,b)=> b.localeCompare(a));
+                if (!days.length) { wishHistList.innerHTML = '<div class="lib-empty">还没有历史愿望</div>'; return; }
+                days.forEach(day => {
+                    const dh = document.createElement('div'); dh.className='hist-day'; dh.textContent = day; wishHistList.appendChild(dh);
+                    (wishTree.history[day]||[]).forEach(star => {
+                        const it = document.createElement('div'); it.className='hist-item';
+                        let reps = '';
+                        (star.replies||[]).forEach(r => { reps += '<div class="hi-r"><b>'+userName+'</b> · '+formatDateCN(r.ts)+' '+formatTimeHMS(r.ts)+'：<span></span></div>'; });
+                        it.innerHTML = '<div class="hi-head" style="font-size:0.6rem;color:var(--text-muted);margin-bottom:4px;">'+WISH_COLORS[star.color].icon+' '+WISH_COLORS[star.color].label+' · '+formatTimeHMS(star.ts)+'</div><div class="hi-c"></div>'+reps;
+                        it.querySelector('.hi-c').textContent = star.content;
+                        const spans = it.querySelectorAll('.hi-r span');
+                        (star.replies||[]).forEach((r, idx) => { if (spans[idx]) spans[idx].textContent = r.content; });
+                        wishHistList.appendChild(it);
+                    });
+                });
+            }
+
+            // 留言板 绑定
+            if (sideBoardBtn) sideBoardBtn.addEventListener('click', () => { closeSidePanel(); renderBoard(); openModal(boardModal); });
+            if (closeBoardModal) closeBoardModal.addEventListener('click', () => closeModal(boardModal));
+            if (boardRefreshBtn) boardRefreshBtn.addEventListener('click', () => {
+                boardRolloverDay();
+                if (messageBoard.notes.length >= 5) { showToast('今天的留言已经满 5 条啦~'); return; }
+                const need = 5 - messageBoard.notes.length;
+                boardFillToday(need);
+                renderBoard();
+                showToast('梦角留下了 '+need+' 条留言 💌');
+            });
+            if (boardPhraseBtn) boardPhraseBtn.addEventListener('click', () => { renderBoardPhrases(); openModal(boardPhraseModal); });
+            if (closeBoardPhraseModal) closeBoardPhraseModal.addEventListener('click', () => closeModal(boardPhraseModal));
+            if (boardPhraseAddBtn) boardPhraseAddBtn.addEventListener('click', () => {
+                const v = (boardPhraseInput.value||'').trim();
+                if (!v) { showToast('写一句再添加'); return; }
+                messageBoard.phrases.push(v); saveAppearance(); boardPhraseInput.value='';
+                renderBoardPhrases(); showToast('已加入话语库 ✿');
+            });
+            if (boardHistBtn) boardHistBtn.addEventListener('click', () => { renderBoardHistory(); openModal(boardHistModal); });
+            if (closeBoardHistModal) closeBoardHistModal.addEventListener('click', () => closeModal(boardHistModal));
+
+            // 许愿树 绑定
+            if (sideWishBtn) sideWishBtn.addEventListener('click', () => { closeSidePanel(); renderWish(); openModal(wishModal); });
+            if (closeWishModal) closeWishModal.addEventListener('click', () => closeModal(wishModal));
+            if (wishRefreshBtn) wishRefreshBtn.addEventListener('click', () => {
+                wishRolloverDay();
+                if (wishTree.stars.length >= 5) { showToast('今天的星星已经满 5 颗啦~'); return; }
+                const need = 5 - wishTree.stars.length;
+                wishFillToday(need);
+                renderWish();
+                showToast('树上多了 '+need+' 颗星星 ✨');
+            });
+            if (wishPhraseBtn) wishPhraseBtn.addEventListener('click', () => { renderWishPhrases(); openModal(wishPhraseModal); });
+            if (closeWishPhraseModal) closeWishPhraseModal.addEventListener('click', () => closeModal(wishPhraseModal));
+            if (wishPhraseAddBtn) wishPhraseAddBtn.addEventListener('click', () => {
+                const v = (wishPhraseInput.value||'').trim();
+                if (!v) { showToast('写一句再添加'); return; }
+                wishTree.phrases[wishCurColor].push(v); saveAppearance(); wishPhraseInput.value='';
+                renderWishPhrases(); showToast('已加入'+WISH_COLORS[wishCurColor].label+'愿望 ✿');
+            });
+            if (wishHistBtn) wishHistBtn.addEventListener('click', () => { renderWishHistory(); openModal(wishHistModal); });
+            if (closeWishHistModal) closeWishHistModal.addEventListener('click', () => closeModal(wishHistModal));
+            document.querySelectorAll('[data-wish-color]').forEach(b => {
+                b.addEventListener('click', () => {
+                    wishCurColor = b.dataset.wishColor;
+                    document.querySelectorAll('[data-wish-color]').forEach(x => x.classList.toggle('active', x === b));
+                    renderWishPhrases();
+                });
             });
 
             // ========== 日历 + 跳转日期 + 心情日记 ==========
