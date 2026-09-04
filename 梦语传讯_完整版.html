@@ -1238,7 +1238,7 @@ textarea.input,
     color: var(--text_secondary);
 }
 /* user right-aligned */
-.message.user { flex-direction: row-reverse; justify-content: flex-start; }
+.message.user { flex-direction: row; justify-content: flex-end; }
 .message.user .msg-bubble {
     background: var(--bg_bubble_user);
     border-radius: 14px 14px 6px 14px;
@@ -1614,12 +1614,59 @@ textarea.input,
 }
 #app.avatar-rounded .message.user .msg-avatar, #app.avatar-rounded .message.angle .msg-avatar { border-radius: 14px; }
 #app.avatar-square .message.user .msg-avatar, #app.avatar-square .message.angle .msg-avatar { border-radius: 8px; }
+#app.no-avatar .message .msg-avatar { display: none !important; }
+#app.no-avatar .message.user, #app.no-avatar .message.angle { gap: 0 !important; }
 .no-shadow .msg-bubble { box-shadow: none !important; }
 .message { animation: bubbleIn var(--chat-anim-dur, .26s) ease-out both; }
 @keyframes bubbleIn {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes pokeShake {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.25) rotate(-8deg); }
+  50% { transform: scale(0.9) rotate(6deg); }
+  75% { transform: scale(1.15) rotate(-4deg); }
+}
+/* 消息拓展栏 */
+.msg-action-bar {
+  position: fixed; z-index: 9000;
+  display: flex; gap: 4px;
+  background: var(--bg_panel, #fff);
+  border: 1px solid var(--bg_border, #e0d0e8);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+.mab-btn {
+  border: none; background: var(--bg_card, #fff);
+  padding: 6px 10px; border-radius: 8px;
+  font-size: 0.72rem; cursor: pointer;
+  color: var(--text_primary, #4a3a5a);
+  white-space: nowrap;
+}
+.mab-btn:hover { background: var(--accent, #c9a0dc); color: #fff; }
+.mab-btn.danger { color: #e57373; }
+/* 收藏/标注面板 */
+.fav-note-panel { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 9500; display: none; align-items: center; justify-content: center; }
+.fav-note-panel.active { display: flex; }
+.fav-note-box { width: 90%; max-width: 420px; max-height: 80vh; background: var(--bg_panel, #fff); border-radius: 18px; display: flex; flex-direction: column; overflow: hidden; }
+.fav-note-header { padding: 14px 16px; border-bottom: 1px solid var(--bg_border, #eee); display: flex; justify-content: space-between; align-items: center; }
+.fav-note-header h3 { margin: 0; font-size: 0.95rem; }
+.fav-note-close { cursor: pointer; font-size: 1.1rem; }
+.fav-note-tabs { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--bg_border, #eee); }
+.fav-note-tab { padding: 5px 12px; border-radius: 12px; font-size: 0.75rem; cursor: pointer; background: var(--bg_card, #f5f0f8); }
+.fav-note-tab.active { background: var(--accent, #c9a0dc); color: #fff; }
+.fav-note-search { padding: 10px 16px; }
+.fav-note-search input { width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--bg_border, #e0d0e8); font-size: 0.8rem; outline: none; background: var(--bg_card, #fff); color: var(--text_primary, #4a3a5a); }
+.fav-note-list { flex: 1; overflow-y: auto; padding: 8px 16px; }
+.fav-note-item { padding: 10px 12px; margin-bottom: 8px; background: var(--bg_card, #f8f4fa); border-radius: 10px; cursor: pointer; }
+.fav-note-item .fni-meta { font-size: 0.65rem; color: var(--text_muted, #999); margin-bottom: 4px; }
+.fav-note-item .fni-text { font-size: 0.8rem; color: var(--text_primary, #4a3a5a); word-break: break-word; }
+.fav-note-empty { text-align: center; color: var(--text_muted, #999); padding: 30px; font-size: 0.8rem; }
+/* 撤回提示 */
+.recall-tip { color: var(--text_muted, #999); font-style: italic; cursor: pointer; font-size: 0.72rem; }
+.recall-tip:hover { text-decoration: underline; }
 .nick-never .message .msg-nick { display: none; }
 .nick-always .message .msg-nick { display: block !important; }
 .divider-hide .date-divider { display: none; }
@@ -2343,6 +2390,14 @@ textarea.input,
         <span class="qb-text" id="quoteBarText"></span>
         <span class="qb-close" id="quoteBarClose">✕</span>
     </div>
+    <!-- 消息拓展栏 -->
+    <div class="msg-action-bar" id="msgActionBar" style="display:none;">
+        <button class="mab-btn" data-act="quote">↩ 引用</button>
+        <button class="mab-btn" data-act="fav">⭐ 收藏</button>
+        <button class="mab-btn" data-act="note">📌 标注</button>
+        <button class="mab-btn" data-act="del">🗑 删除</button>
+        <button class="mab-btn" data-act="recall">↩ 撤回</button>
+    </div>
     <!-- ===== 底部输入区 ===== -->
     <div class="input-wrapper">
         <button class="arrow-up-btn" id="arrowUpBtn" title="更多">↑</button>
@@ -2386,6 +2441,14 @@ textarea.input,
         <div class="sheet-item" id="bottomDGBtn">
             <span class="icon">🖌️</span>
             <span class="label">你画我猜</span>
+        </div>
+        <div class="sheet-item" id="bottomFavBtn">
+            <span class="icon">⭐</span>
+            <span class="label">收藏匣</span>
+        </div>
+        <div class="sheet-item" id="bottomNoteBtn">
+            <span class="icon">📌</span>
+            <span class="label">标注栏</span>
         </div>
     </div>
 </div>
@@ -2693,6 +2756,40 @@ textarea.input,
             </div>
             <div class="mod-hint">💡 支持自定义 emoji / 颜文字 / 短文本 · 同分组自动去重</div>
         </div>
+    </div>
+</div>
+<!-- ===== 收藏匣弹窗 ===== -->
+<div class="fav-note-panel" id="favModal">
+    <div class="fav-note-box">
+        <div class="fav-note-header">
+            <h3>⭐ 收藏匣</h3>
+            <span class="fav-note-close" id="closeFavModal">✕</span>
+        </div>
+        <div class="fav-note-tabs">
+            <div class="fav-note-tab active" data-favtab="user">🌸 梦女的收藏</div>
+            <div class="fav-note-tab" data-favtab="angle">🌙 梦角的收藏</div>
+        </div>
+        <div class="fav-note-search">
+            <input type="text" id="favSearchInput" placeholder="🔍 搜索收藏...">
+        </div>
+        <div class="fav-note-list" id="favList"></div>
+    </div>
+</div>
+<!-- ===== 标注栏弹窗 ===== -->
+<div class="fav-note-panel" id="noteModal">
+    <div class="fav-note-box">
+        <div class="fav-note-header">
+            <h3>📌 标注栏</h3>
+            <span class="fav-note-close" id="closeNoteModal">✕</span>
+        </div>
+        <div class="fav-note-tabs">
+            <div class="fav-note-tab active" data-notetab="user">🌸 梦女的标注</div>
+            <div class="fav-note-tab" data-notetab="angle">🌙 梦角的标注</div>
+        </div>
+        <div class="fav-note-search">
+            <input type="text" id="noteSearchInput" placeholder="🔍 搜索标注...">
+        </div>
+        <div class="fav-note-list" id="noteList"></div>
     </div>
 </div>
 <!-- ===== 拍一拍弹窗 ===== -->
@@ -3474,6 +3571,9 @@ textarea.input,
         let angleAvatar = '🌙';
         let angleCallUser = '亲爱的';    // 梦角对梦女的称呼
         let angleCallChance = 0.3;       // 称呼出现在回复开头的概率（默认30%）
+        // 收藏匣 / 标注栏（按梦女/梦角区分）
+        let favBox = { user: [], angle: [] };   // {text, sender, time, type}
+        let noteBox = { user: [], angle: [] };  // {text, sender, time, type, note}
         let avatarShape = 'circle';
         let userSize = 60,
             userLeft = 0,
@@ -3718,6 +3818,21 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                 } else {
                     avatarSpan.innerHTML = isImageUrl(angleAvatar) ? `<img src="${angleAvatar}">` : angleAvatar;
                 }
+                // 双击头像拍一拍
+                avatarSpan.addEventListener('dblclick', function(ev){
+                    ev.stopPropagation();
+                    const allPats = [];
+                    for (const g in patGroups) allPats.push(...patGroups[g]);
+                    const pat = allPats.length ? allPats[Math.floor(Math.random()*allPats.length)] : '拍了拍';
+                    const me = type === 'user' ? userName : angleName;
+                    const other = type === 'user' ? angleName : userName;
+                    const sym = chatPokeSymbol === '五角星' ? '★' : chatPokeSymbol === '爱心' ? '♥' : chatPokeSymbol === '圆点' ? '●' : '✦';
+                    addChatMessage(`${sym} ${me}拍了拍${other} ${pat}`, 'system');
+                    // 拍一拍动画
+                    avatarSpan.style.animation = 'none';
+                    void avatarSpan.offsetWidth;
+                    avatarSpan.style.animation = 'pokeShake .4s ease';
+                });
             }
             const bubble = document.createElement('div');
             bubble.className = 'msg-bubble';
@@ -3757,12 +3872,12 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                 if (avatarSpan) msgDiv.appendChild(avatarSpan);
                 msgDiv.appendChild(bubble);
             }
-            // 点击引用回复（仅 user/angle 消息）
-            if (chatQuoteReply && (type === 'user' || type === 'angle')) {
+            // 点击消息 → 弹出拓展栏（引用/收藏/标注/删除/撤回）
+            if (type === 'user' || type === 'angle') {
                 msgDiv.addEventListener('click', function(ev){
                     ev.stopPropagation();
                     const txt = content.innerText || content.textContent || '';
-                    toggleQuoteBar(sender, txt, msgId);
+                    showMsgActionBar(msgDiv, type, sender, txt, msgId, html);
                 });
             }
             chatBox.appendChild(msgDiv);
@@ -3771,6 +3886,114 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             if (type === 'angle') {
                 playSfx('msg');
             }
+        }
+        // ===== 消息拓展栏 =====
+        let currentActionMsg = null;
+        function showMsgActionBar(msgDiv, type, sender, text, msgId, html) {
+            const bar = document.getElementById('msgActionBar');
+            if (!bar) return;
+            // 如果点击同一条消息再次点击则关闭
+            if (currentActionMsg === msgDiv) { hideMsgActionBar(); return; }
+            currentActionMsg = msgDiv;
+            // 定位到消息附近
+            const rect = msgDiv.getBoundingClientRect();
+            bar.style.display = 'flex';
+            // 先显示以获取尺寸
+            const barW = bar.offsetWidth;
+            let left = rect.left + rect.width/2 - barW/2;
+            left = Math.max(8, Math.min(left, window.innerWidth - barW - 8));
+            let top = rect.top - bar.offsetHeight - 6;
+            if (top < 8) top = rect.bottom + 6;
+            bar.style.left = left + 'px';
+            bar.style.top = top + 'px';
+            // 绑定按钮
+            bar.querySelectorAll('.mab-btn').forEach(function(btn){
+                btn.onclick = function(ev){
+                    ev.stopPropagation();
+                    const act = btn.dataset.act;
+                    handleMsgAction(act, msgDiv, type, sender, text, msgId, html);
+                    hideMsgActionBar();
+                };
+            });
+        }
+        function hideMsgActionBar(){
+            const bar = document.getElementById('msgActionBar');
+            if (bar) bar.style.display = 'none';
+            currentActionMsg = null;
+        }
+        // 点击空白处关闭拓展栏
+        document.addEventListener('click', function(){ hideMsgActionBar(); });
+        function handleMsgAction(act, msgDiv, type, sender, text, msgId, html) {
+            const ownerKey = type; // 'user' or 'angle'
+            if (act === 'quote') {
+                if (!chatQuoteReply) { showToast('引用回复已关闭'); return; }
+                toggleQuoteBar(sender, text, msgId);
+            } else if (act === 'fav') {
+                favBox[ownerKey].push({ text: text, sender: sender, time: formatTs(), type: type });
+                saveFullProfile();
+                showToast('已收藏到' + (type==='user'?'梦女':'梦角') + '收藏匣');
+            } else if (act === 'note') {
+                const note = prompt('输入标注内容：');
+                if (note === null) return;
+                noteBox[ownerKey].push({ text: text, sender: sender, time: formatTs(), type: type, note: note });
+                saveFullProfile();
+                showToast('已标注');
+            } else if (act === 'del') {
+                if (msgDiv.parentNode) msgDiv.parentNode.removeChild(msgDiv);
+            } else if (act === 'recall') {
+                // 撤回：自己的消息直接替换为撤回提示；对方的消息替换为可点击的撤回提示
+                const contentEl = msgDiv.querySelector('.msg-content');
+                const smallEl = msgDiv.querySelector('small');
+                if (contentEl) {
+                    const isOwn = (type === 'user');
+                    const recaller = isOwn ? '我' : angleName;
+                    contentEl.innerHTML = `<span class="recall-tip" data-raw="${encodeURIComponent(text)}">${recaller}撤回了一条消息（点击查看）</span>`;
+                    contentEl.querySelector('.recall-tip').addEventListener('click', function(ev){
+                        ev.stopPropagation();
+                        const raw = decodeURIComponent(this.dataset.raw || '');
+                        showToast('原消息：' + raw);
+                    });
+                }
+                if (smallEl) smallEl.textContent = (type==='user'?userName:angleName) + ' · ' + formatTs();
+            }
+        }
+        // ===== 收藏匣 / 标注栏 渲染 =====
+        let favActiveTab = 'user', noteActiveTab = 'user';
+        function renderFavList(){
+            const list = document.getElementById('favList');
+            if (!list) return;
+            const kw = (document.getElementById('favSearchInput')?.value || '').trim().toLowerCase();
+            const items = (favBox[favActiveTab] || []).filter(function(it){
+                return !kw || it.text.toLowerCase().includes(kw) || it.sender.toLowerCase().includes(kw);
+            });
+            if (!items.length) { list.innerHTML = '<div class="fav-note-empty">暂无收藏</div>'; return; }
+            list.innerHTML = items.map(function(it, i){
+                return `<div class="fav-note-item" data-idx="${i}"><div class="fni-meta">${it.sender} · ${it.time}</div><div class="fni-text">${it.text}</div></div>`;
+            }).join('');
+        }
+        function renderNoteList(){
+            const list = document.getElementById('noteList');
+            if (!list) return;
+            const kw = (document.getElementById('noteSearchInput')?.value || '').trim().toLowerCase();
+            const items = (noteBox[noteActiveTab] || []).filter(function(it){
+                return !kw || it.text.toLowerCase().includes(kw) || it.note.toLowerCase().includes(kw) || it.sender.toLowerCase().includes(kw);
+            });
+            if (!items.length) { list.innerHTML = '<div class="fav-note-empty">暂无标注</div>'; return; }
+            list.innerHTML = items.map(function(it, i){
+                return `<div class="fav-note-item" data-idx="${i}"><div class="fni-meta">${it.sender} · ${it.time}</div><div class="fni-text">${it.text}</div><div class="fni-meta" style="margin-top:4px;color:var(--accent);">📎 ${it.note}</div></div>`;
+            }).join('');
+        }
+        function openFavModal(){
+            const m = document.getElementById('favModal'); if(!m) return;
+            m.classList.add('active'); favActiveTab = 'user';
+            m.querySelectorAll('.fav-note-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.favtab==='user'); });
+            renderFavList();
+        }
+        function openNoteModal(){
+            const m = document.getElementById('noteModal'); if(!m) return;
+            m.classList.add('active'); noteActiveTab = 'user';
+            m.querySelectorAll('.fav-note-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.notetab==='user'); });
+            renderNoteList();
         }
         function openImgViewer(src) {
             const v = document.getElementById('imgViewer');
@@ -3862,6 +4085,8 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                     angleSize = p.angleSize || 60;
                     angleLeft = p.angleLeft || 0;
                     angleTop = p.angleTop || 0;
+                    favBox = p.favBox || { user: [], angle: [] };
+                    noteBox = p.noteBox || { user: [], angle: [] };
                 } catch (e) {}
             }
             applyProfile();
@@ -3924,7 +4149,9 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                 userTop,
                 angleSize,
                 angleLeft,
-                angleTop
+                angleTop,
+                favBox,
+                noteBox
             };
             localStorage.setItem('dream_profile', JSON.stringify(data));
             applyProfile();
@@ -3943,12 +4170,11 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             allTab.addEventListener('click', () => switchGroup('all'));
             modGroupTabs.appendChild(allTab);
             for (const gName of groupList) {
-                if (gName === 'default') continue;
                 const tab = document.createElement('span');
                 tab.className = `mod-group-tab ${currentGroup === gName ? 'active' : ''}`;
                 tab.dataset.group = gName;
                 const count = groups[gName] ? groups[gName].length : 0;
-                tab.innerHTML = `${gName} <span class="count">${count}</span>`;
+                tab.innerHTML = `${gName === 'default' ? '默认' : gName} <span class="count">${count}</span>`;
                 tab.addEventListener('click', () => switchGroup(gName));
                 modGroupTabs.appendChild(tab);
             }
@@ -4191,12 +4417,11 @@ function resetDefaultCards() {
             allTab.addEventListener('click', () => switchEmojiGroup('all'));
             emojiGroupTabs.appendChild(allTab);
             for (const gName of emojiGroupList) {
-                if (gName === 'default') continue;
                 const tab = document.createElement('span');
                 tab.className = `mod-group-tab ${emojiCurrentGroup === gName ? 'active' : ''}`;
                 tab.dataset.group = gName;
                 const count = emojiGroups[gName] ? emojiGroups[gName].length : 0;
-                tab.innerHTML = `${gName} <span class="count">${count}</span>`;
+                tab.innerHTML = `${gName === 'default' ? '默认' : gName} <span class="count">${count}</span>`;
                 tab.addEventListener('click', () => switchEmojiGroup(gName));
                 emojiGroupTabs.appendChild(tab);
             }
@@ -4272,7 +4497,6 @@ emojiList.querySelectorAll('.del').forEach(el => {
             }
             const allEmojisCount = Object.values(emojiGroups).reduce((a, b) => a + b.length, 0);
             emojiCount.textContent = `${allEmojisCount} 个`;
-            emojiAllCount.textContent = total;
             updateEmojiSelectUI();
         }
         function switchEmojiGroup(name) {
@@ -4393,12 +4617,11 @@ function resetEmojis() {
             allTab.addEventListener('click', () => switchPatGroup('all'));
             patGroupTabs.appendChild(allTab);
             for (const gName of patGroupList) {
-                if (gName === 'default') continue;
                 const tab = document.createElement('span');
                 tab.className = `mod-group-tab ${patCurrentGroup === gName ? 'active' : ''}`;
                 tab.dataset.group = gName;
                 const count = patGroups[gName] ? patGroups[gName].length : 0;
-                tab.innerHTML = `${gName} <span class="count">${count}</span>`;
+                tab.innerHTML = `${gName === 'default' ? '默认' : gName} <span class="count">${count}</span>`;
                 tab.addEventListener('click', () => switchPatGroup(gName));
                 patGroupTabs.appendChild(tab);
             }
@@ -4629,8 +4852,15 @@ function resetEmojis() {
             '( ´ ▽ ` )ﾉ','(；´д｀)ゞ','(｡•́︿•̀｡)','(╯﹏╰）','( ´･ω･` )'
         ];
         function pickKaomoji() {
-            const pool = (appearance.kaomojiGroups && Object.keys(appearance.kaomojiGroups).length)
+            let pool = (appearance.kaomojiGroups && Object.keys(appearance.kaomojiGroups).length)
                 ? Object.values(appearance.kaomojiGroups).flat() : DEFAULT_KAOMOJIS;
+            // 过滤掉纯 emoji（颜文字应为多字符文本表情，不含单字符 emoji）
+            pool = pool.filter(function(k){
+                if (!k) return false;
+                // 单字符且为 emoji 范围则排除
+                if (k.length <= 2 && /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/u.test(k)) return false;
+                return true;
+            });
             if (!pool.length) return '';
             return pool[Math.floor(Math.random()*pool.length)];
         }
@@ -4644,36 +4874,36 @@ function resetEmojis() {
                 addChatMessage(`${angleName}沉默不语…… 字卡空空如也。`, 'angle');
                 return;
             }
-            // 总开关：关闭 → 强制 simple random 一张，不 merge / 不混 emoji / 不混 kaomoji
+            let final;
+            // 总开关：关闭 → 强制 simple random 一张，但 emoji/颜文字 仍受各自开关控制
             if (!chatCustomReplyRule) {
-                const card = cardLibrary[Math.floor(Math.random()*cardLibrary.length)];
-                addChatMessage('✦ ' + card, 'angle');
-                return;
+                final = cardLibrary[Math.floor(Math.random()*cardLibrary.length)];
+            } else {
+                // ON：拼字卡 2~10 条
+                let count = 1;
+                if (chatMergeCards) {
+                    const mn = Math.max(2, chatMergeCountMin||2);
+                    const mx = Math.min(10, Math.max(mn, chatMergeCountMax||10));
+                    count = mn + Math.floor(Math.random()*(mx-mn+1));
+                }
+                const picked = [];
+                const pool = cardLibrary.slice();
+                for (let i=0; i<count && pool.length; i++) {
+                    const idx = Math.floor(Math.random()*pool.length);
+                    picked.push(pool.splice(idx,1)[0]);
+                }
+                final = picked.length>1 ? picked.join('\n') : picked[0];
             }
-            // ON：拼字卡 2~10 条
-            let count = 1;
-            if (chatMergeCards) {
-                const mn = Math.max(2, chatMergeCountMin||2);
-                const mx = Math.min(10, Math.max(mn, chatMergeCountMax||10));
-                count = mn + Math.floor(Math.random()*(mx-mn+1));
-            }
-            const picked = [];
-            const pool = cardLibrary.slice();
-            for (let i=0; i<count && pool.length; i++) {
-                const idx = Math.floor(Math.random()*pool.length);
-                picked.push(pool.splice(idx,1)[0]);
-            }
-            let final = picked.length>1 ? picked.join('\n') : picked[0];
             // 称呼前缀（概率由 angleCallChance 控制，默认 30%）
             if (angleCallUser && angleCallUser.trim() && Math.random() < angleCallChance) {
                 final = angleCallUser.trim() + '，' + final;
             }
-            // emoji 混入 60%
+            // emoji 混入 60%（受 chatEmojiMix 控制，独立于自定义回信规律）
             if (chatEmojiMix && Math.random() < 0.6) {
                 const e = pickEmoji();
                 if (e) final = final + ' ' + e;
             }
-            // 颜文字混入 50%
+            // 颜文字混入 50%（受 chatKaomojiMix 控制，独立于自定义回信规律）
             if (chatKaomojiMix && Math.random() < 0.5) {
                 const k = pickKaomoji();
                 if (k) final = final + '\n' + k;
@@ -5468,7 +5698,11 @@ function resetEmojis() {
             if (callBtnEl) callBtnEl.style.display = chatVideoCall ? '' : 'none';
             // 沉浸式
             const app = document.getElementById('app');
-            if (app) app.classList.toggle('immersive', chatImmersive);
+            if (app) {
+                app.classList.toggle('immersive', chatImmersive);
+                // 显示头像：关闭时隐藏所有消息头像
+                app.classList.toggle('no-avatar', !chatShowAvatar);
+            }
         }
         // 向后兼容
         function renderChatSettingsForm() { renderChatSettingsTabs(); }
@@ -6466,6 +6700,43 @@ function resetEmojis() {
                 openModal(emojiModal); });
             bottomPatBtn.addEventListener('click', () => { closeBottomSheet();
                 openModal(patModal); });
+            // 收藏匣 / 标注栏
+            const bottomFavBtn = document.getElementById('bottomFavBtn');
+            const bottomNoteBtn = document.getElementById('bottomNoteBtn');
+            if (bottomFavBtn) bottomFavBtn.addEventListener('click', function(){ closeBottomSheet(); openFavModal(); });
+            if (bottomNoteBtn) bottomNoteBtn.addEventListener('click', function(){ closeBottomSheet(); openNoteModal(); });
+            // 收藏匣弹窗交互
+            const favModal = document.getElementById('favModal');
+            const closeFavModal = document.getElementById('closeFavModal');
+            if (favModal) {
+                if (closeFavModal) closeFavModal.addEventListener('click', function(){ favModal.classList.remove('active'); });
+                favModal.addEventListener('click', function(e){ if(e.target===favModal) favModal.classList.remove('active'); });
+                favModal.querySelectorAll('.fav-note-tab').forEach(function(tab){
+                    tab.addEventListener('click', function(){
+                        favActiveTab = tab.dataset.favtab;
+                        favModal.querySelectorAll('.fav-note-tab').forEach(function(t){ t.classList.toggle('active', t===tab); });
+                        renderFavList();
+                    });
+                });
+                const fsi = document.getElementById('favSearchInput');
+                if (fsi) fsi.addEventListener('input', renderFavList);
+            }
+            // 标注栏弹窗交互
+            const noteModal = document.getElementById('noteModal');
+            const closeNoteModal = document.getElementById('closeNoteModal');
+            if (noteModal) {
+                if (closeNoteModal) closeNoteModal.addEventListener('click', function(){ noteModal.classList.remove('active'); });
+                noteModal.addEventListener('click', function(e){ if(e.target===noteModal) noteModal.classList.remove('active'); });
+                noteModal.querySelectorAll('.fav-note-tab').forEach(function(tab){
+                    tab.addEventListener('click', function(){
+                        noteActiveTab = tab.dataset.notetab;
+                        noteModal.querySelectorAll('.fav-note-tab').forEach(function(t){ t.classList.toggle('active', t===tab); });
+                        renderNoteList();
+                    });
+                });
+                const nsi = document.getElementById('noteSearchInput');
+                if (nsi) nsi.addEventListener('input', renderNoteList);
+            }
             // 侧边栏按钮
             sideCardBtn.addEventListener('click', () => { closeSidePanel();
                 openModal(cardModal); });
