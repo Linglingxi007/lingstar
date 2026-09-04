@@ -1,0 +1,24 @@
+        function addChatMessage(text, type = 'system') {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+            const avatarSpan = document.createElement('span');
+            avatarSpan.className = 'msg-avatar';
+            if (type === 'user') {
+                avatarSpan.innerHTML = isImageUrl(userAvatar) ? `<img src="${userAvatar}">` : userAvatar;
+            } else {
+                avatarSpan.innerHTML = isImageUrl(angleAvatar) ? `<img src="${angleAvatar}">` : angleAvatar;
+            }
+            msgDiv.appendChild(avatarSpan);
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'msg-content';
+            contentDiv.innerHTML = text.replace(/\n/g, '<br>');
+            const now = new Date();
+            const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const small = document.createElement('small');
+            const sender = type === 'user' ? userName : angleName;
+            small.textContent = `${sender} · ${ts}`;
+            contentDiv.appendChild(small);
+            msgDiv.appendChild(contentDiv);
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }

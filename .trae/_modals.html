@@ -1,0 +1,313 @@
+
+<!-- ===== 主题外观弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="themeModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>🎨 主题外观 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;">支持无限扩展 📁</span></h2>
+            <button class="modal-close" id="closeThemeModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:0.7rem; font-weight:500; margin-bottom:6px; color:var(--text_secondary);">✨ 快捷换肤</div>
+            <div class="theme-swatches" id="themeSwatches"></div>
+            <hr class="mod-divider">
+            <div style="font-size:0.7rem; font-weight:500; margin-bottom:6px; color:var(--text_secondary);">🎛️ 自定义编辑器</div>
+            <div class="theme-editor" id="themeEditor"></div>
+            <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                <button class="btn-primary-mod" id="btnSaveTheme">➕ 保存当前为新主题</button>
+            </div>
+            <hr class="mod-divider">
+            <div style="font-size:0.7rem; font-weight:500; margin-bottom:6px; color:var(--text_secondary);">📁 已保存主题方案</div>
+            <div class="theme-presets-list" id="savedPresetsList"></div>
+        </div>
+    </div>
+</div>
+<!-- ===== 数据管理弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="dataModal">
+    <div class="modal-content" style="max-width:460px;">
+        <div class="modal-header">
+            <h2>💾 数据管理</h2>
+            <button class="modal-close" id="closeDataModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:0.72rem; color:var(--text_secondary); line-height:1.6; margin-bottom:8px;">
+                💡 包含 昵称/头像/字卡/表情包/拍一拍 + 留言板/许愿树 + 小游戏（猜拳/涂鸦/你画我猜）的全部数据。<br>
+                可一键导出 / 导入 / 清空。
+            </div>
+            <div class="mod-actions" style="justify-content:flex-start;">
+                <button class="btn-primary-mod" id="btnExportAll">⬇️ 导出全部 (JSON)</button>
+                <label class="btn">⬆️ 导入<input type="file" id="fileImportAll" accept="application/json" style="display:none"></label>
+                <button class="btn btn-danger" id="btnClearAll">🗑 清空全部</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ===== 留言板弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="boardModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📋 留言板 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;" id="boardCount">0 张</span></h2>
+            <button class="modal-close" id="closeBoardModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="board-toolbar">
+                <div class="board-style-switch" id="boardStyleSwitch">
+                    <span class="chip active" data-v="lines">横格</span>
+                    <span class="chip" data-v="grid">网格</span>
+                    <span class="chip" data-v="blank">空白</span>
+                </div>
+                <button class="btn" id="boardPhrasesBtn">📝 话语</button>
+                <button class="btn" id="boardHistoryBtn">📜 历史</button>
+                <button class="btn-primary-mod" id="drawBoardNoteBtn">📨 抽一张小纸条</button>
+            </div>
+            <div class="board-bg lines" id="boardBg">
+                <div class="board-grid" id="boardGrid"></div>
+            </div>
+            <div id="boardDetailWrap"></div>
+        </div>
+    </div>
+</div>
+<!-- ===== 许愿树弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="wishModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>🌳 许愿树 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;" id="wishCount">0 颗</span></h2>
+            <button class="modal-close" id="closeWishModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="wish-toolbar">
+                <button class="btn" id="wishPhrasesBtn">📝 愿望</button>
+                <button class="btn" id="wishHistoryBtn">📜 历史</button>
+                <button class="btn-primary-mod" id="drawWishStarBtn">✨ 摘取星星</button>
+            </div>
+            <div class="wish-tree">
+                <div class="canopy-container" id="canopyContainer"></div>
+                <div class="tree-trunk">🌳</div>
+            </div>
+            <div id="wishDetailWrap"></div>
+        </div>
+    </div>
+</div>
+<!-- ===== 猜拳奖惩 ===== -->
+<div class="modal-overlay sub-modal" id="rpsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>✊ 猜拳奖惩</h2>
+            <button class="modal-close" id="closeRpsModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:4px;">
+                <div class="game-tabs" id="rpsModeTabs">
+                    <div class="tab active" data-mode="winner_rules">🏆 赢方制定奖惩</div>
+                    <div class="tab" data-mode="angle_rules">🌙 梦角统一制定</div>
+                </div>
+                <div class="role-switch" id="rpsRoleSwitch">
+                    <div class="chip active" data-role="dreamer">🎀 梦女</div>
+                    <div class="chip" data-role="angle">🌙 梦角</div>
+                </div>
+            </div>
+            <div class="stats-bar" id="rpsStatsBar"></div>
+            <div class="rps-board">
+                <div class="rps-side"><div class="who">🎀 梦女出拳</div><div class="rps-hand" id="rpsUserHand"></div></div>
+                <div class="rps-side"><div class="who">🌙 梦角出拳</div><div class="rps-hand pending" id="rpsAngleHand"></div></div>
+            </div>
+            <div class="rps-actions">
+                <button class="btn" data-hand="rock">✊</button>
+                <button class="btn" data-hand="scissors">✌️</button>
+                <button class="btn" data-hand="paper">✋</button>
+            </div>
+            <div class="rps-result" id="rpsResult" style="display:none;"></div>
+            <div class="rps-rule-input" id="rpsRuleInput" style="display:none;"></div>
+            <hr class="mod-divider">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:0.7rem; font-weight:500; color:var(--text_secondary);">📜 历史记录</div>
+                <div class="mod-actions" style="margin-top:0;">
+                    <button class="btn" id="rpsExportBtn">导出</button>
+                    <button class="btn btn-danger" id="rpsClearBtn">清空</button>
+                </div>
+            </div>
+            <div class="history-list" id="rpsHistoryList"></div>
+        </div>
+    </div>
+</div>
+<!-- ===== 涂鸦板 ===== -->
+<div class="modal-overlay sub-modal" id="doodleModal">
+    <div class="modal-content" style="max-width:600px;">
+        <div class="modal-header">
+            <h2>🎨 涂鸦板</h2>
+            <button class="modal-close" id="closeDoodleModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
+                <div class="role-switch" id="doodleRoleSwitch">
+                    <div class="chip active" data-role="dreamer">🎀 梦女画</div>
+                    <div class="chip" data-role="angle">🌙 梦角画</div>
+                </div>
+                <div style="font-size:0.65rem; color:var(--text_muted);">💡 保存后进入画廊可回看</div>
+            </div>
+            <div class="doodle-wrap">
+                <div class="doodle-toolbar" id="doodleToolbar"></div>
+                <div class="doodle-canvas-box">
+                    <canvas id="doodleCanvas" width="800" height="500"></canvas>
+                </div>
+            </div>
+            <hr class="mod-divider">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:4px 0;">
+                <div style="font-size:0.7rem; font-weight:500; color:var(--text_secondary);">🖼️ 画廊</div>
+                <div style="font-size:0.6rem; color:var(--text_muted);">最多 50 张</div>
+            </div>
+            <div class="doodle-gallery" id="doodleGallery"></div>
+        </div>
+    </div>
+</div>
+<!-- ===== 你画我猜 ===== -->
+<div class="modal-overlay sub-modal" id="drawGuessModal">
+    <div class="modal-content" style="max-width:600px;">
+        <div class="modal-header">
+            <h2>🖌️ 你画我猜</h2>
+            <button class="modal-close" id="closeDrawGuessModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                <div class="game-tabs" id="dgModeTabs">
+                    <div class="tab active" data-mode="topic">🏷 话题限定</div>
+                    <div class="tab" data-mode="free">✏️ 自由画</div>
+                </div>
+                <div class="role-switch" id="dgRoleSwitch">
+                    <div class="chip active" data-role="dreamer">🎀 梦女出题</div>
+                    <div class="chip" data-role="angle">🌙 梦角出题</div>
+                </div>
+            </div>
+            <div class="stats-bar" id="dgStatsBar"></div>
+            <div class="dg-word-row" id="dgWordRow"></div>
+            <div id="dgTopicsWrap" style="display:none;">
+                <div style="font-size:0.7rem; font-weight:500; color:var(--text_secondary); margin-bottom:4px;">话题分类</div>
+                <div class="dg-topics" id="dgTopicTags"></div>
+            </div>
+            <div class="doodle-canvas-box" style="margin:8px 0;">
+                <canvas id="dgCanvas" width="800" height="460"></canvas>
+            </div>
+            <div class="dg-guess-row">
+                <input type="text" id="dgGuessInput" placeholder="输入你的猜测..." autocomplete="off">
+                <button class="btn-primary-mod" id="dgGuessBtn">猜！</button>
+                <button class="btn" id="dgStartBtn">🎬 开启新一轮</button>
+            </div>
+            <div id="dgTopicMgrWrap"></div>
+            <hr class="mod-divider">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:0.7rem; font-weight:500; color:var(--text_secondary);">📜 历史</div>
+                <button class="mini-btn" id="dgTopicMgrBtn">🧰 话题管理</button>
+            </div>
+            <div class="history-list" id="dgHistoryList"></div>
+        </div>
+    </div>
+</div>
+<!-- ===== 日历弹窗 (占位) ===== -->
+<div class="modal-overlay sub-modal" id="calendarModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📅 日历</h2>
+            <button class="modal-close" id="closeCalendarModal">✕</button>
+        </div>
+        <div class="modal-body" style="min-height:200px; display:flex; align-items:center; justify-content:center; color:var(--text_muted); font-size:0.8rem;">
+            ✨ 日历功能占位 · 可在后续迭代完善
+        </div>
+    </div>
+</div>
+<!-- ===== 心情日记弹窗 (占位) ===== -->
+<div class="modal-overlay sub-modal" id="diaryModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📖 心情日记</h2>
+            <button class="modal-close" id="closeDiaryModal">✕</button>
+        </div>
+        <div class="modal-body" style="min-height:200px; display:flex; align-items:center; justify-content:center; color:var(--text_muted); font-size:0.8rem;">
+            ✨ 心情日记占位 · 可在后续迭代完善
+        </div>
+    </div>
+</div>
+<!-- ===== 信封弹窗 (占位) ===== -->
+<div class="modal-overlay sub-modal" id="letterModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>✉️ 信封</h2>
+            <button class="modal-close" id="closeLetterModal">✕</button>
+        </div>
+        <div class="modal-body" style="min-height:200px; display:flex; align-items:center; justify-content:center; color:var(--text_muted); font-size:0.8rem;">
+            ✨ 信封功能占位 · 可在后续迭代完善
+        </div>
+    </div>
+</div>
+<!-- ===== 图片查看器 ===== -->
+<div class="img-viewer" id="imgViewer"><img id="imgViewerImg" alt=""></div>
+<!-- ===== 简单 confirmModal ===== -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-content" style="max-width:360px;">
+        <div class="modal-header">
+            <h2 id="confirmTitle">确认</h2>
+            <button class="modal-close" data-confirm-close>✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="confirmMsg" style="font-size:0.82rem; color:var(--text_secondary); line-height:1.6; padding:4px 0 10px;"></div>
+            <div style="display:flex; gap:6px; justify-content:flex-end;">
+                <button class="btn btn-danger" id="confirmNo">拒绝</button>
+                <button class="btn-primary-mod" id="confirmYes">同意</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ===== 留言/许愿 话语管理 ===== -->
+<div class="modal-overlay" id="phraseModal">
+    <div class="modal-content" style="max-width:460px;">
+        <div class="modal-header">
+            <h2 id="phraseTitle">话语管理</h2>
+            <button class="modal-close" id="closePhraseModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="phraseTabs" class="mod-group-tabs" style="margin-bottom:6px;"></div>
+            <div class="mod-search-row">
+                <input type="text" id="phraseSearchInput" placeholder="🔍 搜索...">
+            </div>
+            <div class="mod-list" id="phraseList"></div>
+            <div class="mod-row" style="margin-top:8px;">
+                <input type="text" id="phraseInput" placeholder="新增一条..." style="flex:2;">
+                <button class="btn-primary-mod" id="addPhraseBtn">添加</button>
+            </div>
+            <div class="mod-actions" style="margin-top:6px;">
+                <button class="btn btn-danger" id="clearPhraseBtn">清空全部</button>
+                <button class="btn" id="resetPhraseBtn">恢复默认</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ===== 留言/许愿 历史 ===== -->
+<div class="modal-overlay" id="histModal">
+    <div class="modal-content" style="max-width:460px;">
+        <div class="modal-header">
+            <h2 id="histTitle">历史记录</h2>
+            <button class="modal-close" id="closeHistModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="history-list" id="histList" style="max-height:420px;"></div>
+        </div>
+    </div>
+</div>
+<!-- 缺失元素占位 (给旧 DOM 引用避免 getElementById(null)) -->
+<div style="display:none;">
+    <span id="bgFontModal"></span>
+    <span id="closeBgFontModal"></span>
+    <span id="bubbleModal"></span>
+    <span id="closeBubbleModal"></span>
+    <span id="openBgFontBtn"></span>
+    <span id="openBubbleBtn"></span>
+    <span id="callModal"></span>
+    <span id="closeCallModal"></span>
+    <span id="callBtn"></span>
+    <span id="hangupBtn"></span>
+    <span id="callStatusText"></span>
+    <span id="callDreamerDot"></span>
+    <span id="callAngleDot"></span>
+    <span id="callUserAvatar"></span>
+    <span id="callAngleAvatar"></span>
+    <span id="callUserName"></span>
+    <span id="callAngleName"></span>
+</div>

@@ -1,0 +1,166 @@
+  // ===== 扩展：常量 & 工具 & Appearance / 主题 & 小游戏 =====
+  function escapeHtml(s) {
+    return String(s==null?'':s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  const DEFAULT_BOARD_PHRASES = {
+    yellow: ['今天也要元气满满~', '好想和你一起去看海', '今天的风好温柔呢', '刚吃了超甜的蛋糕！', '晚安，好梦 🌙'],
+    pink:   ['我也在一直想念你', '最喜欢和你牵手散步了', '抱抱~ 你今天辛苦啦', '想跟你一直在一起', '你就是我最大的勇气'],
+    blue:   ['安静地陪在你身边', '今晚月色也很美', '一起加油，彼此都要好好的', '慢慢走，慢慢来', '我永远都在这里'],
+    red:    ['不许熬夜！马上睡觉！', '今天也要好好吃饭！', '不准难过，我会心疼的', '我来保护你！', '不准想不开！！'],
+    green:  ['一起去看樱花吧 🌸', '一起去吃火锅好不好 🍲', '想和你去动物园看熊猫', '一起看日落吧 🌇', '想去你最喜欢的咖啡店'],
+    purple: ['如果有烦恼尽管告诉我', '想做你最特别的人', '你是独一无二的存在', '我相信你一定可以的', '谢谢你出现在我的生命里']
+  };
+  const DEFAULT_WISH_PHRASES = {
+    yellow: ['想要一个大大的拥抱~', '想和你一起去旅行 ✈️', '想变成会发光的小星星', '今天也要被温柔以待', '愿所有美好都如期而至'],
+    pink:   ['想永远被你宠着 ♡', '想和你看一辈子的星空', '想成为你最想念的人', '想一直握着你的手', '想要更多的亲亲抱抱'],
+    blue:   ['希望你每天都能做个好梦', '希望你永远不要难过', '希望你一生平安顺遂', '希望你被全世界温柔相待', '希望你不要生病'],
+    red:    ['希望你永远不离开我', '希望我是你最特别的人', '希望你心里只有我一个人', '希望你永远不会忘记我', '希望我是你的第一选择'],
+    green:  ['希望能吃到好多好吃的！', '希望学业顺利～', '希望工作顺利不加班！', '希望能养一只小猫 🐱', '希望可以搬进大房子'],
+    purple: ['希望我们能早点重逢', '希望时间可以慢一点', '希望下辈子我们也能遇见', '希望所有愿望都可以成真', '希望你成为世界上最幸福的人']
+  };
+  const STAR_COLORS = [
+    {key:'yellow', emoji:'🌟', label:'阳光金', main:'#FFD966', light:'#FFF3B8', deep:'#E0A830', glow:'rgba(255,200,60,0.75)', paper:'linear-gradient(135deg, #fff6b0 0%, #ffe787 100%)'},
+    {key:'pink',   emoji:'💗', label:'樱花粉', main:'#FF9ECB', light:'#FFD9EC', deep:'#D56AA0', glow:'rgba(255,140,190,0.75)',paper:'linear-gradient(135deg, #ffd1e4 0%, #ffafcd 100%)'},
+    {key:'blue',   emoji:'🌊', label:'晴空蓝', main:'#7FC6F2', light:'#CEEAF9', deep:'#4C96CC', glow:'rgba(100,170,240,0.75)',paper:'linear-gradient(135deg, #d3f0ff 0%, #a6dbf6 100%)'},
+    {key:'red',    emoji:'🔥', label:'勇气红', main:'#FF7A8F', light:'#FFCCD4', deep:'#D0455C', glow:'rgba(255,100,120,0.75)',paper:'linear-gradient(135deg, #ffdadf 0%, #ff99a8 100%)'},
+    {key:'green',  emoji:'🍀', label:'幸运绿', main:'#9EDC8B', light:'#DCF2CE', deep:'#62AE4A', glow:'rgba(140,220,130,0.75)',paper:'linear-gradient(135deg, #e6ffd8 0%, #b8ed94 100%)'},
+    {key:'purple', emoji:'💜', label:'梦情紫', main:'#C8A7FF', light:'#E6D7FF', deep:'#9069D8', glow:'rgba(180,140,255,0.75)',paper:'linear-gradient(135deg, #e8dcff 0%, #c5b0ff 100%)'}
+  ];
+  const DAILY_NOTE_CAP = 5;
+  const DAILY_WISH_CAP = 5;
+  const DOODLE_PALETTE = ['#000000','#FFFFFF','#D9534F','#F0AD4E','#5CB85C','#5BC0DE','#428BCA','#9B59B6','#E91E63','#009688','#FF9800','#795548','#9E9E9E','#607D8B','#F8E71C','#BD10E0'];
+  const THEME_PRESETS = {
+    'zisakura':    {name:'🌙 月落紫樱', vars:{bg_page:'#f6f0fb',bg_chat:'#fbf7ff',bg_panel:'#ffffff',bg_card:'#f7eefa',bg_bubble_user:'#e7d4ff',bg_bubble_angle:'#f5ecfb',bg_bubble_system:'#efe8f5',bg_button:'#a97be0',bg_button_hover:'#8a5ecc',bg_button_danger:'#e85a5a',bg_border:'#e6d5f0',bg_shadow:'280 50% 92%',text_primary:'#3a264a',text_secondary:'#5a4470',text_muted:'#927fa5',accent:'#8449c7',ring:'0 0 0 3px rgba(132,73,199,0.22)',board_note_bg_1:'linear-gradient(135deg, #fff6b0 0%, #ffe787 100%)',board_note_bg_2:'linear-gradient(135deg, #ffd1e4 0%, #ffafcd 100%)',board_lines:'rgba(140, 120, 160, 0.22)',board_grid:'rgba(140, 120, 160, 0.18)',board_page:'#fbf8ff',wish_canopy:'#b8d4ff',wish_trunk:'#8c5a3c',wish_sky:'#f5f1ff'}},
+    'seasalt':     {name:'🌊 夏日海盐', vars:{bg_page:'#ecf8fa',bg_chat:'#f6fcfe',bg_panel:'#ffffff',bg_card:'#eaf8fa',bg_bubble_user:'#aee4ee',bg_bubble_angle:'#e3f5f7',bg_bubble_system:'#e0f1f4',bg_button:'#52b9c9',bg_button_hover:'#3ea4b4',bg_button_danger:'#e85a5a',bg_border:'#cde5e8',bg_shadow:'190 40% 90%',text_primary:'#1c3a40',text_secondary:'#3a626a',text_muted:'#7b9ea4',accent:'#2a8b9a',ring:'0 0 0 3px rgba(42,139,154,0.22)',board_note_bg_1:'linear-gradient(135deg, #fff6b0 0%, #ffe787 100%)',board_note_bg_2:'linear-gradient(135deg, #ffd1e4 0%, #ffafcd 100%)',board_lines:'rgba(80, 120, 130, 0.22)',board_grid:'rgba(80, 120, 130, 0.18)',board_page:'#f4fbfc',wish_canopy:'#9fd2c0',wish_trunk:'#8c5a3c',wish_sky:'#e9f8fb'}},
+    'caramel':     {name:'☕ 焦糖摩卡', vars:{bg_page:'#fbf3e8',bg_chat:'#fff9ef',bg_panel:'#ffffff',bg_card:'#f9ecd8',bg_bubble_user:'#f5c88a',bg_bubble_angle:'#fbeecf',bg_bubble_system:'#f2e4cc',bg_button:'#c08a4b',bg_button_hover:'#a97336',bg_button_danger:'#e85a5a',bg_border:'#ecd7b3',bg_shadow:'40 45% 90%',text_primary:'#412a13',text_secondary:'#6a4a29',text_muted:'#a48767',accent:'#a96b22',ring:'0 0 0 3px rgba(169,107,34,0.22)',board_note_bg_1:'linear-gradient(135deg, #fff6b0 0%, #ffe787 100%)',board_note_bg_2:'linear-gradient(135deg, #ffd1e4 0%, #ffafcd 100%)',board_lines:'rgba(120, 80, 40, 0.22)',board_grid:'rgba(120, 80, 40, 0.18)',board_page:'#fcf6ea',wish_canopy:'#d8c082',wish_trunk:'#7a4e2c',wish_sky:'#fbf4e7'}},
+    'mistforest':  {name:'🌲 森林薄雾', vars:{bg_page:'#eff6ef',bg_chat:'#f7fbf6',bg_panel:'#ffffff',bg_card:'#e8f3e6',bg_bubble_user:'#b7dfa8',bg_bubble_angle:'#e4f2de',bg_bubble_system:'#dfead9',bg_button:'#62a65c',bg_button_hover:'#4e8e49',bg_button_danger:'#e85a5a',bg_border:'#c9e0c2',bg_shadow:'108 30% 90%',text_primary:'#223a22',text_secondary:'#456645',text_muted:'#809d80',accent:'#3e7f3a',ring:'0 0 0 3px rgba(62,127,58,0.22)',board_note_bg_1:'linear-gradient(135deg, #fff6b0 0%, #ffe787 100%)',board_note_bg_2:'linear-gradient(135deg, #ffd1e4 0%, #ffafcd 100%)',board_lines:'rgba(60, 110, 70, 0.22)',board_grid:'rgba(60, 110, 70, 0.18)',board_page:'#f5faf4',wish_canopy:'#8ecb80',wish_trunk:'#6b482c',wish_sky:'#eef7ec'}},
+    'sakura':      {name:'🌸 樱花乳酪', vars:{bg_page:'#fef6f6',bg_chat:'#fffbfb',bg_panel:'#ffffff',bg_card:'#fff5f7',bg_bubble_user:'#ffd4df',bg_bubble_angle:'#fff1f4',bg_bubble_system:'#f5eef5',bg_button:'#ff99b0',bg_button_hover:'#ff7d9b',bg_button_danger:'#e85a5a',bg_border:'#f1d8e2',bg_shadow:'320 50% 94%',text_primary:'#3d2630',text_secondary:'#6b4b58',text_muted:'#a38793',accent:'#d24b6e',ring:'0 0 0 3px rgba(210,75,110,0.25)',board_note_bg_1:'linear-gradient(135deg, #fff6b0 0%, #ffe787 100%)',board_note_bg_2:'linear-gradient(135deg, #ffd1e4 0%, #ffafcd 100%)',board_lines:'rgba(120, 90, 100, 0.22)',board_grid:'rgba(120, 90, 100, 0.18)',board_page:'#fdfaf2',wish_canopy:'#a7d99a',wish_trunk:'#8c5a3c',wish_sky:'#f6faff'}},
+    'amber':       {name:'✦ 星夜琥珀', vars:{bg_page:'#2a2033',bg_chat:'#35293d',bg_panel:'#3a2d46',bg_card:'#443451',bg_bubble_user:'#b8842c',bg_bubble_angle:'#4c3c5c',bg_bubble_system:'#4a3959',bg_button:'#d39e2f',bg_button_hover:'#e3ae3e',bg_button_danger:'#d05050',bg_border:'#584469',bg_shadow:'260 20% 12%',text_primary:'#f2e8d3',text_secondary:'#d6c3a1',text_muted:'#928271',accent:'#ffcf5d',ring:'0 0 0 3px rgba(255,207,93,0.25)',board_note_bg_1:'linear-gradient(135deg, #ffe388 0%, #ffcc55 100%)',board_note_bg_2:'linear-gradient(135deg, #ffb7d1 0%, #ff83aa 100%)',board_lines:'rgba(230, 210, 170, 0.22)',board_grid:'rgba(230, 210, 170, 0.18)',board_page:'#4a3a2b',wish_canopy:'#4e8a5e',wish_trunk:'#5b3c23',wish_sky:'#2e2440'}}
+  };
+  const VAR_KEYS = ['bg_page','bg_chat','bg_panel','bg_card','bg_bubble_user','bg_bubble_angle','bg_bubble_system','bg_button','bg_button_hover','bg_button_danger','bg_border','bg_shadow','text_primary','text_secondary','text_muted','accent','ring','board_note_bg_1','board_note_bg_2','board_lines','board_grid','board_page','wish_canopy','wish_trunk','wish_sky'];
+  const DEFAULT_DRAW_TOPICS = {
+    '🌱 植物':   ['向日葵','玫瑰','樱花树','仙人掌','四叶草','蘑菇','柳树','向日葵花田','竹子','含羞草','盆栽多肉','荷花','蒲公英','薰衣草','郁金香','桃花','银杏','山茶花','雏菊','木棉'],
+    '🐾 动物':   ['小猫','小狗','兔子','熊猫','企鹅','金鱼','长颈鹿','大象','老虎','狐狸','仓鼠','考拉','海豚','独角兽','恐龙','猫头鹰','松鼠','螃蟹','青蛙','小乌龟'],
+    '🍎 水果':   ['西瓜','苹果','草莓','葡萄','香蕉','樱桃','榴莲','芒果','水蜜桃','菠萝','蓝莓','橘子','椰子','猕猴桃','柠檬','火龙果','梨','哈密瓜','石榴','柿子'],
+    '🏞 景物':   ['彩虹','城堡','摩天轮','烟花','雪山','日落','灯塔','小桥流水','森林','沙滩','热气球','星空','月亮','瀑布','小房子','故宫','富士山','金字塔','沙漠','极光'],
+    '🍜 食物':   ['火锅','蛋糕','拉面','冰淇淋','寿司','烤肉','包子','奶茶','饺子','披萨','牛排','糖葫芦','麻辣烫','饭团','马卡龙','可丽饼','铜锣烧','华夫饼','烤肠','关东煮'],
+    '🧸 事物':   ['书包','钢琴','雨伞','地球仪','照相机','时钟','机器人','气球','自行车','魔法棒','宝箱','吉他','风筝','镜子','茶杯','闹钟','台灯','圣诞袜','水晶球','积木']
+  };
+  let phraseKind = 'board';
+  let rpsMode = 'winner_rules';
+  let rpsRole = 'dreamer';
+  let dgMode = 'topic';
+  let dgRole = 'dreamer';
+  let dgCurrentRound = null;
+  let dgTimer = null;
+  let appearance = {
+    savedThemes:{},
+    activeThemeKey:'sakura',
+    customVars: {},
+    board_boardStyle:'lines',
+    messageBoard: { phrases: {}, notes: [], todayDate:'', todayCount:0 },
+    wishTree:     { phrases: {}, stars: [], todayDate:'', todayCount:0 }
+  };
+  let dreamGames = {
+    rps_history: [],
+    rps_stats: {dreamerWins:0, angleWins:0, ties:0},
+    doodles: [],
+    draw_guess_history: [],
+    draw_guess_topics: {},
+    draw_guess_stats: {dreamerHits:0, angleHits:0, total:0}
+  };
+  let currentDreamerRoundRule = null;
+  // ========== 工具函数 ==========
+  function todayKey() {
+    const d = new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  }
+  function saveAppearance() {
+    try {
+      localStorage.setItem('dream_appearance', JSON.stringify(appearance));
+      localStorage.setItem('dream_games', JSON.stringify(dreamGames));
+    } catch(e) { /* ignore quota */ }
+  }
+  function loadAppearance() {
+    try {
+      const a = localStorage.getItem('dream_appearance');
+      if (a) appearance = Object.assign(appearance, JSON.parse(a));
+      const g = localStorage.getItem('dream_games');
+      if (g) dreamGames = Object.assign(dreamGames, JSON.parse(g));
+    } catch(e) {}
+    if (!appearance.messageBoard.phrases || !Object.keys(appearance.messageBoard.phrases).length) appearance.messageBoard.phrases = JSON.parse(JSON.stringify(DEFAULT_BOARD_PHRASES));
+    if (!appearance.wishTree.phrases || !Object.keys(appearance.wishTree.phrases).length) appearance.wishTree.phrases = JSON.parse(JSON.stringify(DEFAULT_WISH_PHRASES));
+  }
+  function sendReplyToChat(kind, src, replyText) {
+    if (!replyText) return;
+    let quoteCls = 'bd-quote-block', replyCls = 'bd-reply-block', qt='原留言';
+    if (kind === 'wish') { quoteCls = 'ws-quote-block'; replyCls = 'ws-reply-block'; qt = '原愿望'; }
+    const qc = src.colorLabel || '';
+    const html =
+      '<div class="'+quoteCls+'"><div class="quote-title">'+(qc?qc+' · ':'')+qt+'</div><div>'+escapeHtml(src.content)+'</div></div>'+
+      '<div class="'+replyCls+'"><div class="reply-title">✏️ 回复</div><div>'+escapeHtml(replyText)+'</div></div>';
+    addChatMessageHtml(html, 'angle');
+  }
+  function currentPhrases() {
+    return phraseKind === 'wish' ? appearance.wishTree.phrases : appearance.messageBoard.phrases;
+  }
+  function applyThemeVariables(vars) {
+    const root = document.documentElement;
+    function setVar(varName, value) {
+      if (!value) return;
+      const name = '--' + varName.replace(/_/g, '-');
+      root.style.setProperty(name, value);
+    }
+    const map = {
+      'bg_page':'bg_page','bg_chat':'bg_chat','bg_panel':'bg_panel','bg_card':'bg_card',
+      'bg_bubble_user':'bg_bubble_user','bg_bubble_angle':'bg_bubble_angle','bg_bubble_system':'bg_bubble_system',
+      'bg_button':'bg_button','bg_button_hover':'bg_button_hover','bg_button_danger':'bg_button_danger',
+      'bg_border':'bg_border','bg_shadow':'bg_shadow',
+      'text_primary':'text_primary','text_secondary':'text_secondary','text_muted':'text_muted',
+      'accent':'accent','ring':'ring',
+      'board_note_bg_1':'board-note-bg','board_note_bg_2':'board-note-bg-alt',
+      'board_lines':'board-lines','board_grid':'board-grid','board_page':'board-page',
+      'wish_canopy':'wish-canopy','wish_trunk':'wish-trunk','wish_sky':'wish-sky'
+    };
+    Object.keys(map).forEach(function(k){
+      if (vars[k]) setVar(map[k], vars[k]);
+    });
+  }
+  function getCurrentThemeVars() {
+    const styles = getComputedStyle(document.documentElement);
+    const cssMap = {
+      '--bg-page':'bg_page','--bg-chat':'bg_chat','--bg-panel':'bg_panel','--bg-card':'bg_card',
+      '--bg-bubble-user':'bg_bubble_user','--bg-bubble-angle':'bg_bubble_angle','--bg-bubble-system':'bg_bubble_system',
+      '--bg-button':'bg_button','--bg-button-hover':'bg_button_hover','--bg-button-danger':'bg_button_danger',
+      '--bg-border':'bg_border','--bg-shadow':'bg_shadow',
+      '--text-primary':'text_primary','--text-secondary':'text_secondary','--text-muted':'text_muted',
+      '--accent':'accent','--ring':'ring',
+      '--board-note-bg':'board_note_bg_1','--board-note-bg-alt':'board_note_bg_2',
+      '--board-lines':'board_lines','--board-grid':'board_grid','--board-page':'board_page',
+      '--wish-canopy':'wish_canopy','--wish-trunk':'wish_trunk','--wish-sky':'wish_sky'
+    };
+    const vars = {};
+    Object.keys(cssMap).forEach(function(k){ vars[cssMap[k]] = (styles.getPropertyValue(k)||'').trim(); });
+    return vars;
+  }
+  function loadThemeFromStorage() {
+    try {
+      const key = appearance.activeThemeKey || 'sakura';
+      const preset = THEME_PRESETS[key];
+      if (preset && preset.vars) applyThemeVariables(preset.vars);
+    } catch(e){}
+    if (appearance.customVars && Object.keys(appearance.customVars).length) applyThemeVariables(appearance.customVars);
+  }
+  function saveCurrentThemeToStorage() {
+    appearance.customVars = getCurrentThemeVars();
+    saveAppearance();
+  }
+  function getThemeSwatchPreviewVars(vars) {
+    return {
+      '--c-bg-page': vars.bg_page || '',
+      '--c-bubble-user': vars.bg_bubble_user || '',
+      '--c-bubble-angle': vars.bg_bubble_angle || '',
+      '--c-accent': vars.accent || ''
+    };
+  }

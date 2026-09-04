@@ -1,0 +1,45 @@
+        function addChatMessage(text, type, extraClass) {
+            addChatMessageHtml((text || '').replace(/\n/g, '<br>'), type || 'system', extraClass);
+        }
+        function addChatMessageHtml(html, type, extraClass) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message ' + (type || 'system') + (extraClass ? ' ' + extraClass : '');
+            const avatarSpan = document.createElement('span');
+            avatarSpan.className = 'msg-avatar';
+            if (type === 'user') {
+                avatarSpan.innerHTML = isImageUrl(userAvatar) ? `<img src="${userAvatar}">` : userAvatar;
+            } else {
+                avatarSpan.innerHTML = isImageUrl(angleAvatar) ? `<img src="${angleAvatar}">` : angleAvatar;
+            }
+            const bubble = document.createElement('div');
+            bubble.className = 'msg-bubble';
+            const content = document.createElement('div');
+            content.className = 'msg-content';
+            content.innerHTML = html || '';
+            bubble.appendChild(content);
+            const now = new Date();
+            const ts = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+            const small = document.createElement('small');
+            const sender = type === 'user' ? userName : angleName;
+            small.textContent = sender + ' · ' + ts;
+            bubble.appendChild(small);
+            bubble.querySelectorAll('img.msg-doodle-img').forEach(function(img){
+                img.addEventListener('click', function(){ openImgViewer(img.src); });
+            });
+            if (type === 'user') {
+                msgDiv.appendChild(bubble);
+                msgDiv.appendChild(avatarSpan);
+            } else {
+                msgDiv.appendChild(avatarSpan);
+                msgDiv.appendChild(bubble);
+            }
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        function openImgViewer(src) {
+            const v = document.getElementById('imgViewer');
+            const i = document.getElementById('imgViewerImg');
+            i.src = src || '';
+            v.classList.add('active');
+            v.onclick = function() { v.classList.remove('active'); v.onclick = null; };
+        }

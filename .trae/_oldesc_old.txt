@@ -1,0 +1,19 @@
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (sidePanel.classList.contains('open')) closeSidePanel();
+                    if (bottomSheetOpen) closeBottomSheet();
+                    if (cardModal.classList.contains('active')) closeModal(cardModal);
+                    if (settingsModal.classList.contains('active')) closeModal(settingsModal);
+                    if (themeModal.classList.contains('active')) closeModal(themeModal);
+                    if (bgFontModal.classList.contains('active')) closeModal(bgFontModal);
+                    if (bubbleModal.classList.contains('active')) closeModal(bubbleModal);
+                    if (nicknameModal.classList.contains('active')) closeModal(nicknameModal);
+                    if (avatarModal.classList.contains('active')) closeModal(avatarModal);
+                    if (callModal.classList.contains('active')) closeModal(callModal);
+                    if (emojiModal.classList.contains('active')) closeModal(emojiModal);
+                    if (patModal.classList.contains('active')) closeModal(patModal);
+                }
+            });
+        }
+init();
+    })();

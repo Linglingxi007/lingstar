@@ -1,0 +1,3 @@
+        function init() {
+            loadProfile();
+            groups = { default: [...DEFAULT_CARDS] };
