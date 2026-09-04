@@ -1171,6 +1171,8 @@
         .bd-reply-area textarea { width:100%; }
         .bd-reply-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
         .bd-reply-row input[type="datetime-local"] { font-size:0.66rem; padding:4px 6px; }
+        .bd-send-chat { display:inline-flex; align-items:center; gap:5px; font-size:0.68rem; color:var(--text-muted); cursor:pointer; user-select:none; margin-left:2px; }
+        .bd-send-chat input[type="checkbox"] { width:13px; height:13px; accent-color:var(--accent,#a87ff0); cursor:pointer; }
 
         /* ===== 许愿树 ===== */
         .wish-tree {
@@ -9482,6 +9484,9 @@
                     + '<div class="bd-reply-area">'
                     + '<textarea class="mod-textarea" placeholder="写下你的回复..."></textarea>'
                     + '<div class="bd-reply-row">'
+                    + '<label class="bd-send-chat"><input type="checkbox" class="bd-chat-cb" /> 同时发送到聊天界面</label>'
+                    + '</div>'
+                    + '<div class="bd-reply-row">'
                     + '<button class="btn btn-primary-mod" data-act="now">💬 立即回复</button>'
                     + '<input type="datetime-local" />'
                     + '<button class="btn" data-act="custom">⏰ 定时回复</button>'
@@ -9491,18 +9496,49 @@
                 det.querySelectorAll('.bd-reply').forEach((node, i) => { node.querySelector('.br-content').textContent = note.replies[i].content; });
                 const ta = det.querySelector('textarea');
                 const dt = det.querySelector('input[type="datetime-local"]');
+                const cb = det.querySelector('.bd-chat-cb');
                 dt.value = toLocalDTInput(Date.now());
+                // 将回复发送到聊天界面（含梦角自动回复）
+                function sendReplyToChat(content, replyTs) {
+                    if (!content) return;
+                    // 先关闭留言板/许愿树弹窗，切到聊天
+                    try { closeModal(boardModal); } catch(e){}
+                    try { closeModal(wishModal); } catch(e){}
+                    const now = Date.now();
+                    const delta = replyTs ? Math.max(0, replyTs - now) : 0;
+                    function doSend() {
+                        addChatMessage(content, 'user');
+                        if (chatSoundMsg) try { playSfx('send'); } catch(e){}
+                        // 触发梦角回复
+                        if (!(chatReadNoReply && Math.random() < 0.45)) {
+                            const minD = Math.max(100, Math.floor(Math.min(replyDelayMin || 0, replyDelayMax || 0)));
+                            const maxD = Math.max(minD + 200, Math.floor(Math.max(replyDelayMin || 0, replyDelayMax || 0)));
+                            const baseSpeed = isNaN(chatReplySpeed) ? 0 : Math.max(0, Math.floor(chatReplySpeed));
+                            const delay = baseSpeed + minD + Math.floor(Math.random() * Math.max(1, (maxD - minD)));
+                            if (replyTimer) { clearTimeout(replyTimer); replyTimer = null; }
+                            try { showTyping(); } catch(e){}
+                            replyTimer = setTimeout(() => { try { replyWithRandomCard(); } catch(e){} }, delay);
+                        }
+                    }
+                    if (delta <= 0) doSend();
+                    // 定时回复若时间差 ≤ 24h 则安排发送；超过则仅保留在留言板/许愿树内
+                    else if (delta <= 24 * 3600 * 1000) setTimeout(doSend, delta);
+                }
                 det.querySelector('[data-act="now"]').addEventListener('click', () => {
                     const c = (ta.value||'').trim();
                     if (!c) { showToast('写点什么再回复吧'); return; }
-                    note.replies.push({ id:'BR'+Date.now(), content:c, ts:Date.now(), from:'usr' });
+                    const now = Date.now();
+                    note.replies.push({ id:'BR'+now, content:c, ts:now, from:'usr' });
                     saveAppearance(); renderBoard(); showToast('回复已留下 ✿');
+                    if (cb && cb.checked) sendReplyToChat(c, now);
                 });
                 det.querySelector('[data-act="custom"]').addEventListener('click', () => {
                     const c = (ta.value||'').trim();
                     if (!c) { showToast('写点什么再回复吧'); return; }
-                    note.replies.push({ id:'BR'+Date.now(), content:c, ts:fromLocalDTInput(dt.value), from:'usr' });
+                    const customTs = fromLocalDTInput(dt.value);
+                    note.replies.push({ id:'BR'+Date.now(), content:c, ts:customTs, from:'usr' });
                     saveAppearance(); renderBoard(); showToast('定时回复已留下 ✿');
+                    if (cb && cb.checked) sendReplyToChat(c, customTs);
                 });
                 cardEl.after(det);
             }
@@ -9620,6 +9656,9 @@
                     + '<div class="bd-reply-area">'
                     + '<textarea class="mod-textarea" placeholder="回应 ta 的愿望..."></textarea>'
                     + '<div class="bd-reply-row">'
+                    + '<label class="bd-send-chat"><input type="checkbox" class="bd-chat-cb" /> 同时发送到聊天界面</label>'
+                    + '</div>'
+                    + '<div class="bd-reply-row">'
                     + '<button class="btn btn-primary-mod" data-act="now">💬 立即回应</button>'
                     + '<input type="datetime-local" />'
                     + '<button class="btn" data-act="custom">⏰ 定时回应</button>'
@@ -9628,18 +9667,46 @@
                 det.querySelectorAll('.bd-reply').forEach((node, i) => { node.querySelector('.br-content').textContent = star.replies[i].content; });
                 const ta = det.querySelector('textarea');
                 const dt = det.querySelector('input[type="datetime-local"]');
+                const cb = det.querySelector('.bd-chat-cb');
                 dt.value = toLocalDTInput(Date.now());
+                // 将回应发送到聊天界面（含梦角自动回复）- 复用留言板的 sendReplyToChat 思路
+                function sendWishReplyToChat(content, replyTs) {
+                    if (!content) return;
+                    try { closeModal(boardModal); } catch(e){}
+                    try { closeModal(wishModal); } catch(e){}
+                    const now = Date.now();
+                    const delta = replyTs ? Math.max(0, replyTs - now) : 0;
+                    function doSend() {
+                        addChatMessage(content, 'user');
+                        if (chatSoundMsg) try { playSfx('send'); } catch(e){}
+                        if (!(chatReadNoReply && Math.random() < 0.45)) {
+                            const minD = Math.max(100, Math.floor(Math.min(replyDelayMin || 0, replyDelayMax || 0)));
+                            const maxD = Math.max(minD + 200, Math.floor(Math.max(replyDelayMin || 0, replyDelayMax || 0)));
+                            const baseSpeed = isNaN(chatReplySpeed) ? 0 : Math.max(0, Math.floor(chatReplySpeed));
+                            const delay = baseSpeed + minD + Math.floor(Math.random() * Math.max(1, (maxD - minD)));
+                            if (replyTimer) { clearTimeout(replyTimer); replyTimer = null; }
+                            try { showTyping(); } catch(e){}
+                            replyTimer = setTimeout(() => { try { replyWithRandomCard(); } catch(e){} }, delay);
+                        }
+                    }
+                    if (delta <= 0) doSend();
+                    else if (delta <= 24 * 3600 * 1000) setTimeout(doSend, delta);
+                }
                 det.querySelector('[data-act="now"]').addEventListener('click', () => {
                     const c = (ta.value||'').trim();
                     if (!c) { showToast('写点什么再回应吧'); return; }
-                    star.replies.push({ id:'WR'+Date.now(), content:c, ts:Date.now(), from:'usr' });
+                    const now = Date.now();
+                    star.replies.push({ id:'WR'+now, content:c, ts:now, from:'usr' });
                     saveAppearance(); renderWish(); showToast('回应已留下 ✿');
+                    if (cb && cb.checked) sendWishReplyToChat(c, now);
                 });
                 det.querySelector('[data-act="custom"]').addEventListener('click', () => {
                     const c = (ta.value||'').trim();
                     if (!c) { showToast('写点什么再回应吧'); return; }
-                    star.replies.push({ id:'WR'+Date.now(), content:c, ts:fromLocalDTInput(dt.value), from:'usr' });
+                    const customTs = fromLocalDTInput(dt.value);
+                    star.replies.push({ id:'WR'+Date.now(), content:c, ts:customTs, from:'usr' });
                     saveAppearance(); renderWish(); showToast('定时回应已留下 ✿');
+                    if (cb && cb.checked) sendWishReplyToChat(c, customTs);
                 });
                 cardEl.after(det);
             }
