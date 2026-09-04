@@ -3591,6 +3591,12 @@ textarea.input,
     // 确保逻辑设置分支存在且有默认值
     if (!appearance.logicSettings) appearance.logicSettings = {};
     appearance.logicSettings = Object.assign({}, LOGIC_SETTINGS_DEFAULT, appearance.logicSettings);
+    // 迁移：旧版 chatSettings.showReadReceipt → logicSettings.chatReadReceipt
+    if (appearance.chatSettings && typeof appearance.chatSettings.showReadReceipt === 'boolean') {
+      appearance.logicSettings.chatReadReceipt = appearance.chatSettings.showReadReceipt;
+      delete appearance.chatSettings.showReadReceipt; // 迁移后移除旧字段，避免重复
+      try { saveAppearance(); } catch(e) {}
+    }
     // 确保 savedThemes 存在
     if (!appearance.savedThemes) appearance.savedThemes = {};
     // 信箱结构
@@ -4093,13 +4099,15 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                 const rd = document.createElement('span');
                 rd.className = 'msg-read';
                 rd.id = 'mid-read-' + msgId;
+                rd.dataset.read = '0';
                 rd.textContent = (chatReceiptStyle === 'graphic') ? '✓' : '未读';
                 small.appendChild(rd);
-                // 随机延迟 2s ~ 8s 后标已读（模拟真实阅读时间）
-                const delay = 2000 + Math.random()*6000;
+                // 随机延迟 3s ~ 12s 后标已读（模拟真实阅读时间，避免一发送就已读）
+                const delay = 3000 + Math.random()*9000;
                 setTimeout(function(){
                     const el = document.getElementById('mid-read-'+msgId);
                     if (el) {
+                        el.dataset.read = '1';
                         el.textContent = (chatReceiptStyle === 'graphic') ? '✓✓' : '已读';
                         el.classList.add('read');
                     }
@@ -6053,8 +6061,8 @@ function resetEmojis() {
             const seg = document.createElement('div'); seg.className='cs-seg';
             const bG = document.createElement('button'); bG.textContent='✓ 图形'; bG.className=(L.chatReceiptStyle==='graphic')?'active':'';
             const bT = document.createElement('button'); bT.textContent='文字'; bT.className=(L.chatReceiptStyle==='text')?'active':'';
-            bG.addEventListener('click', function(){ L.chatReceiptStyle='graphic'; syncLogic(); bG.classList.add('active'); bT.classList.remove('active'); saveAppearance(); });
-            bT.addEventListener('click', function(){ L.chatReceiptStyle='text'; syncLogic(); bT.classList.add('active'); bG.classList.remove('active'); saveAppearance(); });
+            bG.addEventListener('click', function(){ L.chatReceiptStyle='graphic'; syncLogic(); bG.classList.add('active'); bT.classList.remove('active'); saveAppearance(); refreshReadReceipts(); });
+            bT.addEventListener('click', function(){ L.chatReceiptStyle='text'; syncLogic(); bT.classList.add('active'); bG.classList.remove('active'); saveAppearance(); refreshReadReceipts(); });
             seg.appendChild(bG); seg.appendChild(bT);
             styleRow.appendChild(seg); card1.appendChild(styleRow);
             mkToggle(card1, 'chatReadNoReply', '已读不回', '', '🔕');
@@ -6095,7 +6103,7 @@ function resetEmojis() {
             mkToggle(cR4, 'chatLetterEnabled', '主动给我写信', '开启后，梦角会随机主动写信', '✉️');
             mkUnitSlider(cR4, 'chatLetterMin', 'chatLetterMinUnit', '时空来信间隔 · 最少', {min:1,max:180,step:1,icon:'⏰'});
             mkUnitSlider(cR4, 'chatLetterMax', 'chatLetterMaxUnit', '时空来信间隔 · 最多', {min:1,max:480,step:1,icon:'⏰'});
-            mkToggle(cR4, 'chatCustomReplyRule', '采用自定义的回信规律', '', '🕐');
+            mkToggle(cR4, 'chatCustomReplyRule', '采用自定义的回信规律', '开启后使用下方"回信间隔/句数"，关闭则用"回复速度"且每次1条', '🕐');
             mkUnitSlider(cR4, 'chatReplyIntervalMinVal', 'chatReplyIntervalMinUnit', '回信间隔 · 最少', {min:1,max:180,step:1,icon:'⏰'});
             mkUnitSlider(cR4, 'chatReplyIntervalMaxVal', 'chatReplyIntervalMaxUnit', '回信间隔 · 最多', {min:1,max:48,step:1,icon:'⏰'});
             mkSlider(cR4, 'chatReplyLinesMin', '回信句数 · 最少', {min:1,max:30,step:1,unit:'句',icon:'📝'});
@@ -6351,6 +6359,17 @@ function resetEmojis() {
             uNameInput.onchange=function(){ userName=uNameInput.value.trim()||'我'; saveFullProfile(); applyProfile(); };
             pRow2.appendChild(uNameInput); cP1.appendChild(pRow2);
         }
+        // 刷新所有已显示的已读回执样式与可见性（切换开关/图形/文字时即时生效）
+        function refreshReadReceipts() {
+            document.querySelectorAll('.msg-read').forEach(function(el){
+                if (!chatReadReceipt) { el.style.display = 'none'; return; }
+                el.style.display = '';
+                const isRead = el.dataset.read === '1' || el.classList.contains('read');
+                el.textContent = isRead
+                    ? (chatReceiptStyle === 'graphic' ? '✓✓' : '已读')
+                    : (chatReceiptStyle === 'graphic' ? '✓' : '未读');
+            });
+        }
         // 将 appearance.logicSettings 同步到 IIFE 顶层变量
         function syncLogic() {
             const L = appearance.logicSettings;
@@ -6363,6 +6382,11 @@ function resetEmojis() {
             chatTimeStyle = L.chatTimeStyle;
             chatReplyMin = +L.chatReplyMin;
             chatReplyMax = +L.chatReplyMax;
+            // 钳制到滑块允许范围（避免旧数据超出滑块上限导致显示与实际不一致）
+            if (chatReplyMin < 1000) { chatReplyMin = 1000; L.chatReplyMin = 1000; }
+            if (chatReplyMin > 30000) { chatReplyMin = 30000; L.chatReplyMin = 30000; }
+            if (chatReplyMax < 1000) { chatReplyMax = 1000; L.chatReplyMax = 1000; }
+            if (chatReplyMax > 120000) { chatReplyMax = 120000; L.chatReplyMax = 120000; }
             chatProactiveMsg = !!L.chatProactiveMsg;
             chatProactiveIntervalMs = +L.chatProactiveIntervalMs;
             chatMergeCards = !!L.chatMergeCards;
@@ -6406,6 +6430,8 @@ function resetEmojis() {
                 // 显示头像：关闭时隐藏所有消息头像
                 app.classList.toggle('no-avatar', !chatShowAvatar);
             }
+            // 刷新已读回执可见性与样式
+            refreshReadReceipts();
         }
         // 向后兼容
         function renderChatSettingsForm() { renderChatSettingsTabs(); }
