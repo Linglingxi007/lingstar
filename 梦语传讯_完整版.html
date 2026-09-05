@@ -2750,9 +2750,15 @@ textarea.input,
                     <span id="callUserArrow" style="color:var(--accent); transition:transform .25s; font-size:0.9rem;">▼</span>
                 </div>
                 <div id="callUserBody" style="display:none; padding:4px 14px 14px; border-top:1px dashed var(--bg_border);">
-                    <div style="font-size:0.68rem; color:var(--text_muted); opacity:0.7; margin-bottom:6px;">用于梦角回复开头的称呼（多条用逗号或换行分隔，随机选用）</div>
-                    <textarea id="angleCallUserInput" placeholder="亲爱的、宝贝、老婆..." style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(200,170,220,0.3); font-size:0.82rem; outline:none; background:var(--bg_panel); color:var(--text_primary); margin-bottom:10px; resize:vertical; min-height:52px;">亲爱的</textarea>
-                    <div style="font-size:0.68rem; color:var(--text_muted); opacity:0.7; margin-bottom:4px;">称呼出现概率</div>
+                    <div style="font-size:0.68rem; color:var(--text_muted); opacity:0.7; margin-bottom:6px;">用于梦角回复开头的称呼（可添加多条，随机选用）</div>
+                    <div style="display:flex; gap:6px; margin-bottom:6px;">
+                        <input type="text" id="angleCallUserNewInput" placeholder="输入新称呼后点添加..." style="flex:1; padding:8px 10px; border-radius:8px; border:1px solid rgba(200,170,220,0.3); font-size:0.78rem; outline:none; background:var(--bg_panel); color:var(--text_primary);">
+                        <button class="btn btn-primary-mod" id="addCallUserBtn" style="font-size:0.72rem; padding:6px 12px;">添加</button>
+                    </div>
+                    <select id="angleCallUserList" size="4" style="width:100%; padding:6px; border-radius:8px; border:1px solid rgba(200,170,220,0.3); font-size:0.78rem; background:var(--bg_panel); color:var(--text_primary); margin-bottom:6px; min-height:90px;">
+                    </select>
+                    <button class="btn btn-danger" id="delCallUserBtn" style="font-size:0.7rem; padding:4px 10px;">删除选中</button>
+                    <div style="font-size:0.68rem; color:var(--text_muted); opacity:0.7; margin:10px 0 4px;">称呼出现概率</div>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <input type="range" id="angleCallChanceSlider" min="0" max="100" value="30" style="flex:1; accent-color:var(--accent);">
                         <span id="angleCallChanceVal" style="font-size:0.72rem; color:var(--accent); font-weight:600; min-width:36px; text-align:right;">30%</span>
@@ -2766,8 +2772,14 @@ textarea.input,
                     <span id="callAngleArrow" style="color:var(--accent); transition:transform .25s; font-size:0.9rem;">▼</span>
                 </div>
                 <div id="callAngleBody" style="display:none; padding:4px 14px 14px; border-top:1px dashed var(--bg_border);">
-                    <div style="font-size:0.68rem; color:var(--text_muted); opacity:0.7; margin-bottom:6px;">梦女对梦角的专属称呼（多条用逗号或换行分隔）</div>
-                    <textarea id="userCallAngleInput" placeholder="老公、哥哥、亲爱的..." style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(200,170,220,0.3); font-size:0.82rem; outline:none; background:var(--bg_panel); color:var(--text_primary); resize:vertical; min-height:52px;"></textarea>
+                    <div style="font-size:0.68rem; color:var(--text_muted); opacity:0.7; margin-bottom:6px;">梦女对梦角的专属称呼（可添加多条）</div>
+                    <div style="display:flex; gap:6px; margin-bottom:6px;">
+                        <input type="text" id="userCallAngleNewInput" placeholder="输入新称呼后点添加..." style="flex:1; padding:8px 10px; border-radius:8px; border:1px solid rgba(200,170,220,0.3); font-size:0.78rem; outline:none; background:var(--bg_panel); color:var(--text_primary);">
+                        <button class="btn btn-primary-mod" id="addCallAngleBtn" style="font-size:0.72rem; padding:6px 12px;">添加</button>
+                    </div>
+                    <select id="userCallAngleList" size="4" style="width:100%; padding:6px; border-radius:8px; border:1px solid rgba(200,170,220,0.3); font-size:0.78rem; background:var(--bg_panel); color:var(--text_primary); margin-bottom:6px; min-height:90px;">
+                    </select>
+                    <button class="btn btn-danger" id="delCallAngleBtn" style="font-size:0.7rem; padding:4px 10px;">删除选中</button>
                 </div>
             </div>
             <button class="btn btn-primary-mod" id="saveNicknameBtn" style="padding:10px 24px; margin-top:4px; align-self:flex-end; border-radius:14px;">保存</button>
@@ -4651,6 +4663,12 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             arrowUpBtn.classList.remove('active');
         }
         // ===== 昵称/头像管理 =====
+        function renderCallNameList(selectId, raw) {
+            const sel = document.getElementById(selectId);
+            if (!sel) return;
+            const arr = String(raw || '').split(/[,\n、]/).map(function(s){return s.trim();}).filter(Boolean);
+            sel.innerHTML = arr.map(function(n){ return '<option value="'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>'; }).join('');
+        }
         function loadProfile() {
             const saved = localStorage.getItem('dream_profile');
             if (saved) {
@@ -4710,14 +4728,13 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             }
  if (userNameInput) userNameInput.value = userName;
             if (angleNameInput) angleNameInput.value = angleName;
-            const aci = document.getElementById('angleCallUserInput');
+            const aci = document.getElementById('angleCallUserList');
             const acs = document.getElementById('angleCallChanceSlider');
             const acv = document.getElementById('angleCallChanceVal');
-            if (aci) aci.value = angleCallUser;
+            renderCallNameList('angleCallUserList', angleCallUser);
             if (acs) acs.value = Math.round(angleCallChance*100);
             if (acv) acv.textContent = Math.round(angleCallChance*100) + '%';
-            const uca = document.getElementById('userCallAngleInput');
-            if (uca) uca.value = userCallAngle || '';
+            renderCallNameList('userCallAngleList', userCallAngle || '');
             if (userAvatarInput) userAvatarInput.value = userAvatar;
             if (angleAvatarInput) angleAvatarInput.value = angleAvatar;
             renderAvatar(previewUserAvatar, userAvatar, avatarShape, userSize, userLeft, userTop);
@@ -8125,12 +8142,19 @@ function resetEmojis() {
             saveNicknameBtn.addEventListener('click', () => {
                 userName = userNameInput.value.trim() || '我';
                 angleName = angleNameInput.value.trim() || 'ta';
-                const aci = document.getElementById('angleCallUserInput');
                 const acs = document.getElementById('angleCallChanceSlider');
-                const uca = document.getElementById('userCallAngleInput');
-                if (aci) angleCallUser = aci.value.trim() || '亲爱的';
+                // 从下拉列表中收集所有称呼
+                const acList = document.getElementById('angleCallUserList');
+                const ucList = document.getElementById('userCallAngleList');
+                if (acList) {
+                    const names = Array.from(acList.options).map(function(o){return o.value;}).filter(Boolean);
+                    angleCallUser = names.join(',') || '亲爱的';
+                }
                 if (acs) angleCallChance = parseFloat(acs.value)/100;
-                if (uca) userCallAngle = uca.value.trim() || '';
+                if (ucList) {
+                    const names = Array.from(ucList.options).map(function(o){return o.value;}).filter(Boolean);
+                    userCallAngle = names.join(',') || '';
+                }
                 saveFullProfile();
                 closeModal(nicknameModal);
             });
@@ -8161,6 +8185,38 @@ function resetEmojis() {
             if (acSlider && acVal) {
                 acSlider.addEventListener('input', function(){ acVal.textContent = acSlider.value + '%'; });
             }
+            // 称呼下拉菜单：添加/删除（renderCallNameList 在全局定义）
+            function bindCallNameAdd(btnId, inputId, listId) {
+                const btn = document.getElementById(btnId);
+                const inp = document.getElementById(inputId);
+                const list = document.getElementById(listId);
+                if (!btn || !inp || !list) return;
+                function doAdd(){
+                    const v = inp.value.trim(); if (!v) return;
+                    // 去重
+                    const exists = Array.from(list.options).some(function(o){return o.value === v;});
+                    if (exists) { showToast('已存在'); inp.value=''; return; }
+                    const opt = document.createElement('option'); opt.value = v; opt.textContent = v;
+                    list.appendChild(opt);
+                    inp.value = ''; inp.focus();
+                }
+                btn.addEventListener('click', doAdd);
+                inp.addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); doAdd(); } });
+            }
+            function bindCallNameDel(btnId, listId) {
+                const btn = document.getElementById(btnId);
+                const list = document.getElementById(listId);
+                if (!btn || !list) return;
+                btn.addEventListener('click', function(){
+                    const idx = list.selectedIndex;
+                    if (idx < 0) { showToast('请先选择要删除的称呼'); return; }
+                    list.remove(idx);
+                });
+            }
+            bindCallNameAdd('addCallUserBtn', 'angleCallUserNewInput', 'angleCallUserList');
+            bindCallNameDel('delCallUserBtn', 'angleCallUserList');
+            bindCallNameAdd('addCallAngleBtn', 'userCallAngleNewInput', 'userCallAngleList');
+            bindCallNameDel('delCallAngleBtn', 'userCallAngleList');
       // 头像弹窗
             closeAvatarModal.addEventListener('click', () => closeModal(avatarModal));
             avatarModal.addEventListener('click', (e) => { if (e.target === avatarModal) closeModal(avatarModal); });
