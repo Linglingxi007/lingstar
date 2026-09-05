@@ -46,12 +46,13 @@
         }
         /* 沉浸式模式：顶栏折叠 */
         #app.immersive .top-bar {
-            height: 0;
+            height: 6px;
             padding-top: 0;
             padding-bottom: 0;
             overflow: hidden;
-            opacity: 0;
+            opacity: 0.01;
             border-bottom: none;
+            transition: all 0.3s ease;
         }
         #app.immersive .top-bar:hover {
             height: auto;
@@ -84,7 +85,6 @@
             white-space: nowrap;
         }
         #app:not(.bottom-collapse) .bottom-sheet::-webkit-scrollbar { height: 0; }
-        #app:not(.bottom-collapse) .arrow-up-btn { display: none; }
         .angle-profile {
             display: flex;
             align-items: center;
@@ -331,8 +331,14 @@
             border-top: 1px solid rgba(220, 200, 240, 0.06);
         }
         .bottom-sheet.open {
-            max-height: 300px;
+            max-height: 50vh;
             padding: 16px 16px 20px 16px;
+            overflow-y: auto;
+        }
+        .bottom-sheet-backdrop {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.15);
+            z-index: 99;
         }
         .bottom-sheet-grid {
             display: grid;
@@ -1020,7 +1026,7 @@
             .angle-avatar { width: 30px; height: 30px; font-size: 0.95rem; }
             .angle-name { font-size: 0.82rem; }
             .modal-content { border-radius: 24px; padding: 16px 14px 20px; }
-            .bottom-sheet.open { padding: 12px 12px 16px 12px; max-height: 260px; }
+            .bottom-sheet.open { padding: 12px 12px 16px 12px; max-height: 55vh; overflow-y: auto; }
             .bottom-sheet-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
             .sheet-item .icon { font-size: 1.3rem; }
             .side-panel { width: 260px; max-width: 78vw; right: -280px; padding: 16px 14px 24px; }
@@ -1035,7 +1041,7 @@
             .phone-frame { height: 92vh; min-height: 500px; }
             .chat-box { padding: 8px 12px; }
             .message { font-size: 0.82rem; padding: 7px 13px; }
-            .bottom-sheet.open { max-height: 220px; padding: 10px 12px 14px 12px; }
+            .bottom-sheet.open { max-height: 45vh; padding: 10px 12px 14px 12px; overflow-y: auto; }
             .side-panel { padding: 14px 12px 20px; }
             .mod-list { max-height: 60px; }
         }
@@ -2588,6 +2594,7 @@ textarea.input,
     </div>
 </div>
 <!-- ===== 底部上弹侧边栏 ===== -->
+<div class="bottom-sheet-backdrop" id="bottomSheetBackdrop" style="display:none;"></div>
 <div class="bottom-sheet" id="bottomSheet">
     <div class="bottom-sheet-grid">
         <div class="sheet-item" id="bottomCallBtn">
@@ -2663,7 +2670,7 @@ textarea.input,
         </div>
         <div class="side-grid-item" id="sideLetterBtn">
             <span class="icon">✉️</span>
-            <span class="label">写信</span>
+            <span class="label">信箱</span>
         </div>
         <div class="side-grid-item" id="sideBoardBtn">
             <span class="icon">📋</span>
@@ -2931,10 +2938,11 @@ textarea.input,
             <button class="modal-close" id="closeEmojiModal">✕</button>
         </div>
         <div class="modal-body">
-            <!-- Emoji / 颜文字 切换 -->
+            <!-- Emoji / 颜文字 / 表情包 切换 -->
             <div style="display:flex; gap:4px; margin-bottom:8px;">
                 <button class="btn emoji-type-tab active" data-type="emoji" style="flex:1; padding:6px; font-size:0.78rem;">😊 Emoji</button>
                 <button class="btn emoji-type-tab" data-type="kaomoji" style="flex:1; padding:6px; font-size:0.78rem;">ฅ 颜文字</button>
+                <button class="btn emoji-type-tab" data-type="sticker" style="flex:1; padding:6px; font-size:0.78rem;">🖼️ 表情包</button>
             </div>
             <div class="mod-group-tabs" id="emojiGroupTabs">
                 <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="emojiAllCount">0</span></span>
@@ -2945,10 +2953,10 @@ textarea.input,
             <div class="mod-list" id="emojiList">
                 <span class="mod-empty">暂无表情</span>
             </div>
-            <div class="mod-row">
-                <textarea id="emojiInput" placeholder="一行一个表情或Emoji（支持批量，也可输入图片URL）" style="flex:2; min-height:60px; resize:vertical;"></textarea>
+            <div class="mod-row" id="emojiInputRow">
+                <textarea id="emojiInput" placeholder="一行一个表情或Emoji（支持批量）" style="flex:2; min-height:60px; resize:vertical;"></textarea>
                 <select id="emojiGroupSelect" style="flex:1; min-width:80px;"><option value="default">默认</option></select>
-                <button class="btn" id="uploadEmojiBtn" title="上传图片作为表情包">📷</button>
+                <button class="btn" id="uploadEmojiBtn" title="上传图片作为表情包" style="display:none;">📷 上传图片</button>
                 <button class="btn btn-primary-mod" id="addEmojiBtn">添加</button>
             </div>
             <hr class="mod-divider">
@@ -3027,18 +3035,27 @@ textarea.input,
                 <span class="mod-empty">暂无拍一拍</span>
             </div>
             <div>
-                <div class="mod-row" style="margin-top:4px;">
-                    <textarea id="patInput" placeholder="一行一条拍一拍（支持批量）" style="flex:2; min-height:60px; resize:vertical;"></textarea>
+                <div class="mod-row" style="margin-top:4px; flex-wrap:wrap;">
+                    <select id="patFormatSelect" style="min-width:110px; font-size:0.72rem;">
+                        <option value="default">拍了拍…的X</option>
+                        <option value="bare">拍了拍（无后缀）</option>
+                        <option value="verbDe">摸了摸…的X</option>
+                        <option value="verb">打…屁屁（无的）</option>
+                        <option value="quote">拍了拍…说："…"</option>
+                    </select>
+                    <input type="text" id="patVerbInput" placeholder="动词（如：摸了摸）" style="display:none; flex:1; min-width:80px; padding:4px 8px; border-radius:8px; border:1px solid var(--bg_border); font-size:0.72rem;">
+                    <input type="text" id="patPartInput" placeholder="部位（如：肩膀/头）" style="display:none; flex:1; min-width:80px; padding:4px 8px; border-radius:8px; border:1px solid var(--bg_border); font-size:0.72rem;">
+                    <textarea id="patInput" placeholder="一行一条拍一拍内容（如：肩膀）" style="flex:2; min-height:60px; resize:vertical;"></textarea>
                     <select id="patGroupSelect" style="flex:1; min-width:80px;"><option value="default">默认</option></select>
                     <button class="btn btn-primary-mod" id="addPatBtn">添加</button>
                 </div>
-                <div style="margin-top:6px; display:flex; align-items:center; gap:8px;">
+                <div class="mod-hint" id="patFormatHint" style="margin-top:4px;">💡 默认格式：{主角}拍了拍{对方}的X，X为输入内容</div>
+                <div style="margin-top:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <label style="font-size:0.7rem; color:var(--text_secondary); display:flex; align-items:center; gap:4px;">
                         <input type="checkbox" id="patSaveQuick"> 保存到快捷回复
                     </label>
                     <button class="btn" id="patQuickSendBtn" style="font-size:0.7rem; padding:3px 10px;">📤 发送拍一拍</button>
                 </div>
-                <div class="mod-hint">💡 梦女输入内容后点"发送拍一拍"直接发送；勾选"保存到快捷回复"可存入快捷栏</div>
             </div>
             <!-- 快捷回复拍一拍栏 -->
             <div id="patQuickBar" style="margin-top:8px; padding:8px; background:var(--bg_card,#f8f4fa); border-radius:10px; display:none;">
@@ -3226,7 +3243,7 @@ textarea.input,
 </div>
 <!-- ===== 你画我猜 ===== -->
 <div class="modal-overlay sub-modal" id="drawGuessModal">
-    <div class="modal-content" style="max-width:600px;">
+    <div class="modal-content" style="max-width:700px; max-height:92vh;">
         <div class="modal-header">
             <h2>🖌️ 你画我猜</h2>
             <button class="modal-close" id="closeDrawGuessModal">✕</button>
@@ -3299,7 +3316,7 @@ textarea.input,
             <button class="modal-close" id="closeDiaryModal">✕</button>
         </div>
         <div class="modal-body" style="padding:10px 14px;">
-            <div style="display:flex; gap:6px; margin-bottom:8px;">
+            <div style="display:flex; gap:6px; margin-bottom:8px; align-items:center;">
                 <select id="diaryMood" style="flex:1; padding:6px; border-radius:8px; border:1px solid var(--bg_border); background:var(--bg_card); color:var(--text_primary);">
                     <option value="😊">😊 开心</option>
                     <option value="😢">😢 难过</option>
@@ -3310,10 +3327,17 @@ textarea.input,
                     <option value="🤔">🤔 思考</option>
                     <option value="🥺">🥺 委屈</option>
                 </select>
-                <button class="btn btn-primary-mod" id="diaryAddUserBtn" style="font-size:0.75rem;">梦女记录</button>
-                <button class="btn btn-primary-mod" id="diaryAddAngleBtn" style="font-size:0.75rem;">梦角记录</button>
+                <div class="role-switch" id="diaryOwnerSwitch">
+                    <div class="chip active" data-owner="user">🎀 梦女</div>
+                    <div class="chip" data-owner="angle">🌙 梦角</div>
+                </div>
             </div>
-            <textarea id="diaryInput" placeholder="写下今天的心情..." style="width:100%; min-height:70px; padding:8px; border-radius:10px; border:1px solid var(--bg_border); background:var(--bg_card); color:var(--text_primary); resize:vertical; font-size:0.82rem; box-sizing:border-box;"></textarea>
+            <textarea id="diaryInput" placeholder="写下今天的心情...（不想写可以留空）" style="width:100%; min-height:70px; padding:8px; border-radius:10px; border:1px solid var(--bg_border); background:var(--bg_card); color:var(--text_primary); resize:vertical; font-size:0.82rem; box-sizing:border-box;"></textarea>
+            <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary-mod" id="diaryConfirmBtn" style="font-size:0.75rem; flex:1;">✓ 确认</button>
+                <button class="btn" id="diaryKeepBtn" style="font-size:0.75rem; flex:1;">📝 保留</button>
+                <button class="btn" id="diaryClearBtn" style="font-size:0.75rem; flex:1;">🗑️ 清空</button>
+            </div>
             <div style="margin-top:8px; font-size:0.7rem; color:var(--text_muted);">快捷插入：<span id="diaryEmojiQuick" style="display:inline-flex; flex-wrap:wrap; gap:3px;"></span></div>
             <hr class="mod-divider" style="margin:10px 0;">
             <div id="diaryList" style="max-height:300px; overflow-y:auto;"></div>
@@ -3497,17 +3521,33 @@ textarea.input,
     <span id="closeBubbleModal"></span>
     <span id="openBgFontBtn"></span>
     <span id="openBubbleBtn"></span>
-    <span id="callModal"></span>
-    <span id="closeCallModal"></span>
-    <span id="callBtn"></span>
-    <span id="hangupBtn"></span>
-    <span id="callStatusText"></span>
-    <span id="callDreamerDot"></span>
-    <span id="callAngleDot"></span>
-    <span id="callUserAvatar"></span>
-    <span id="callAngleAvatar"></span>
-    <span id="callUserName"></span>
-    <span id="callAngleName"></span>
+<!-- ===== 模拟通话弹窗 ===== -->
+<div class="modal-overlay" id="callModal">
+    <div class="modal-content" style="max-width:360px; text-align:center;">
+        <div class="modal-header">
+            <h2>📞 模拟通话</h2>
+            <button class="modal-close" id="closeCallModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="call-avatars">
+                <div class="call-avatar-box">
+                    <div class="avatar" id="callUserAvatar"></div>
+                    <div class="name" style="display:flex;align-items:center;gap:4px;"><span class="dot off" id="callDreamerDotInner"></span><span id="callUserName"></span></div>
+                </div>
+                <div style="font-size:1.2rem;opacity:0.4;">📡</div>
+                <div class="call-avatar-box">
+                    <div class="avatar" id="callAngleAvatar"></div>
+                    <div class="name" style="display:flex;align-items:center;gap:4px;"><span class="dot off" id="callAngleDotInner"></span><span id="callAngleName"></span></div>
+                </div>
+            </div>
+            <div class="call-status-text" id="callStatusText">💤 待机中</div>
+            <div class="call-controls" style="margin-top:12px; justify-content:center;">
+                <button class="btn-call" id="callBtn">📞 呼叫</button>
+                <button class="btn-hangup" id="hangupBtn" style="display:none;">📴 挂断</button>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 
 <script>
@@ -4191,30 +4231,34 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                 avatarSpan = document.createElement('span');
                 avatarSpan.className = 'msg-avatar';
                 avatarSpan.innerHTML = isImageUrl(sAvatar) ? `<img src="${sAvatar}">` : sAvatar;
-                // 双击头像拍一拍
+                // 双击头像拍一拍：梦女点击梦角头像→梦女拍梦角；梦女点击自己头像→梦女拍自己
                 avatarSpan.addEventListener('dblclick', function(ev){
                     ev.stopPropagation();
                     const allPats = [];
                     for (const g in patGroups) allPats.push(...patGroups[g]);
                     allPats.push(...patQuickReplies);
                     const pat = allPats.length ? allPats[Math.floor(Math.random()*allPats.length)] : '';
-                    const me = type === 'user' ? userName : sName;
-                    const other = type === 'user' ? sName : userName;
-                    const sym = chatPokeSymbol === '五角星' ? '★' : chatPokeSymbol === '爱心' ? '♥' : chatPokeSymbol === '圆点' ? '●' : '✦';
-                    const text = pat ? `${me}拍了拍${other}的${pat}` : `${me}拍了拍${other}`;
+                    const actor = userName;
+                    // 目标：点到梦角头像→梦角；点到自己头像→自己
+                    const target = (type === 'angle') ? sName : '自己';
+                    const parsed = parsePat(pat);
+                    const text = renderPatText(parsed, actor, target);
                     // 在聊天中间显示拍一拍文字
                     showPokeCenter(text);
                     // 头像抖动动画
                     avatarSpan.style.animation = 'none';
                     void avatarSpan.offsetWidth;
                     avatarSpan.style.animation = 'pokeShake .4s ease';
-                    // 梦角被拍时，低频率回拍
+                    // 梦角被拍时，低频率回拍（梦角拍梦女或拍自己）
                     if (type === 'angle' && Math.random() < 0.3) {
                         setTimeout(function(){
                             const retPats = [];
                             for (const g in patGroups) retPats.push(...patGroups[g]);
                             const ret = retPats.length ? retPats[Math.floor(Math.random()*retPats.length)] : '';
-                            const retText = ret ? `${angleName}拍了拍${userName}的${ret}` : `${angleName}拍了拍${userName}`;
+                            // 70% 拍梦女，30% 拍自己
+                            const retTarget = Math.random() < 0.7 ? userName : '自己';
+                            const retParsed = parsePat(ret);
+                            const retText = renderPatText(retParsed, angleName, retTarget);
                             showPokeCenter(retText);
                         }, 800 + Math.random()*1500);
                     }
@@ -4224,7 +4268,14 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             bubble.className = 'msg-bubble';
             const content = document.createElement('div');
             content.className = 'msg-content';
-            content.innerHTML = html || '';
+            // 表情包图片：若内容是图片URL/base64，渲染为<img>而非文本
+            const rawHtml = html || '';
+            const trimmed = rawHtml.replace(/<br\s*\/?>/gi, '').trim();
+            if (isImageUrl(trimmed)) {
+                content.innerHTML = `<img src="${trimmed}" style="max-width:180px;max-height:180px;border-radius:10px;display:block;">`;
+            } else {
+                content.innerHTML = rawHtml;
+            }
             bubble.appendChild(content);
             // meta 行：发送者 + 时间 + 已读回执
             const small = document.createElement('small');
@@ -4465,6 +4516,41 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
         }
         // 拍一拍居中显示
         let pokeTimer = null;
+        // ===== 拍一拍格式系统 =====
+        // pat 编码：
+        //   纯文本 "肩膀"        → {actor}拍了拍{target}的肩膀
+        //   "" 空               → {actor}拍了拍{target}
+        //   "¶bare"             → {actor}拍了拍{target}
+        //   "¶verbDe|摸了摸|头" → {actor}摸了摸{target}的头
+        //   "¶verb|打|屁屁"     → {actor}打{target}屁屁
+        //   "¶quote|我想你了"   → {actor}拍了拍{target}说："我想你了"
+        function parsePat(p) {
+            if (!p) return {type:'bare'};
+            if (typeof p === 'string' && p.startsWith('¶')) {
+                const parts = p.slice(1).split('|');
+                const t = parts[0];
+                if (t === 'bare') return {type:'bare'};
+                if (t === 'verbDe') return {type:'verbDe', verb: parts[1]||'摸了摸', part: parts[2]||''};
+                if (t === 'verb') return {type:'verb', verb: parts[1]||'打', part: parts[2]||''};
+                if (t === 'quote') return {type:'quote', quote: parts.slice(1).join('|')||''};
+            }
+            return {type:'default', part: p};
+        }
+        function renderPatText(parsed, actor, target) {
+            switch(parsed.type) {
+                case 'bare': return `${actor}拍了拍${target}`;
+                case 'default': return `${actor}拍了拍${target}的${parsed.part}`;
+                case 'verbDe': return `${actor}${parsed.verb}${target}的${parsed.part}`;
+                case 'verb': return `${actor}${parsed.verb}${target}${parsed.part}`;
+                case 'quote': return `${actor}拍了拍${target}说："${parsed.quote}"`;
+            }
+            return `${actor}拍了拍${target}`;
+        }
+        function patDisplayLabel(p) {
+            const parsed = parsePat(p);
+            const demo = renderPatText(parsed, '我', 'ta');
+            return demo;
+        }
         function showPokeCenter(text) {
             const el = document.getElementById('pokeCenter');
             if (!el) return;
@@ -4484,12 +4570,13 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             if (!patQuickReplies.length) { bar.style.display = 'none'; return; }
             bar.style.display = 'block';
             list.innerHTML = patQuickReplies.map(function(p, i){
-                return `<span style="background:var(--accent,#c9a0dc);color:#fff;padding:3px 10px;border-radius:12px;font-size:0.7rem;cursor:pointer;" data-pq="${i}">${p}</span>`;
+                return `<span style="background:var(--accent,#c9a0dc);color:#fff;padding:3px 10px;border-radius:12px;font-size:0.7rem;cursor:pointer;white-space:nowrap;" data-pq="${i}">${escapeHtml(patDisplayLabel(p))}</span>`;
             }).join('');
             list.querySelectorAll('[data-pq]').forEach(function(s){
                 s.addEventListener('click', function(){
                     const idx = +s.dataset.pq;
-                    const text = `${userName}拍了拍${angleName}的${patQuickReplies[idx]}`;
+                    const parsed = parsePat(patQuickReplies[idx]);
+                    const text = renderPatText(parsed, userName, angleName);
                     showPokeCenter(text);
                     closeModal(document.getElementById('patModal'));
                 });
@@ -4579,7 +4666,8 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
                 selectedDate = dateKey(now.getFullYear(), now.getMonth(), now.getDate());
             }
             const text = input.value.trim();
-            if (!text) { showToast('请输入日记内容'); return; }
+            // 空内容不弹窗提示，梦女/梦角都有权不写日记
+            if (!text) { return; }
             const now = new Date();
             const timeStr = now.getFullYear() + '年' + (now.getMonth()+1) + '月' + now.getDate() + '日 ' +
                 String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
@@ -4590,6 +4678,13 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             renderDiaryList(selectedDate);
             renderCalendar();
             showToast('已记录');
+        }
+        // 获取当前选中的日记作者
+        function getDiaryOwner() {
+            const sw = document.getElementById('diaryOwnerSwitch');
+            if (!sw) return 'user';
+            const active = sw.querySelector('.chip.active');
+            return active ? (active.dataset.owner || 'user') : 'user';
         }
         function openImgViewer(src) {
             const v = document.getElementById('imgViewer');
@@ -4656,11 +4751,15 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             bottomSheetOpen = !bottomSheetOpen;
             bottomSheet.classList.toggle('open', bottomSheetOpen);
             arrowUpBtn.classList.toggle('active', bottomSheetOpen);
+            const bd = document.getElementById('bottomSheetBackdrop');
+            if (bd) bd.style.display = bottomSheetOpen ? 'block' : 'none';
         }
         function closeBottomSheet() {
             bottomSheetOpen = false;
             bottomSheet.classList.remove('open');
             arrowUpBtn.classList.remove('active');
+            const bd = document.getElementById('bottomSheetBackdrop');
+            if (bd) bd.style.display = 'none';
         }
         // ===== 昵称/头像管理 =====
         function renderCallNameList(selectId, raw) {
@@ -4753,8 +4852,8 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
             if (angleSizeValue) angleSizeValue.textContent = angleSize + 'px';
             if (angleLeftValue) angleLeftValue.textContent = angleLeft + 'px';
             if (angleTopValue) angleTopValue.textContent = angleTop + 'px';
-            if (callUserAvatar) callUserAvatar.textContent = userAvatar;
-            if (callAngleAvatar) callAngleAvatar.textContent = angleAvatar;
+            if (callUserAvatar) callUserAvatar.innerHTML = isImageUrl(userAvatar) ? `<img src="${userAvatar}">` : userAvatar;
+            if (callAngleAvatar) callAngleAvatar.innerHTML = isImageUrl(angleAvatar) ? `<img src="${angleAvatar}">` : angleAvatar;
             if (callUserName) callUserName.textContent = userName;
             if (callAngleName) callAngleName.textContent = angleName;
             shapeBtns.forEach(btn => {
@@ -5043,11 +5142,15 @@ function resetDefaultCards() {
             showToast('已恢复默认字卡');
         }
         // ===== 表情包渲染（带分组） =====
-        // 获取当前类型的分组数据（emoji 或 颜文字）
+        // 获取当前类型的分组数据（emoji / 颜文字 / 表情包）
         function getActiveEmojiGroups() {
             if (emojiType === 'kaomoji') {
                 if (!appearance.kaomojiGroups) appearance.kaomojiGroups = {};
                 return appearance.kaomojiGroups;
+            }
+            if (emojiType === 'sticker') {
+                if (!appearance.stickerGroups) appearance.stickerGroups = { default: [] };
+                return appearance.stickerGroups;
             }
             return emojiGroups;
         }
@@ -5118,10 +5221,15 @@ function resetDefaultCards() {
                         if (groups[g].includes(e)) { gName = g; break; }
                     }
                     const item = document.createElement('span');
-                    item.className = 'mod-item' + (emojiType === 'kaomoji' ? ' kaomoji-item' : '');
+                    item.className = 'mod-item' + (emojiType === 'kaomoji' ? ' kaomoji-item' : '') + (emojiType === 'sticker' ? ' sticker-item' : '');
                     if (emojiSelectMode && emojiSelected.has(realIdx)) item.classList.add('selected');
                     const label = gName !== 'default' ? `<span class="group-label">${gName}</span>` : '';
-                    const displayText = emojiType === 'kaomoji' ? e.replace(/\n/g, '<br>') : e;
+                    let displayText;
+                    if (emojiType === 'sticker') {
+                        displayText = `<img src="${e}" style="width:42px;height:42px;object-fit:cover;border-radius:8px;">`;
+                    } else {
+                        displayText = emojiType === 'kaomoji' ? e.replace(/\n/g, '<br>') : e;
+                    }
                     item.innerHTML = `${displayText} ${label} <span class="del" data-emoji="${e.replace(/"/g,'&quot;')}">✕</span>`;
                     if (emojiSelectMode) {
                         item.style.cursor = 'pointer';
@@ -5145,7 +5253,7 @@ emojiList.querySelectorAll('.del').forEach(el => {
                         }
                         emojiSelected.clear();
                         renderEmojis();
-                        if (emojiType === 'kaomoji') saveAppearance();
+                        if (emojiType === 'kaomoji' || emojiType === 'sticker') saveAppearance();
                         showToast('已删除');
                     });
                 });
@@ -5251,7 +5359,7 @@ emojiList.querySelectorAll('.del').forEach(el => {
             const added = items.filter(l => !existing.has(l));
             if (!added.length) { showToast('所有表情已存在'); emojiInput.value=''; return; }
             groups[target] = groups[target].concat(added);
-            if (emojiType === 'kaomoji') saveAppearance();
+            if (emojiType === 'kaomoji' || emojiType === 'sticker') saveAppearance();
             emojiInput.value = '';
             renderEmojis();
             showToast(`已添加 ${added.length} 个表情`);
@@ -5262,7 +5370,7 @@ emojiList.querySelectorAll('.del').forEach(el => {
             if (!total) return;
             if (!confirm('清空所有表情？')) return;
             for (const g in groups) groups[g] = [];
-            if (emojiType === 'kaomoji') saveAppearance();
+            if (emojiType === 'kaomoji' || emojiType === 'sticker') saveAppearance();
             emojiSelected.clear();
             renderEmojis();
             showToast('已清空');
@@ -5271,6 +5379,12 @@ function resetEmojis() {
             if (emojiType === 'kaomoji') {
                 appearance.kaomojiGroups = { default: [...DEFAULT_KAOMOJIS] };
                 saveAppearance();
+            } else if (emojiType === 'sticker') {
+                if (appearance.stickerGroups && Object.values(appearance.stickerGroups).some(g => g.length)) {
+                    if (!confirm('清空所有表情包？')) return;
+                    appearance.stickerGroups = { default: [] };
+                    saveAppearance();
+                }
             } else {
                 if (Object.values(emojiGroups).reduce((a, b) => a + b.length, 0) && !confirm('恢复默认表情？')) return;
                 emojiGroups = { default: [...DEFAULT_EMOJIS] };
@@ -5454,18 +5568,50 @@ function resetEmojis() {
             showToast(`移动 ${count} 个拍一拍到「${target === 'default' ? '默认' : target}」`);
         }
         function addPat() {
-            const raw = patInput.value;
-            if (!raw.trim()) { alert('请输入拍一拍内容'); return; }
+            const fmt = document.getElementById('patFormatSelect').value;
+            const verbEl = document.getElementById('patVerbInput');
+            const partEl = document.getElementById('patPartInput');
+            const raw = patInput.value.trim();
+            const verb = verbEl ? verbEl.value.trim() : '';
+            const part = partEl ? partEl.value.trim() : '';
+            // 根据格式生成编码
+            let encoded = '';
+            if (fmt === 'bare') {
+                encoded = '¶bare';
+            } else if (fmt === 'verbDe') {
+                if (!verb || !raw) { alert('请输入动词和部位'); return; }
+                encoded = `¶verbDe|${verb}|${raw}`;
+            } else if (fmt === 'verb') {
+                if (!verb || !raw) { alert('请输入动词和部位'); return; }
+                encoded = `¶verb|${verb}|${raw}`;
+            } else if (fmt === 'quote') {
+                if (!raw) { alert('请输入要说的话'); return; }
+                encoded = `¶quote|${raw}`;
+            } else {
+                // default: X拍了拍Y的Z
+                if (!raw) { alert('请输入拍一拍内容'); return; }
+                const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+                const target = patGroupSelect.value;
+                if (!patGroups[target]) { alert('目标分组不存在'); return; }
+                const existing = new Set(patGroups[target]);
+                const added = lines.filter(l => !existing.has(l));
+                if (!added.length) { showToast('所有拍一拍已存在'); patInput.value=''; return; }
+                patGroups[target] = patGroups[target].concat(added);
+                patInput.value='';
+                renderPats();
+                showToast(`已添加 ${added.length} 条拍一拍`);
+                return;
+            }
             const target = patGroupSelect.value;
             if (!patGroups[target]) { alert('目标分组不存在'); return; }
-            const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
             const existing = new Set(patGroups[target]);
-            const added = lines.filter(l => !existing.has(l));
-            if (!added.length) { showToast('所有拍一拍已存在'); patInput.value=''; return; }
-            patGroups[target] = patGroups[target].concat(added);
-            patInput.value = '';
+            if (existing.has(encoded)) { showToast('该拍一拍已存在'); return; }
+            patGroups[target].push(encoded);
+            patInput.value='';
+            if (verbEl) verbEl.value='';
+            if (partEl) partEl.value='';
             renderPats();
-            showToast(`已添加 ${added.length} 条拍一拍`);
+            showToast('已添加 1 条拍一拍');
         }
         function clearPats() {
             const total = Object.values(patGroups).reduce((a, b) => a + b.length, 0);
@@ -5498,8 +5644,10 @@ function resetEmojis() {
             callBtn.textContent = s.btn;
             callBtn.className = `btn-call${state === 'calling' ? ' ringing' : ''}`;
             hangupBtn.style.display = s.showHangup ? 'inline-flex' : 'none';
-            callDreamerDot.className = `dot ${s.dot}`;
-            callAngleDot.className = `dot ${s.dot}`;
+            const dd = document.getElementById('callDreamerDotInner');
+            const ad = document.getElementById('callAngleDotInner');
+            if (dd) dd.className = `dot ${s.dot}`;
+            if (ad) ad.className = `dot ${s.dot}`;
             callStatusText.textContent = msg || s.text;
             callState = state;
         }
@@ -6684,9 +6832,10 @@ function resetEmojis() {
             });
             bgColorRow.appendChild(bgColorInput); cBg1.appendChild(bgColorRow);
             // 背景图片上传
-            const bgImgRow = document.createElement('div'); bgImgRow.className='cs-row';
-            bgImgRow.innerHTML = `<div class="cs-icon">🖼</div><div class="cs-row-text"><span class="cs-row-label">聊天背景图片</span><span class="cs-row-desc">支持 jpg / png，也可粘贴 URL</span></div>`;
-            const bgImgWrap = document.createElement('div'); bgImgWrap.style.display='flex'; bgImgWrap.style.gap='4px'; bgImgWrap.style.alignItems='center';
+            const bgImgRow = document.createElement('div'); bgImgRow.className='cs-row'; bgImgRow.style.flexDirection='column'; bgImgRow.style.alignItems='stretch'; bgImgRow.style.gap='6px';
+            const bgImgHead = document.createElement('div'); bgImgHead.style.display='flex'; bgImgHead.style.alignItems='center'; bgImgHead.style.gap='10px';
+            bgImgHead.innerHTML = `<div class="cs-icon">🖼</div><div class="cs-row-text"><span class="cs-row-label">聊天背景图片</span><span class="cs-row-desc">支持 jpg / png，也可粘贴 URL</span></div>`;
+            const bgImgWrap = document.createElement('div'); bgImgWrap.style.display='flex'; bgImgWrap.style.gap='4px'; bgImgWrap.style.alignItems='center'; bgImgWrap.style.flexShrink='0';
             const bgImgFile = document.createElement('input'); bgImgFile.type='file'; bgImgFile.accept='image/png,image/jpeg,image/gif'; bgImgFile.style.display='none';
             const bgImgBtn = document.createElement('button'); bgImgBtn.className='btn'; bgImgBtn.style.fontSize='0.7rem'; bgImgBtn.style.padding='4px 10px'; bgImgBtn.textContent='选择图片';
             const bgImgUrl = document.createElement('input'); bgImgUrl.type='text'; bgImgUrl.placeholder='或输入图片URL'; bgImgUrl.style.flex='1'; bgImgUrl.style.padding='4px 8px'; bgImgUrl.style.borderRadius='8px'; bgImgUrl.style.border='1px solid var(--bg_border)'; bgImgUrl.style.fontSize='0.72rem';
@@ -6711,7 +6860,7 @@ function resetEmojis() {
                 appearance.chatBgImage = ''; bgImgUrl.value=''; saveAppearance(); showToast('背景图片已清除');
             };
             bgImgWrap.appendChild(bgImgBtn); bgImgWrap.appendChild(bgImgUrl); bgImgWrap.appendChild(bgImgClear);
-            bgImgRow.appendChild(bgImgWrap); cBg1.appendChild(bgImgRow);
+            bgImgRow.appendChild(bgImgHead); bgImgRow.appendChild(bgImgWrap); cBg1.appendChild(bgImgRow);
             bgImgRow.appendChild(bgImgFile);
             // 背景透明度
             const bgOpRow = document.createElement('div'); bgOpRow.className='cs-row';
@@ -7307,7 +7456,9 @@ function resetEmojis() {
             openModal(doodleModal);
             const c = document.getElementById('doodleCanvas');
             resizeDoodleCanvas(c);
-            renderDoodleToolbar(); renderDoodleGallery(); clearDoodle(true);
+            renderDoodleToolbar(); renderDoodleGallery();
+            // 不自动清空画布，保留上次内容
+            if (!doodleUndo.length) { doodleUndo = [c.toDataURL('image/png')]; }
         }
         function resizeDoodleCanvas(c) {
             if (!c) return;
@@ -7347,9 +7498,6 @@ function resetEmojis() {
             const bar = document.getElementById('doodleToolbar'); if (!bar) return;
             const pal = DOODLE_PALETTE.map(function(c){ return '<span class="sw '+(c===doodleColor?'active':'')+'" data-c="'+c+'" style="background:'+c+';"></span>'; }).join('');
             bar.innerHTML = ''
-                + '<div class="role-switch" id="doodleRoleSwitch">'
-                + '<div class="chip '+(doodleRole==='dreamer'?'active':'')+'" data-role="dreamer">🎀 梦女画</div>'
-                + '<div class="chip '+(doodleRole==='angle'?'active':'')+'" data-role="angle">🌙 梦角画</div></div> '
                 + '<select id="ddTool">'
                 + '<option value="pencil"'+(doodleTool==='pencil'?' selected':'')+'>✏️ 铅笔</option>'
                 + '<option value="marker"'+(doodleTool==='marker'?' selected':'')+'>🖊️ 马克笔</option>'
@@ -7362,16 +7510,20 @@ function resetEmojis() {
                 + '<button class="mini-btn" id="ddRedo">↷ 重做</button> '
                 + '<button class="mini-btn danger" id="ddClear">🧹 清空</button> '
                 + '<button class="mini-btn primary" id="ddSave">💾 保存</button>';
-            bar.querySelectorAll('#doodleRoleSwitch .chip').forEach(function(x){
-                x.onclick = function(){
-                    doodleRole = x.dataset.role;
-                    renderDoodleToolbar();
-                    // 选择梦角画时，梦角自主作画
-                    if (doodleRole === 'angle') {
-                        angleAutoDraw('doodle');
-                    }
-                };
-            });
+            // 绑定 HTML 中已有的角色切换
+            const htmlRoleSwitch = document.getElementById('doodleRoleSwitch');
+            if (htmlRoleSwitch) {
+                htmlRoleSwitch.querySelectorAll('.chip').forEach(function(x){
+                    x.onclick = function(){
+                        doodleRole = x.dataset.role;
+                        htmlRoleSwitch.querySelectorAll('.chip').forEach(function(c){ c.classList.toggle('active', c===x); });
+                        // 选择梦角画时，梦角自主作画
+                        if (doodleRole === 'angle') {
+                            angleAutoDraw('doodle');
+                        }
+                    };
+                });
+            }
             bar.querySelectorAll('.sw').forEach(function(sw){
                 sw.onclick = function(){ doodleColor = sw.dataset.c; renderDoodleToolbar(); };
             });
@@ -7497,17 +7649,20 @@ function resetEmojis() {
                 t.innerHTML = ''
                     + '<select><option value="pencil">✏️ 铅笔</option><option value="marker">🖊️ 马克笔</option><option value="eraser">🧽 橡皮</option></select> '
                     + '<span class="palette">'+pal+'</span> '
+                    + '<input type="color" value="#111111" title="自定义颜色" style="width:26px;height:26px;padding:0;border:1px solid var(--bg_border);border-radius:6px;cursor:pointer;background:transparent;"> '
                     + '<span style="font-size:0.68rem;color:var(--text_muted);">粗细:</span> '
                     + '<input type="range" min="1" max="28" value="4"> '
                     + '<button class="mini-btn danger">🧹 清空</button>';
                 c.parentElement.parentElement.insertBefore(t, c.parentElement);
                 const selectEl = t.querySelector('select');
                 const colorSws = t.querySelectorAll('.sw');
+                const colorPicker = t.querySelector('input[type=color]');
                 const range = t.querySelector('input[type=range]');
                 const clr = t.querySelector('.mini-btn.danger');
                 selectEl.onchange = function(){ tool = selectEl.value; };
                 range.oninput = function(){ w = +range.value; };
-                colorSws.forEach(function(s){ s.onclick = function(){ col = s.dataset.c; colorSws.forEach(function(x){x.classList.toggle('active', x===s);}); }; });
+                colorSws.forEach(function(s){ s.onclick = function(){ col = s.dataset.c; colorPicker.value = colorToHex(s.dataset.c); colorSws.forEach(function(x){x.classList.toggle('active', x===s);}); }; });
+                colorPicker.oninput = function(){ col = colorPicker.value; colorSws.forEach(function(x){x.classList.remove('active');}); };
                 clr.onclick = function(){ ctx.save(); ctx.globalCompositeOperation='source-over'; ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,c.width,c.height); ctx.restore(); };
             }
             function pos(e){
@@ -7875,10 +8030,28 @@ function resetEmojis() {
                 calYear = y; calMonth = m; renderCalendar();
             });
             // 心情日记
-            const diaryAddUser = document.getElementById('diaryAddUserBtn');
-            const diaryAddAngle = document.getElementById('diaryAddAngleBtn');
-            if (diaryAddUser) diaryAddUser.addEventListener('click', function(){ addDiaryEntry('user'); });
-            if (diaryAddAngle) diaryAddAngle.addEventListener('click', function(){ addDiaryEntry('angle'); });
+            const diaryOwnerSwitch = document.getElementById('diaryOwnerSwitch');
+            if (diaryOwnerSwitch) {
+                diaryOwnerSwitch.querySelectorAll('.chip').forEach(function(chip){
+                    chip.addEventListener('click', function(){
+                        diaryOwnerSwitch.querySelectorAll('.chip').forEach(function(c){ c.classList.toggle('active', c===chip); });
+                    });
+                });
+            }
+            const diaryConfirmBtn = document.getElementById('diaryConfirmBtn');
+            const diaryKeepBtn = document.getElementById('diaryKeepBtn');
+            const diaryClearBtn = document.getElementById('diaryClearBtn');
+            if (diaryConfirmBtn) diaryConfirmBtn.addEventListener('click', function(){ addDiaryEntry(getDiaryOwner()); });
+            if (diaryKeepBtn) diaryKeepBtn.addEventListener('click', function(){
+                const inp = document.getElementById('diaryInput');
+                if (inp && inp.value.trim()) {
+                    showToast('已保留，可继续编辑续写');
+                }
+            });
+            if (diaryClearBtn) diaryClearBtn.addEventListener('click', function(){
+                const inp = document.getElementById('diaryInput');
+                if (inp) inp.value = '';
+            });
             // 日记 emoji 快捷插入
             const diaryEmojiQuick = document.getElementById('diaryEmojiQuick');
             if (diaryEmojiQuick) {
@@ -7973,6 +8146,22 @@ function resetEmojis() {
             sideOverlay.addEventListener('click', closeSidePanel);
             // 底部上弹侧边栏
             arrowUpBtn.addEventListener('click', toggleBottomSheet);
+            // 点击遮罩关闭底部栏
+            const bsBackdrop = document.getElementById('bottomSheetBackdrop');
+            if (bsBackdrop) bsBackdrop.addEventListener('click', closeBottomSheet);
+            // 顶部悬浮栏双击退出沉浸模式
+            const topBar = document.querySelector('.top-bar');
+            if (topBar) {
+                topBar.addEventListener('dblclick', function(){
+                    const app = document.getElementById('app');
+                    if (app && app.classList.contains('immersive')) {
+                        app.classList.remove('immersive');
+                        chatImmersive = false;
+                        saveAppearance();
+                        showToast('已退出沉浸模式');
+                    }
+                });
+            }
             // 底部按钮
             bottomCallBtn.addEventListener('click', () => { closeBottomSheet();
                 openModal(callModal); });
@@ -8344,7 +8533,7 @@ function resetEmojis() {
                 fi.click();
             });
             emojiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); addEmoji(); } });
-            // Emoji / 颜文字 切换
+            // Emoji / 颜文字 / 表情包 切换
             document.querySelectorAll('.emoji-type-tab').forEach(function(tab){
                 tab.addEventListener('click', function(){
                     document.querySelectorAll('.emoji-type-tab').forEach(function(t){ t.classList.remove('active'); });
@@ -8354,13 +8543,24 @@ function resetEmojis() {
                     emojiSelected.clear();
                     emojiSelectMode = false;
                     if (document.getElementById('emojiSelectBtn')) document.getElementById('emojiSelectBtn').textContent = '☑ 选择';
-                    // 确保 kaomoji 默认分组存在
+                    const uploadBtn = document.getElementById('uploadEmojiBtn');
+                    const inputEl = document.getElementById('emojiInput');
+                    // 确保各类型默认分组存在
                     if (emojiType === 'kaomoji') {
                         if (!appearance.kaomojiGroups) appearance.kaomojiGroups = {};
                         if (!appearance.kaomojiGroups.default) appearance.kaomojiGroups.default = [...DEFAULT_KAOMOJIS];
-                        if (emojiInput) emojiInput.placeholder = '空行分隔多条颜文字（多行大型颜文字用空行隔开）';
+                        if (inputEl) inputEl.placeholder = '空行分隔多条颜文字（多行大型颜文字用空行隔开）';
+                        if (inputEl) inputEl.style.display = '';
+                        if (uploadBtn) uploadBtn.style.display = 'none';
+                    } else if (emojiType === 'sticker') {
+                        if (!appearance.stickerGroups) appearance.stickerGroups = { default: [] };
+                        if (inputEl) inputEl.placeholder = '或粘贴图片URL（http开头）';
+                        if (inputEl) inputEl.style.display = '';
+                        if (uploadBtn) uploadBtn.style.display = '';
                     } else {
-                        if (emojiInput) emojiInput.placeholder = '一行一个表情或Emoji（支持批量）';
+                        if (inputEl) inputEl.placeholder = '一行一个表情或Emoji（支持批量）';
+                        if (inputEl) inputEl.style.display = '';
+                        if (uploadBtn) uploadBtn.style.display = 'none';
                     }
                     renderEmojis();
                 });
@@ -8379,20 +8579,55 @@ function resetEmojis() {
             });
             addPatBtn.addEventListener('click', addPat);
             patInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); addPat(); } });
+            // 拍一拍格式切换
+            const patFormatSelect = document.getElementById('patFormatSelect');
+            const patVerbInput = document.getElementById('patVerbInput');
+            const patFormatHint = document.getElementById('patFormatHint');
+            const patPh = {
+                default: '一行一条拍一拍内容（如：肩膀）',
+                bare: '直接点击添加，无需输入内容',
+                verbDe: '输入部位（如：头、肩膀）',
+                verb: '输入部位（如：屁屁、脸蛋）',
+                quote: '输入要说的话（如：我想你了）'
+            };
+            const patHint = {
+                default: '💡 {主角}拍了拍{对方}的X，X为输入内容',
+                bare: '💡 {主角}拍了拍{对方}（无后缀）',
+                verbDe: '💡 {主角}{动词}{对方}的{部位}',
+                verb: '💡 {主角}{动词}{对方}{部位}',
+                quote: '💡 {主角}拍了拍{对方}说："输入内容"'
+            };
+            function syncPatFormatUI() {
+                const fmt = patFormatSelect.value;
+                patVerbInput.style.display = (fmt === 'verbDe' || fmt === 'verb') ? 'inline-block' : 'none';
+                patInput.placeholder = patPh[fmt] || '';
+                if (patFormatHint) patFormatHint.textContent = patHint[fmt] || '';
+            }
+            if (patFormatSelect) patFormatSelect.addEventListener('change', syncPatFormatUI);
+            syncPatFormatUI();
             // 拍一拍快捷发送
             const patQuickSendBtn = document.getElementById('patQuickSendBtn');
             if (patQuickSendBtn) patQuickSendBtn.addEventListener('click', function(){
+                const fmt = patFormatSelect.value;
+                const verb = patVerbInput.value.trim();
                 const val = patInput.value.trim();
-                if (!val) { showToast('请输入拍一拍内容'); return; }
+                let encoded = '';
+                if (fmt === 'bare') encoded = '¶bare';
+                else if (fmt === 'verbDe') { if (!verb || !val) { showToast('请输入动词和部位'); return; } encoded = `¶verbDe|${verb}|${val}`; }
+                else if (fmt === 'verb') { if (!verb || !val) { showToast('请输入动词和部位'); return; } encoded = `¶verb|${verb}|${val}`; }
+                else if (fmt === 'quote') { if (!val) { showToast('请输入要说的话'); return; } encoded = `¶quote|${val}`; }
+                else { if (!val) { showToast('请输入拍一拍内容'); return; } encoded = val; }
                 const saveQuick = document.getElementById('patSaveQuick')?.checked;
-                if (saveQuick && !patQuickReplies.includes(val)) {
-                    patQuickReplies.push(val);
+                if (saveQuick && !patQuickReplies.includes(encoded)) {
+                    patQuickReplies.push(encoded);
                     saveFullProfile();
                     renderPatQuickBar();
                 }
-                const text = `${userName}拍了拍${angleName}的${val}`;
+                const parsed = parsePat(encoded);
+                const text = renderPatText(parsed, userName, angleName);
                 showPokeCenter(text);
                 patInput.value = '';
+                patVerbInput.value = '';
                 if (document.getElementById('patSaveQuick')) document.getElementById('patSaveQuick').checked = false;
                 closeModal(document.getElementById('patModal'));
             });
@@ -8414,21 +8649,60 @@ function resetEmojis() {
                     handleSend();
                 }
             });
-            document.getElementById('profileClick').addEventListener('click', () => {
-                openModal(settingsModal);
-            });
-            // 梦女头像点击 → 梦角拍一拍梦女
+            // 顶栏梦角头像：单击进设置，双击拍一拍（梦女拍梦角）
+            const profileClick = document.getElementById('profileClick');
+            let profileClickTimer = null;
+            if (profileClick) {
+                profileClick.addEventListener('click', function(){
+                    if (profileClickTimer) return;
+                    profileClickTimer = setTimeout(function(){
+                        profileClickTimer = null;
+                        openModal(settingsModal);
+                    }, 220);
+                });
+                profileClick.addEventListener('dblclick', function(ev){
+                    ev.preventDefault();
+                    if (profileClickTimer) { clearTimeout(profileClickTimer); profileClickTimer = null; }
+                    const allPats = [];
+                    for (const g in patGroups) allPats.push(...patGroups[g]);
+                    const pat = allPats.length ? allPats[Math.floor(Math.random()*allPats.length)] : '';
+                    const parsed = parsePat(pat);
+                    const text = renderPatText(parsed, userName, angleName);
+                    showPokeCenter(text);
+                    const av = document.getElementById('angleAvatarDisplay');
+                    if (av) {
+                        av.style.animation = 'none';
+                        void av.offsetWidth;
+                        av.style.animation = 'pokeShake .4s ease';
+                    }
+                });
+            }
+            // 顶栏头像：单击进设置，双击拍一拍
             const dreamerAv = document.getElementById('dreamerAvatarDisplay');
-            if (dreamerAv) dreamerAv.addEventListener('click', function(){
-                const retPats = [];
-                for (const g in patGroups) retPats.push(...patGroups[g]);
-                const ret = retPats.length ? retPats[Math.floor(Math.random()*retPats.length)] : '';
-                const retText = ret ? `${angleName}拍了拍${userName} ${ret}` : `${angleName}拍了拍${userName}`;
-                showPokeCenter(retText);
-                dreamerAv.style.animation = 'none';
-                void dreamerAv.offsetWidth;
-                dreamerAv.style.animation = 'pokeShake .4s ease';
-            });
+            let dreamerClickTimer = null;
+            if (dreamerAv) {
+                dreamerAv.addEventListener('click', function(){
+                    if (dreamerClickTimer) return;
+                    dreamerClickTimer = setTimeout(function(){
+                        dreamerClickTimer = null;
+                        openModal(settingsModal);
+                    }, 220);
+                });
+                dreamerAv.addEventListener('dblclick', function(ev){
+                    ev.preventDefault();
+                    if (dreamerClickTimer) { clearTimeout(dreamerClickTimer); dreamerClickTimer = null; }
+                    const allPats = [];
+                    for (const g in patGroups) allPats.push(...patGroups[g]);
+                    const pat = allPats.length ? allPats[Math.floor(Math.random()*allPats.length)] : '';
+                    const parsed = parsePat(pat);
+                    // 双击梦女头像 → 梦女拍自己
+                    const text = renderPatText(parsed, userName, '自己');
+                    showPokeCenter(text);
+                    dreamerAv.style.animation = 'none';
+                    void dreamerAv.offsetWidth;
+                    dreamerAv.style.animation = 'pokeShake .4s ease';
+                });
+            }
             chatBox.addEventListener('click', () => userInput.focus());
             document.addEventListener('keydown', function(e){
                 if (e.key === 'Escape') {
@@ -8446,23 +8720,18 @@ function resetEmojis() {
                     }
                 }
             });
-            // Bottom sheet: add extra group items
-            const bsg = document.querySelector('.bottom-sheet-grid');
-            if (bsg && !document.getElementById('bottomBoardBtn')) {
-                const oldM = bsg.querySelector('.sheet-item[style*="opacity"]'); if (oldM && oldM.parentNode) oldM.parentNode.removeChild(oldM);
-                const items = [
-                    {id:'bottomBoardBtn', icon:'📋', label:'留言板', onclick: function(){ closeBottomSheet(); openBoardModal(); }},
-                    {id:'bottomWishBtn',  icon:'🌳', label:'许愿树', onclick: function(){ closeBottomSheet(); openWishModal(); }},
-                    {id:'bottomRpsBtn',   icon:'✊', label:'猜拳',   onclick: function(){ closeBottomSheet(); openRpsModal(); }},
-                    {id:'bottomDoodleBtn',icon:'🎨', label:'涂鸦',   onclick: function(){ closeBottomSheet(); openDoodleModal(); }},
-                    {id:'bottomDGBtn',    icon:'🖌️', label:'你画我猜', onclick: function(){ closeBottomSheet(); openDrawGuessModal(); }}
-                ];
-                items.forEach(function(it){
-                    const d = document.createElement('div'); d.className = 'sheet-item'; d.id = it.id;
-                    d.innerHTML = '<span class="icon">'+it.icon+'</span><span class="label">'+it.label+'</span>';
-                    d.addEventListener('click', it.onclick); bsg.appendChild(d);
-                });
+            // Bottom sheet: 绑定已有按钮的事件
+            function bindSheetBtn(id, handler) {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('click', handler);
             }
+            bindSheetBtn('bottomBoardBtn', function(){ closeBottomSheet(); openBoardModal(); });
+            bindSheetBtn('bottomWishBtn',  function(){ closeBottomSheet(); openWishModal(); });
+            bindSheetBtn('bottomRpsBtn',   function(){ closeBottomSheet(); openRpsModal(); });
+            bindSheetBtn('bottomDoodleBtn',function(){ closeBottomSheet(); openDoodleModal(); });
+            bindSheetBtn('bottomDGBtn',    function(){ closeBottomSheet(); openDrawGuessModal(); });
+            bindSheetBtn('bottomFavBtn',   function(){ closeBottomSheet(); openFavModal(); });
+            bindSheetBtn('bottomNoteBtn',  function(){ closeBottomSheet(); openNoteModal(); });
             // Auto-render once after init for layout-dependent widths
             setTimeout(function(){ if (wishModal && wishModal.classList.contains('active')) renderWishTree(); }, 50);
         }
