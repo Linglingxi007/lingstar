@@ -2202,10 +2202,13 @@ textarea.input,
 .history-list {
     max-height: 260px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     border: 1px dashed var(--bg_border);
     border-radius: 10px;
     padding: 4px;
     margin-top: 4px;
+    flex-shrink: 0;
+    min-height: 44px;
 }
 .history-list .h-item {
     padding: 6px 8px;
@@ -7514,12 +7517,12 @@ function resetEmojis() {
             ctx.lineWidth = 2 + Math.random()*3;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            const strokeCount = 3 + Math.floor(Math.random()*5);
+            const strokeCount = 5 + Math.floor(Math.random()*6);
             // 逐笔延时绘制（梦角绘画时间延长，可见过程）
             let delay = 0;
             for (let i=0;i<strokeCount;i++){
                 const myColor = colors[Math.floor(Math.random()*colors.length)];
-                const segs = 4 + Math.floor(Math.random()*6);
+                const segs = 5 + Math.floor(Math.random()*7);
                 // 预生成一条笔画的所有点
                 const points = [];
                 let x = Math.random()*W, y = Math.random()*H;
@@ -7533,7 +7536,7 @@ function resetEmojis() {
                 }
                 // 每条笔画分段绘制，模拟作画过程
                 const strokeDelay = delay;
-                const strokeDuration = 600 + Math.floor(Math.random()*400); // 每笔 0.6~1s
+                const strokeDuration = 900 + Math.floor(Math.random()*700); // 每笔 0.9~1.6s
                 angleDrawTimers.push(setTimeout(function(){
                     ctx.strokeStyle = myColor;
                     ctx.beginPath();
@@ -7547,7 +7550,7 @@ function resetEmojis() {
                         }, (strokeDuration / points.length) * idx));
                     });
                 }, strokeDelay));
-                delay += strokeDuration + 300; // 笔画间隔 0.3s
+                delay += strokeDuration + 500; // 笔画间隔 0.5s
             }
             angleDrawTimers.push(setTimeout(function(){
                 showToast('🌙 梦角画好啦～');
@@ -7879,6 +7882,7 @@ function resetEmojis() {
             };
         }
         // 梦角答案库：当梦女绘画时，梦角从答案库抽取回答
+        const DRAW_GUESS_MAX = 50; // 你画我猜历史记录上限
         const DG_ANGLE_ANSWERS = ['太阳','月亮','星星','花朵','猫咪','小狗','房子','汽车','飞机','鱼','树','云','爱心','雨伞','蛋糕','苹果','香蕉','蝴蝶','彩虹','雪人','小鸟','兔子','钟表','电视','手机','书','笔','椅子','桌子','杯子','灯泡','钥匙','气球','风筝','冰淇淋','汉堡','披萨','面条','糖果','礼物','雪花','火焰','水滴','山','海','河','桥','塔','门','窗','床','沙发','枕头','被子','衣服','鞋子','帽子','眼镜','手表','项链','戒指','耳环','钱包','背包','雨衣','手套','围巾','袜子','裙子','裤子','衬衫','外套','梦','心','吻','泪','笑','爱','抱','手','眼','唇','发','月','星','花','风','雨','雪','云','海','梦','光','影'];
         let dgAngleGuessTimer = null;
         function dgStartTimer() {
