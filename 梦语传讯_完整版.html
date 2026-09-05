@@ -519,11 +519,14 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            opacity: 1;
+        }
+        .modal-overlay.active .modal-content {
             animation: modalIn 0.2s ease;
         }
         @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.94) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from { transform: scale(0.94) translateY(10px); }
+            to { transform: scale(1) translateY(0); }
         }
         .modal-header {
             display: flex;
@@ -3540,6 +3543,7 @@ textarea.input,
     <span id="closeBubbleModal"></span>
     <span id="openBgFontBtn"></span>
     <span id="openBubbleBtn"></span>
+</div>
 <!-- ===== 模拟通话弹窗 ===== -->
 <div class="modal-overlay" id="callModal">
     <div class="modal-content" style="max-width:360px; text-align:center;">
@@ -3566,7 +3570,6 @@ textarea.input,
             </div>
         </div>
     </div>
-</div>
 </div>
 
 <script>
@@ -5522,7 +5525,7 @@ function resetEmojis() {
                     item.className = 'mod-item';
                     if (patSelectMode && patSelected.has(realIdx)) item.classList.add('selected');
                     const label = gName !== 'default' ? `<span class="group-label">${gName}</span>` : '';
-                    item.innerHTML = `${p} ${label} <span class="del" data-pat="${p}">✕</span>`;
+                    item.innerHTML = `${patDisplayLabel(p)} ${label} <span class="del" data-pat="${escapeHtml(p)}">✕</span>`;
                     if (patSelectMode) {
                         item.style.cursor = 'pointer';
                         item.addEventListener('click', function(e) {
