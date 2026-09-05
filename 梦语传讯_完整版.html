@@ -3578,10 +3578,21 @@ textarea.input,
 <script>
     (function() {
         "use strict";
+        // ===== 弹窗变量（统一在 init 中赋值） =====
+        var boardModal, wishModal, rpsModal, doodleModal, drawGuessModal, dataModal,
+            phraseModal, histModal, calendarModal, diaryModal, letterModal,
+            letterPaperModal, confirmModal, chatSettingsModal, miscModal, callModal,
+            cardModal, emojiModal, patModal, themeModal, settingsModal, nicknameModal, avatarModal;
         // ===== 默认数据 =====
-        const DEFAULT_CARDS = [];
+        const DEFAULT_CARDS = [
+            "想你了", "晚安", "今天天气真好", "一起吃饭吧",
+            "好梦", "记得想我", "今天开心吗", "抱抱你",
+            "今天的风很温柔", "月亮很美", "要好好吃饭哦", "我一直都在"
+        ];
+        const DOODLE_MAX = 50;
+        const DRAW_GUESS_MAX = 50;
         const DEFAULT_EMOJIS = ["😊","❤️","💕","🥺","😽","🌸","🌙","✨","💗","🤗","🥰","😘","😚","😌","☺️","😏"];
-        const DEFAULT_PATS = ["¶verbDe|轻轻拍了拍|头","¶verbDe|捏了捏|脸蛋","¶verbDe|摸了摸|头发","¶verb|抱了抱|","¶verbDe|戳了戳|脸颊","¶verbDe|牵了牵|小手","¶verbDe|拍了拍|肩膀","¶verbDe|揉了揉|脑袋","¶verbDe|轻轻拍了拍|后背","¶verbDe|轻轻摸了摸|手"];
+        // const DEFAULT_PATS = ["¶verbDe|轻轻拍了拍|头","¶verbDe|捏了捏|脸蛋","¶verbDe|摸了摸|头发","¶verb|抱了抱|","¶verbDe|戳了戳|脸颊","¶verbDe|牵了牵|小手","¶verbDe|拍了拍|肩膀","¶verbDe|揉了揉|脑袋","¶verbDe|轻轻拍了拍|后背","¶verbDe|轻轻摸了摸|手"]; // 已废弃，使用 DEFAULT_PAT_GROUPS 替代
         // 拍一拍默认分组（按类别）
         const DEFAULT_PAT_GROUPS = {
             '轻拍类': ['¶verbDe|拍了拍|肩膀', '¶verbDe|轻轻拍了拍|头', '¶verbDe|轻轻拍了拍|后背'],
@@ -4046,7 +4057,6 @@ textarea.input,
         const sideEmojiBtn = document.getElementById('sideEmojiBtn');
         const sidePatBtn = document.getElementById('sidePatBtn');
         // 设置弹窗（外观设置主窗口）
-        const settingsModal = document.getElementById('settingsModal');
         const closeSettingsBtn = document.getElementById('closeSettingsBtn');
         // 外观设置子板块按钮
         const openThemeBtn = document.getElementById('openThemeBtn');
@@ -4055,15 +4065,12 @@ textarea.input,
         const openAvatarBtn = document.getElementById('openAvatarBtn');
         const openNicknameBtn = document.getElementById('openNicknameBtn');
         // 子板块弹窗
-        const themeModal = document.getElementById('themeModal');
         const closeThemeModal = document.getElementById('closeThemeModal');
         const bgFontModal = document.getElementById('bgFontModal');
         const closeBgFontModal = document.getElementById('closeBgFontModal');
         const bubbleModal = document.getElementById('bubbleModal');
         const closeBubbleModal = document.getElementById('closeBubbleModal');
-        const nicknameModal = document.getElementById('nicknameModal');
         const closeNicknameModal = document.getElementById('closeNicknameModal');
-        const avatarModal = document.getElementById('avatarModal');
         const closeAvatarModal = document.getElementById('closeAvatarModal');
         // 昵称
         const userNameInput = document.getElementById('userNameInput');
@@ -4151,7 +4158,6 @@ const angleAvatarInput = document.getElementById('angleAvatarInput');
         const patCount = document.getElementById('patCount');
         const patAllCount = document.getElementById('patAllCount');
         // 通话元素
-        const callModal = document.getElementById('callModal');
         const closeCallModal = document.getElementById('closeCallModal');
         const callBtn = document.getElementById('callBtn');
         const hangupBtn = document.getElementById('hangupBtn');
@@ -7882,7 +7888,6 @@ function resetEmojis() {
             };
         }
         // 梦角答案库：当梦女绘画时，梦角从答案库抽取回答
-        const DRAW_GUESS_MAX = 50; // 你画我猜历史记录上限
         const DG_ANGLE_ANSWERS = ['太阳','月亮','星星','花朵','猫咪','小狗','房子','汽车','飞机','鱼','树','云','爱心','雨伞','蛋糕','苹果','香蕉','蝴蝶','彩虹','雪人','小鸟','兔子','钟表','电视','手机','书','笔','椅子','桌子','杯子','灯泡','钥匙','气球','风筝','冰淇淋','汉堡','披萨','面条','糖果','礼物','雪花','火焰','水滴','山','海','河','桥','塔','门','窗','床','沙发','枕头','被子','衣服','鞋子','帽子','眼镜','手表','项链','戒指','耳环','钱包','背包','雨衣','手套','围巾','袜子','裙子','裤子','衬衫','外套','梦','心','吻','泪','笑','爱','抱','手','眼','唇','发','月','星','花','风','雨','雪','云','海','梦','光','影'];
         let dgAngleGuessTimer = null;
         function dgStartTimer() {
@@ -8034,6 +8039,29 @@ function resetEmojis() {
 
         // ===== 初始化 =====
         function init() {
+            boardModal = document.getElementById('boardModal');
+            wishModal = document.getElementById('wishModal');
+            rpsModal = document.getElementById('rpsModal');
+            doodleModal = document.getElementById('doodleModal');
+            drawGuessModal = document.getElementById('drawGuessModal');
+            dataModal = document.getElementById('dataModal');
+            phraseModal = document.getElementById('phraseModal');
+            histModal = document.getElementById('histModal');
+            calendarModal = document.getElementById('calendarModal');
+            diaryModal = document.getElementById('diaryModal');
+            letterModal = document.getElementById('letterModal');
+            letterPaperModal = document.getElementById('letterPaperModal');
+            confirmModal = document.getElementById('confirmModal');
+            chatSettingsModal = document.getElementById('chatSettingsModal');
+            miscModal = document.getElementById('miscModal');
+            callModal = document.getElementById('callModal');
+            cardModal = document.getElementById('cardModal');
+            emojiModal = document.getElementById('emojiModal');
+            patModal = document.getElementById('patModal');
+            themeModal = document.getElementById('themeModal');
+            settingsModal = document.getElementById('settingsModal');
+            nicknameModal = document.getElementById('nicknameModal');
+            avatarModal = document.getElementById('avatarModal');
             loadProfile();
             loadAppearance();
             // 加载当前角色数据到全局变量
@@ -8463,8 +8491,6 @@ function resetEmojis() {
             // ===== 新增：聊天设置 / 外观细节 两个入口 =====
             const openChatSettingsBtn = document.getElementById('openChatSettingsBtn');
             const openMiscBtn = document.getElementById('openMiscBtn');
-            const chatSettingsModal = document.getElementById('chatSettingsModal');
-            const miscModal = document.getElementById('miscModal');
             const closeChatSettingsModal = document.getElementById('closeChatSettingsModal');
             const closeMiscModal = document.getElementById('closeMiscModal');
             const chatResetBtn = document.getElementById('chatResetBtn');
